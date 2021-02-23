@@ -21,14 +21,14 @@
       <a class="navbar-item">
         Twoja próba
       </a>
+	  {% if request.user.scout.is_team_leader or request.user.scout.is_patrol_leader %}
+      <a class="navbar-item">
+        Zarządzaj próbami
+      </a>
+	  {% endif %}
 	  {% if request.user.is_superuser %}
       <a class="navbar-item"  href="/admin">
         Panel Administratora
-      </a>
-	  {% endif %}
-	  {% if request.user.scout.is_team_leader or request.user.scout.is_patrol_leader %}
-      <a class="navbar-item"  href="/admin">
-        Zarządzaj próbami
       </a>
 	  {% endif %}
       <div class="navbar-item has-dropdown is-hoverable">

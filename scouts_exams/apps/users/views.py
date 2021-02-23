@@ -55,7 +55,7 @@ def signup(request):
 
     return render(
         request,
-        "users/common.html",
+        "users/signup.html",
         {"forms": [user_form, scout_form], "info": "Załóż konto"},
     )
 
