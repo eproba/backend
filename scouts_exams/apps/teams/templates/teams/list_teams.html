@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+    <ul>
+	{% for team in teams %}
+		<li><a href="/teams/view/{{team.id}}">{{team}}</a></li>
+	{% empty %}
+		<p>Jeszcze nie ma z nami żadnej drużyny</p>
+	{% endfor %}
+    </ul>
+
+{% endblock %}

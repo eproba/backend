@@ -1,0 +1,95 @@
+<nav class="navbar is-transparent" role="navigation" aria-label="main navigation">
+{% load static %}
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{% url 'frontpage' %}">
+      <img src="{% static 'logo.png' %}" width="112">
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbar-menu" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item"  href="{% url 'frontpage' %}">
+        Strona główna
+      </a>
+
+      <a class="navbar-item">
+        Twoja próba
+      </a>
+	  {% if request.user.is_superuser %}
+      <a class="navbar-item"  href="/admin">
+        Panel Administratora
+      </a>
+	  {% endif %}
+	  {% if request.user.scout.is_team_leader or request.user.scout.is_patrol_leader %}
+      <a class="navbar-item"  href="/admin">
+        Zarządzaj próbami
+      </a>
+	  {% endif %}
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Więcej
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item"  href="{% url 'about' %}">
+            O nas
+          </a>
+          <a class="navbar-item"  href="{% url 'contact' %}">
+            Kontakt
+          </a>
+          <hr class="navbar-divider">
+          <a class="navbar-item"  href="{% url 'issue_contact' %}">
+            Zgłoś błąd na stronie
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+		  {% if request.user.is_authenticated %}
+		  <a href="{% url 'view_profile' %}" class="button is-primary">Profil</a>
+		  <a href="{% url 'logout' %}" class="button is-danger is-light">Wyloguj się</a>
+		  {% else %}
+		  <a href="{% url 'signup' %}" button class="button is-primary">Załóż konto</a>
+		  <a href="{% url 'login' %}" class="button is-light">Zaloguj się</a>
+		  {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!--
+  Messages framework installed here will always allow displaying messages below the navbar
+
+  Messages framework is described here: https://docs.djangoproject.com/en/3.1/ref/contrib/messages/
+
+  from django.contrib import messages
+  messages.add_message(request, messages.INFO, 'Hello world.')
+
+  Constant  Purpose
+  DEBUG     Development-related messages that will be ignored (or removed) in a production deployment
+  INFO      Informational messages for the user
+  SUCCESS   An action was successful, e.g. “Your profile was updated successfully”
+  WARNING   A failure did not occur but may be imminent
+  ERROR     An action was not successful or some other failure occurred
+-->
+{% if messages %}
+<div class="notification is-primary" style="position: relative">
+    {% for message in messages %}
+    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Błąd: {% endif %}
+        {{ message }}
+    </p>
+    {% endfor %}
+</div>
+{% endif %}

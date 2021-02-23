@@ -1,0 +1,34 @@
+<html>
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+
+  <title>e-próba</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <link href="{% static 'css/bulma.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'stylesheet.css' %}" rel="stylesheet" type="text/css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {% block headcontent %}
+  {% endblock %}
+
+</head>
+<body>
+<div class="container" id="container">
+  {% include "core/navbar.html" %}
+
+  {% block subnavbarcontent %}
+  {% endblock %}
+
+  <div class="container" style="position: relative; margin-bottom: 10vh;">
+      {% block content %}
+      {% endblock %}
+  </div>
+</div>
+<script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+
+</body>
+
+</html>

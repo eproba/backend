@@ -1,0 +1,10 @@
+#container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.inner {
+    min-width: 200px;
+    max-width: 1200px;
+    margin: 0 auto;
+}

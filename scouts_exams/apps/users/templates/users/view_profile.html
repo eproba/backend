@@ -1,0 +1,107 @@
+{% extends 'core/base.html' %}
+{% block content %}
+{% load socialaccount %}
+
+<div class="container" style="position:relative; width:100%;">
+  <h1 class="subtitle">{{ user.scout }}</h1>
+  <table class="table">
+    <tr>
+      <td>Drużyna</td>
+      <td><p>
+        {{ user.scout.team }}
+        {% if user.scout.is_team_leader %} - <b>Drużynowy</b>{% endif %}
+      </p></td>
+    </tr>
+    <tr>
+      <td>Zastęp</td>
+      <td><p>
+        {{ user.scout.patrol }}
+        {% if user.scout.is_patrol_leader %} - <b>Zastępowy</b>{% endif %}
+      </p></td>
+    </tr>
+  </table>
+</div>
+
+{% if allow_edit %}
+<br>
+<div class="rpgui-container framed-golden" style="position:relative; width:100%;">
+  <h3>Informacje prywatne</h3>
+  <table class="table">
+    <tr>
+      <td>Email</td>
+      <td><p>{{ user.email }}</p></td>
+    </tr>
+  </table>
+  <a href="{% url 'edit_profile' user.id %}">
+    <button class="button is-primary is-light">
+	  <span class="icon">
+		<i class="fas fa-user-edit"></i>
+	  </span>
+	  <span>Edytuj profil</span>
+	</button>
+  </a>
+  {% if user.has_usable_password %}
+  <a href="{% url 'change_password' user.id %}">
+    <button class="button is-success is-light">
+	  <span class="icon">
+		<i class="fas fa-key"></i>
+	  </span>
+	  <span>Zmień hasło</span>
+	</button>
+  </a>
+  {% endif %}
+  {% if not user.has_usable_password %}
+  <a href="{% url 'set_password' user.id %}">
+    <button class="button is-success is-light">
+	  <span class="icon">
+		<i class="fas fa-key"></i>
+	  </span>
+	  <span>Ustaw hasło</span>
+	</button>
+  </a>
+  {% endif %}
+  {% get_social_accounts user as accounts %}
+  {% if not accounts.google %}
+  <a href="/accounts/google/login/?process=connect">
+    <button class="button is-danger is-outlined">
+	  <span class="icon">
+		<i class="fab fa-google"></i>
+	  </span>
+	  <span>Połącz z Google</span>
+	</button>
+  </a>
+  {% endif %}
+  {% if accounts.google %}
+  <a href="{% url 'disconect_socials' %}">
+    <button class="button is-danger is-light">
+	  <span class="icon">
+		<i class="fab fa-google"></i>
+	  </span>
+	  <span>Połączono z Google</span>
+	</button>
+  </a>
+  {% endif %}
+  {% if not accounts.facebook %}
+  <a href="/accounts/facebook/login/?process=connect">
+    <button class="button is-link is-outlined">
+	  <span class="icon">
+		<i class="fab fa-facebook"></i>
+	  </span>
+	  <span>Połącz z Facebook</span>
+	</button>
+  </a>
+  {% endif %}
+  {% if accounts.facebook %}
+  <a href="{% url 'disconect_socials' %}">
+    <button class="button is-link is-light">
+	  <span class="icon">
+		<i class="fab fa-facebook"></i>
+	  </span>
+	  <span>Połączono z Facebook</span>
+	</button>
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
