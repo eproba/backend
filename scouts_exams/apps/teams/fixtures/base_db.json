@@ -5,8 +5,7 @@
     "fields": {
       "name": "45 Zielonogórska Drużyna Harcerzy im. Wigierczyków",
       "short_name": "45 ZDH",
-      "colors": "ciemnozielony",
-      "tax": "0.1"
+      "colors": "ciemnozielony"
     }
   },
   {
@@ -15,8 +14,7 @@
     "fields": {
       "name": "30 Zielonogórska Drużyna Harcerzy “Orlęta” im. Cichociemnych",
       "short_name": "30 ZDH",
-      "colors": "granatowy-biały",
-      "tax": "0.1"
+      "colors": "granatowy-biały"
     }
   },
   {
@@ -25,28 +23,16 @@
     "fields": {
       "name": "31 Zielonogórska Drużyna Harcerzy “Pająki” im. A. Małkowskiego",
       "short_name": "31 ZDH",
-      "colors": "granatowy-żółty",
-      "tax": "0.1"
+      "colors": "granatowy-żółty"
     }
   },
   {
     "model": "teams.team",
     "pk": 4,
     "fields": {
-      "name": "17 Poznańska Drużyna Harcerzy",
-      "short_name": "17 PDH",
-      "colors": "biały-czerwony",
-      "tax": "0.1"
-    }
-  },
-  {
-    "model": "teams.team",
-    "pk": 5,
-    "fields": {
       "name": "9 Zielonogórska Drużyna Harcerzy “Dukt-Zawisza”",
       "short_name": "9 ZDH",
-      "colors": "czarny-biały",
-      "tax": "0.2"
+      "colors": "czarny-biały"
     }
   },
   {
@@ -163,50 +149,10 @@
   },
   {
     "model": "teams.patrol",
-    "pk": 15,
-    "fields": {
-      "name": "17 PDH - Lew",
-      "team": 4
-    }
-  },
-  {
-    "model": "teams.patrol",
-    "pk": 16,
-    "fields": {
-      "name": "17 PDH - Gryf",
-      "team": 4
-    }
-  },
-  {
-    "model": "teams.patrol",
-    "pk": 17,
-    "fields": {
-      "name": "17 PDH - Bóbr",
-      "team": 4
-    }
-  },
-  {
-    "model": "teams.patrol",
-    "pk": 18,
-    "fields": {
-      "name": "17 PDH - V próbny",
-      "team": 4
-    }
-  },
-  {
-    "model": "teams.patrol",
-    "pk": 19,
-    "fields": {
-      "name": "17 PDH - bez zastępu",
-      "team": 4
-    }
-  },
-  {
-    "model": "teams.patrol",
     "pk": 20,
     "fields": {
       "name": "9 ZDH - Sokoły",
-      "team": 5
+      "team": 4
     }
   },
   {
@@ -214,7 +160,7 @@
     "pk": 21,
     "fields": {
       "name": "9 ZDH - Kruki",
-      "team": 5
+      "team": 4
     }
   },
   {
@@ -222,7 +168,7 @@
     "pk": 22,
     "fields": {
       "name": "9 ZDH - Muflony",
-      "team": 5
+      "team": 4
     }
   },
   {
@@ -230,7 +176,7 @@
     "pk": 23,
     "fields": {
       "name": "9 ZDH - Próbny",
-      "team": 5
+      "team": 4
     }
   },
   {
@@ -238,7 +184,7 @@
     "pk": 24,
     "fields": {
       "name": "9 ZDH - bez zastępu",
-      "team": 5
+      "team": 4
     }
   }
 ]

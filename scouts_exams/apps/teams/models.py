@@ -9,7 +9,6 @@ class Team(models.Model):
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=10)
     colors = models.CharField(max_length=100)
-    tax = models.FloatField()
 
     def __str__(self):
         return self.name

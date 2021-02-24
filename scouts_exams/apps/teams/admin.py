@@ -5,9 +5,8 @@ from apps.teams.models import Patrol, Team
 
 @admin.register(Team)
 class EventAdmin(admin.ModelAdmin):
-    fields = ("name", "short_name", "colors", "tax")
-    list_display = ("name", "short_name", "colors", "tax")
-    list_filter = ("tax",)
+    fields = ("name", "short_name", "colors")
+    list_display = ("name", "short_name", "colors")
 
 
 @admin.register(Patrol)

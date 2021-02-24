@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "frontpage"
 LOGOUT_REDIRECT_URL = "frontpage"
-SITE_ID = 2
+SITE_ID = 3
 
 # Application definition
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
     "apps.core",
+    "apps.exam.apps.ExamConfig",
     "apps.users",
     "apps.teams",
     "fontawesome-free",

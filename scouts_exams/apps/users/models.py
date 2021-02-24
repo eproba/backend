@@ -76,11 +76,3 @@ def update_profile_signal(sender, instance, created, **kwargs):
         Scout.objects.create(user=instance)
     instance.scout.save()
 
-
-class FreeDay(models.Model):
-    """
-    Dzień wolny osoby sprawdzającej zadania
-    """
-
-    user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True, default=None)
-    day = models.DateField(null=True, default=None)

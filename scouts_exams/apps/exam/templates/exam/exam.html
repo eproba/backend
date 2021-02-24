@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% if exams_list %}
+{% for exam in exams_list %}
+{% if request.user.id == exam.scout.user.id %}
+<div class="box">
+<h1 class="title">{{ exam }}</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Lp.</th>
+      <th>Zadanie</th>
+      <th>Zaliczone?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in exam.task_set.all %}
+	<tr>
+      <th>{{ forloop.counter }}</th>
+      <td>{{ task.task }}</td>
+	  {% if task.is_done %}
+      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+	  {% else %}
+		<td></td>
+	  {% endif %}
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+	<div class="box">
+	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+	</div>
+{% endif %}
+{% endfor %}
+{% else %}
+	<div class="box">
+	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+	</div>
+{% endif %}
+{% endblock %}

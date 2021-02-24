@@ -18,8 +18,8 @@
         Strona główna
       </a>
 
-      <a class="navbar-item">
-        Twoja próba
+      <a class="navbar-item"  href="{% url 'exam:exam' %}">
+        Twoje próby
       </a>
 	  {% if request.user.scout.is_team_leader or request.user.scout.is_patrol_leader %}
       <a class="navbar-item">
