@@ -60,19 +60,9 @@ class Scout(models.Model):
     def __str__(self):
         return f"{self.rank} {self.user.nickname}"
 
-    def get_minecraft_name(self):
-        return "_".join(
-            [
-                part
-                for part in self.rank.replace(".", "").split(" ") + [self.user.nickname]
-                if part
-            ]
-        )
-
 
 @receiver(models.signals.post_save, sender=User)
 def update_profile_signal(sender, instance, created, **kwargs):
     if created:
         Scout.objects.create(user=instance)
     instance.scout.save()
-

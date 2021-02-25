@@ -1,9 +1,9 @@
 [
   {
-    "model": "users.harcgameuser",
+    "model": "users.user",
     "pk": 1,
     "fields": {
-      "email": "druzynowy1@harcapo.pl",
+      "email": "druzynowy1@eproba.pl",
       "nickname": "Drużynowy 1",
       "is_active": true,
       "date_joined": "2020-11-15 00:00:00+01:00"
@@ -14,17 +14,16 @@
     "pk": 1,
     "fields": {
       "user": 1,
-      "initials": "DR1",
       "team": 1,
       "rank": "hehe",
       "is_team_leader": true
     }
   },
   {
-    "model": "users.harcgameuser",
+    "model": "users.user",
     "pk": 2,
     "fields": {
-      "email": "druzynowy2@harcapo.pl",
+      "email": "druzynowy2@eproba.pl",
       "nickname": "Drużynowy 2",
       "is_active": true,
       "date_joined": "2020-11-15 00:00:00+01:00"
@@ -35,17 +34,16 @@
     "pk": 2,
     "fields": {
       "user": 2,
-      "initials": "DR2",
       "team": 2,
       "rank": "hehe",
       "is_team_leader": true
     }
   },
   {
-    "model": "users.harcgameuser",
+    "model": "users.user",
     "pk": 3,
     "fields": {
-      "email": "druzynowy3@harcapo.pl",
+      "email": "druzynowy3@eproba.pl",
       "nickname": "Drużynowy 3",
       "is_active": true,
       "date_joined": "2020-11-16 00:00:00+01:00"
@@ -56,18 +54,9 @@
     "pk": 3,
     "fields": {
       "user": 3,
-      "initials": "DR3",
       "team": 3,
       "rank": "hehe",
       "is_team_leader": true
-    }
-  },
-  {
-    "model": "users.freeday",
-    "pk": 1,
-    "fields": {
-      "user": 3,
-      "day": "2020-11-16"
     }
   }
 ]

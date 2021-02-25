@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exam', '0004_auto_20210224_1049'),
+        ("exam", "0004_auto_20210224_1049"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='task',
-            name='key',
-            field=models.CharField(blank=True, default=b'gAAAAABgNik94ywc3ommzPAFVBkjNf9kddYqN-PWjKAswSzMy7vKE9edget_3biMCKnljuI4hyzWAFtE8GdDl_niG0_JSDxRHg==', max_length=200),
+            model_name="task",
+            name="key",
+            field=models.CharField(
+                blank=True,
+                default=b"gAAAAABgNik94ywc3ommzPAFVBkjNf9kddYqN-PWjKAswSzMy7vKE9edget_3biMCKnljuI4hyzWAFtE8GdDl_niG0_JSDxRHg==",
+                max_length=200,
+            ),
         ),
     ]

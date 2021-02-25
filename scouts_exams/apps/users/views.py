@@ -3,10 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import (
-    PasswordChangeForm,
-    SetPasswordForm,
-    UserChangeForm,
-    UserCreationForm,
+    PasswordChangeForm, SetPasswordForm, UserChangeForm, UserCreationForm,
 )
 from django.db import transaction
 from django.forms import Select
@@ -30,7 +27,7 @@ class ScoutCreationForm(forms.ModelForm):
 
         labels = {"patrol": "Zastęp"}
         widgets = {
-            "patrol": Select(attrs={"class": "rpgui-list"}),
+            "patrol": Select(),
         }
 
 

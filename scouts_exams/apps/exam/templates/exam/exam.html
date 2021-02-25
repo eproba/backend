@@ -1,6 +1,7 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
+{% if request.user.is_authenticated %}
 {% if exams_list %}
 {% for exam in exams_list %}
 {% if request.user.id == exam.scout.user.id %}
@@ -20,7 +21,9 @@
       <th>{{ forloop.counter }}</th>
       <td>{{ task.task }}</td>
 	  {% if task.is_done %}
-      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+	  {% elif task.is_await %}
+      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
 	  {% else %}
 		<td></td>
 	  {% endif %}
@@ -28,6 +31,22 @@
     {% endfor %}
   </tbody>
 </table>
+  <a href="{% url 'exam:submit_task' request.user.id exam.id %}">
+    <button class="button is-success is-light">
+	  <span class="icon">
+		<i class="fas fa-clipboard-check"></i>
+	  </span>
+	  <span>Wyślij prośbę o zatwierdzenie zadania</span>
+	</button>
+  </a>
+  <a href="{% url 'exam:sent_tasks' request.user.id exam.id %}">
+    <button class="button is-primary is-light">
+	  <span class="icon">
+		<i class="fas fa-paper-plane"></i>
+	  </span>
+	  <span>Wyslane prośby o zatwierdzenie</span>
+	</button>
+  </a>
 </div>
 {% else %}
 	<div class="box">
@@ -38,6 +57,11 @@
 {% else %}
 	<div class="box">
 	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+	</div>
+{% endif %}
+{% else %}
+	<div class="box">
+	Aby wyświetlić swoje próby musisz się najpierw zalogować.
 	</div>
 {% endif %}
 {% endblock %}

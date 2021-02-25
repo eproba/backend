@@ -20,25 +20,26 @@ from django.views.generic import TemplateView
 
 from apps.core.views import IssueContactView, contactView, frontpage
 from apps.users.views import (
-    change_password,
-    disconect_socials,
-    edit_profile,
-    finish_signup,
-    set_password,
-    signup,
-    view_profile,
+    change_password, disconect_socials, edit_profile, finish_signup,
+    set_password, signup, view_profile,
 )
+
 handler404 = TemplateView.as_view(template_name="sites/404.html")
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
-    path('exam/', include('apps.exam.urls')),
+    path("exam/", include("apps.exam.urls")),
     path(
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("", frontpage, name="frontpage"),
-    path("accounts/social/connections/", view_profile, name="socialaccount_connections", kwargs={"user_id": None}),
+    path(
+        "accounts/social/connections/",
+        view_profile,
+        name="socialaccount_connections",
+        kwargs={"user_id": None},
+    ),
     path("account/socials/disconect", disconect_socials, name="disconect_socials"),
     path("accounts/", include("allauth.urls")),
     path("signup/", signup, name="signup"),
