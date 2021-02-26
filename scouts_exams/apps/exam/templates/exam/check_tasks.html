@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% if request.user.is_authenticated %}
+{% if exams_list %}
+{% for exam in exams_list %}
+{% if exam.task_list %}
+<div class="box">
+<h1 class="title">{{ exam }}</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Lp.</th>
+      <th>Zadanie</th>
+	  <th>Data wysłania</th>
+      <th>Akcja</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in exam.task_list %}
+	<tr>
+      <th>{{ forloop.counter }}</th>
+      <td>{{ task.task }}</td>
+      <td>{{ task.approval_date }}</td>
+	  <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success " data-tooltip="Zaakceptuj prośbę"><a onclick="confirm_accept_task('{% url 'exam:accept_task' exam.id task.id %}')"><i class="far fa-check-circle greeniconcolor"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć prośbę"><a onclick="confirm_refuse_task('{% url 'exam:refuse_task' exam.id task.id %}')"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+	<div class="box">
+	Nie masz żadnych prób do sprawdzenia.
+	</div>
+{% endif %}
+{% endfor %}
+{% else %}
+	<div class="box">
+	Nie masz żadnych prób do sprawdzenia.
+	</div>
+{% endif %}
+{% else %}
+	<div class="box">
+	Aby wyświetlić swoje próby musisz się najpierw zalogować.
+	</div>
+{% endif %}<script>
+function confirm_refuse_task(url) {
+  if (confirm("Czy na pewno chcesz odrzucić zadanie?")) {
+    location.replace(url);
+  }
+}
+function confirm_accept_task(url) {
+  if (confirm("Czy na pewno chcesz zaliczyć zadanie?")) {
+    location.replace(url);
+  }
+}
+</script>
+{% endblock %}

@@ -22,7 +22,7 @@
 							<td>{{ task.task }}</td>
 							<td>{{ task.approver }}</td>
 							<td>{{ task.approval_date }}</td>
-							<td><span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Anuluj prośbę"><a href="{% url 'exam:unsubmit_task' request.user.id exam.id task.id %}"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
+							<td><span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Anuluj prośbę"><a onclick="confirm_unsubmit_task('{% url 'exam:unsubmit_task' exam.id task.id %}')"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
 						</tr>
 						{% endfor %}
 					</tbody>
@@ -45,4 +45,13 @@
 			</div>
 		</div>
 	{% endif %}
+<script>
+function confirm_unsubmit_task(url) {
+  var txt;
+  if (confirm("Czy na pewno chcesz anulować prośbę?")) {
+    location.replace(url);
+  }
+}
+</script>
 {% endblock %}
+

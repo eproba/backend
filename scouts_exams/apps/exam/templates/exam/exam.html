@@ -15,6 +15,13 @@
       <th>Zaliczone?</th>
     </tr>
   </thead>
+  <tfoot>
+    <tr>
+      <th></th>
+      <th></th>
+	  <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+    </tr>
+  </tfoot>
   <tbody>
     {% for task in exam.task_set.all %}
 	<tr>
@@ -31,7 +38,8 @@
     {% endfor %}
   </tbody>
 </table>
-  <a href="{% url 'exam:submit_task' request.user.id exam.id %}">
+{% if exam.percent != "100%" %}
+  <a href="{% url 'exam:submit_task' exam.id %}">
     <button class="button is-success is-light">
 	  <span class="icon">
 		<i class="fas fa-clipboard-check"></i>
@@ -39,14 +47,15 @@
 	  <span>Wyślij prośbę o zatwierdzenie zadania</span>
 	</button>
   </a>
-  <a href="{% url 'exam:sent_tasks' request.user.id exam.id %}">
+  <a href="{% url 'exam:sent_tasks' exam.id %}">
     <button class="button is-primary is-light">
 	  <span class="icon">
 		<i class="fas fa-paper-plane"></i>
 	  </span>
-	  <span>Wyslane prośby o zatwierdzenie</span>
+	  <span>Wysłane prośby o zatwierdzenie</span>
 	</button>
   </a>
+{% endif %}
 </div>
 {% else %}
 	<div class="box">
