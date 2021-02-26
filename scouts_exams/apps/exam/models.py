@@ -49,7 +49,7 @@ class Task(models.Model):
         related_name="approver",
         blank=True,
     )
-    approval_date = models.DateTimeField(auto_now=True)
+    approval_date = models.DateTimeField(auto_now=True, null=True)
     # key = models.CharField(max_length=200, blank=True, default=encrypt("task".encode(), key))
     def __str__(self):
         return self.task
