@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 
 from apps.teams.models import Patrol
 from apps.users.models import Scout, User
+from django.contrib.auth.models import Group
 
 
 class SiteUserCreationForm(UserCreationForm):
