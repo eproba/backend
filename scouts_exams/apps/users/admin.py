@@ -72,22 +72,39 @@ class EventAdmin(admin.ModelAdmin):
         return obj.user.nickname
         
     def save_model(self, request, obj, form, change):
-        if obj.is_team_leader or obj.is_patrol_leader:
+        if obj.is_team_leader:
             print(obj.user.is_staff)
             obj.user.is_staff = True
             print(obj.user.is_staff)
             try:
+                rgroup = Group.objects.get(name='ZZ') 
+                rgroup.user_set.remove(obj.user)
+                group = Group.objects.get(name='leader') 
+                group.user_set.add(obj.user)
+            except:
+                pass
+            obj.user.save()
+            obj.save()
+        elif obj.is_patrol_leader:
+            print(obj.user.is_staff)
+            obj.user.is_staff = True
+            print(obj.user.is_staff)
+            try:
+                rgroup = Group.objects.get(name='leader') 
+                rgroup.user_set.remove(obj.user)
                 group = Group.objects.get(name='ZZ') 
                 group.user_set.add(obj.user)
             except:
                 pass
             obj.user.save()
             obj.save()
-        elif not obj.is_team_leader and not obj.is_patrol_leader:
+        elif not obj.is_patrol_leader or not obj.is_team_leader:
             print(obj.user.is_staff)
             obj.user.is_staff = False
             print(obj.user.is_staff)
             try:
+                group = Group.objects.get(name='leader') 
+                group.user_set.remove(obj.user)
                 group = Group.objects.get(name='ZZ') 
                 group.user_set.remove(obj.user)
             except:
