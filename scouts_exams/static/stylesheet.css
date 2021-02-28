@@ -23,10 +23,3 @@
   height: 26.25;
   padding-left: 112px;
 }
-
-#footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 1rem 1.5rem 1rem;
-}
