@@ -2,7 +2,7 @@
 {% load static %}
   <div class="navbar-brand">
     <a class="navbar-item" href="{% url 'frontpage' %}">
-      <img src="{% static 'logo.png' %}" width="112">
+      <img class="logo" src="{% static 'logo.png' %}" width="112">
     </a>
 
     <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
@@ -36,9 +36,9 @@
         </div>
       </div>
 	  {% endif %}
-	  {% if request.user.is_superuser %}
+	  {% if request.user.is_superuser or request.user.scout.is_patrol_leader or request.user.scout.is_team_leader %}
       <a class="navbar-item"  href="/admin">
-        Panel Administratora
+        Panel administratora
       </a>
 	  {% endif %}
       <div class="navbar-item has-dropdown is-hoverable">

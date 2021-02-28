@@ -19,6 +19,7 @@ scouts_exams/staticfiles/
 ### Django.Python Stack ###
 # Byte-compiled / optimized / DLL files
 *.py[cod]
+*:Zone.Identifier
 *$py.class
 
 # C extensions

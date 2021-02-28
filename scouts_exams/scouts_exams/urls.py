@@ -23,7 +23,8 @@ from apps.users.views import (
     change_password, disconect_socials, edit_profile, finish_signup,
     set_password, signup, view_profile,
 )
-
+admin.site.site_title = 'EPRÓBA'
+admin.site.site_header = 'Panel administratora'
 handler404 = TemplateView.as_view(template_name="sites/404.html")
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
