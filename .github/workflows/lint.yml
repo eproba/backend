@@ -1,4 +1,4 @@
-name: Check black
+name: Check lint
 
 on:
   push:
@@ -20,8 +20,14 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install Black
+      - name: Install black
         run: pip install black
 
-      - name: Run black --check .
+      - name: Check black
         run: black --check .
+
+      - name: Install isort
+        run: pip install isort
+
+      - name: Check isort
+        run: sort --profile black .
