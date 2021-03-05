@@ -62,7 +62,7 @@ class Task(models.Model):
 
 
 class SentTask(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.RESTRICT, null=True, default=None)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, default=None)
     user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True, default=None)
     sent_date = models.DateTimeField("Data wysłania prośby", default=timezone.now)
 

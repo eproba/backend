@@ -36,8 +36,6 @@ class CustomUserAdmin(UserAdmin):
                     "email",
                     "password1",
                     "password2",
-                    "admin" "is_staff",
-                    "admin" "is_superuser",
                     "is_active",
                 ),
             },
