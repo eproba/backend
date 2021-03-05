@@ -1,0 +1,22 @@
+name: Check black
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Black
+        run: pip install black
+
+      - name: Run black --check .
+        run: black --check .
