@@ -1,8 +1,7 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-
 from apps.users.models import Scout, User
 from apps.users.views import UserCreationForm
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 
 
@@ -25,7 +24,10 @@ class CustomUserAdmin(UserAdmin):
     )
     fieldsets = (
         (None, {"fields": ("email", "password", "nickname")}),
-        ("Permissions", {"fields": ("is_staff", "is_active", "is_superuser", "groups")}),
+        (
+            "Permissions",
+            {"fields": ("is_staff", "is_active", "is_superuser", "groups")},
+        ),
     )
     add_fieldsets = (
         (
@@ -68,16 +70,16 @@ class EventAdmin(admin.ModelAdmin):
 
     def user_nickname(self, obj):
         return obj.user.nickname
-        
+
     def save_model(self, request, obj, form, change):
         if obj.is_team_leader:
             print(obj.user.is_staff)
             obj.user.is_staff = True
             print(obj.user.is_staff)
             try:
-                rgroup = Group.objects.get(name='ZZ') 
+                rgroup = Group.objects.get(name="ZZ")
                 rgroup.user_set.remove(obj.user)
-                group = Group.objects.get(name='leader') 
+                group = Group.objects.get(name="leader")
                 group.user_set.add(obj.user)
             except:
                 pass
@@ -88,9 +90,9 @@ class EventAdmin(admin.ModelAdmin):
             obj.user.is_staff = True
             print(obj.user.is_staff)
             try:
-                rgroup = Group.objects.get(name='leader') 
+                rgroup = Group.objects.get(name="leader")
                 rgroup.user_set.remove(obj.user)
-                group = Group.objects.get(name='ZZ') 
+                group = Group.objects.get(name="ZZ")
                 group.user_set.add(obj.user)
             except:
                 pass
@@ -101,9 +103,9 @@ class EventAdmin(admin.ModelAdmin):
             obj.user.is_staff = False
             print(obj.user.is_staff)
             try:
-                group = Group.objects.get(name='leader') 
+                group = Group.objects.get(name="leader")
                 group.user_set.remove(obj.user)
-                group = Group.objects.get(name='ZZ') 
+                group = Group.objects.get(name="ZZ")
                 group.user_set.remove(obj.user)
             except:
                 pass

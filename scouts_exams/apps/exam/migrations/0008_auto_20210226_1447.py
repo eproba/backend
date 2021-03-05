@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exam', '0007_auto_20210225_0853'),
+        ("exam", "0007_auto_20210225_0853"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='exam',
-            options={'verbose_name': 'Próba', 'verbose_name_plural': 'Próby'},
+            name="exam",
+            options={"verbose_name": "Próba", "verbose_name_plural": "Próby"},
         ),
         migrations.AlterModelOptions(
-            name='task',
-            options={'verbose_name': 'Zadanie', 'verbose_name_plural': 'Zadania'},
+            name="task",
+            options={"verbose_name": "Zadanie", "verbose_name_plural": "Zadania"},
         ),
         migrations.AlterField(
-            model_name='task',
-            name='approval_date',
+            model_name="task",
+            name="approval_date",
             field=models.DateTimeField(auto_now=True, null=True),
         ),
     ]

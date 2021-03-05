@@ -1,12 +1,11 @@
 from collections import defaultdict
 
-from django.db.models import Sum
-from django.shortcuts import render
-
 from apps.bank.models import Bank
 from apps.core.utils import default_to_regular, round_half_up
 from apps.teams.models import Patrol, Team
 from apps.users.models import Scout
+from django.db.models import Sum
+from django.shortcuts import render
 
 
 def calculate_user_score(user):
