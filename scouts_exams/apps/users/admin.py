@@ -24,6 +24,9 @@ class CustomUserAdmin(UserAdmin):
     )
     fieldsets = (
         (None, {"fields": ("email", "password", "nickname")}),
+    )
+    super_fieldsets = (
+        (None, {"fields": ("email", "password", "nickname")}),
         (
             "Permissions",
             {"fields": ("is_staff", "is_active", "is_superuser", "groups")},
@@ -45,6 +48,11 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ("email",)
     ordering = ("email",)
+    def get_form(self, request, obj=None, **kwargs):
+        if request.user.is_superuser:
+            self.fieldsets = self.super_fieldsets
+
+        return super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
 
 
 admin.site.register(User, CustomUserAdmin)

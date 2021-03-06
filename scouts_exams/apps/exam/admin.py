@@ -14,6 +14,8 @@ class ExamAdmin(admin.ModelAdmin):
         (None, {"fields": ["name"]}),
     ]
     inlines = [TaskInline]
-
+    def get_queryset(self, request):
+        qs = super(ExamAdmin, self).get_queryset(request)
+        return qs.filter(scout__team=request.user.scout.team)
 
 admin.site.register(Exam, ExamAdmin)
