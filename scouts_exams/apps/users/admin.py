@@ -22,9 +22,7 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
         "is_active",
     )
-    fieldsets = (
-        (None, {"fields": ("email", "password", "nickname")}),
-    )
+    fieldsets = ((None, {"fields": ("email", "password", "nickname")}),)
     super_fieldsets = (
         (None, {"fields": ("email", "password", "nickname")}),
         (
@@ -48,6 +46,7 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ("email",)
     ordering = ("email",)
+
     def get_form(self, request, obj=None, **kwargs):
         if request.user.is_superuser:
             self.fieldsets = self.super_fieldsets
