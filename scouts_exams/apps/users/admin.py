@@ -11,7 +11,6 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         "email",
         "nickname",
-        "is_staff",
         "is_superuser",
         "is_active",
     )
@@ -52,6 +51,13 @@ class CustomUserAdmin(UserAdmin):
             self.fieldsets = self.super_fieldsets
 
         return super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
+        
+    def get_queryset(self, request):
+        qs = super(CustomUserAdmin, self).get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(scout__team=request.user.scout.team)
+        else: 
+            return qs
 
 
 admin.site.register(User, CustomUserAdmin)
@@ -60,6 +66,16 @@ admin.site.register(User, CustomUserAdmin)
 @admin.register(Scout)
 class EventAdmin(admin.ModelAdmin):
     fields = (
+        ("user"),
+        ("team", "patrol"),
+        ("rank"),
+    )
+    leader_fields = (
+        ("user"),
+        ("team", "patrol"),
+        ("rank", "is_patrol_leader"),
+    )
+    super_fields = (
         ("user"),
         ("team", "patrol"),
         ("rank", "is_patrol_leader", "is_team_leader"),
@@ -77,6 +93,21 @@ class EventAdmin(admin.ModelAdmin):
 
     def user_nickname(self, obj):
         return obj.user.nickname
+        
+    def get_form(self, request, obj=None, **kwargs):
+        if request.user.is_superuser:
+            self.fields = self.super_fields
+        elif request.user.scout.is_team_leader:
+            self.fields = self.leader_fields
+
+        return super(EventAdmin, self).get_form(request, obj, **kwargs)
+
+    def get_queryset(self, request):
+        qs = super(EventAdmin, self).get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(team=request.user.scout.team)
+        else: 
+            return qs
 
     def save_model(self, request, obj, form, change):
         if obj.is_team_leader:

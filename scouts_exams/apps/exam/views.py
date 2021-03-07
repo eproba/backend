@@ -17,15 +17,18 @@ from .models import Exam, SentTask, Task
 def view_exams(request):
     user = request.user
     exams = []
-    for exam in Exam.objects.filter(scout=user.id):
+    for exam in Exam.objects.filter(scout__user=user):
         _all = 0
         _done = 0
         for task in exam.task_set.all():
             _all += 1
             if task.is_done:
                 _done += 1
-        percent = int(round(_done / _all, 2) * 100)
-        exam.percent = f"{str(percent)}%"
+        if _all != 0:
+            percent = int(round(_done / _all, 2) * 100)
+            exam.percent = f"{str(percent)}%"
+        else:
+            exam.percent = "Nie masz żadnych zadań"
         exams.append(exam)
     return render(
         request,

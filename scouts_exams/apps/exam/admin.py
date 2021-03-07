@@ -17,7 +17,10 @@ class ExamAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ExamAdmin, self).get_queryset(request)
-        return qs.filter(scout__team=request.user.scout.team)
+        if not request.user.is_superuser:
+            return qs.filter(scout__team=request.user.scout.team).exclude(scout=request.user.scout)
+        else: 
+            return qs
 
 
 admin.site.register(Exam, ExamAdmin)
