@@ -1,5 +1,4 @@
 import datetime
-from unidecode import unidecode
 
 from django import forms
 from django.contrib import messages
@@ -9,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import generic
+from unidecode import unidecode
 
 from ..teams.models import Patrol
 from ..users.models import Scout, User
@@ -38,15 +38,16 @@ def view_exams(request):
         {"user": user, "exams_list": exams},
     )
 
+
 def view_shared_exams(request, hex):
     user = request.user
-    exam_user_nickname = bytearray.fromhex(hex.split('0x')[0]).decode()
-    exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0)/7312)
-    exam_id = int(int(f"0x{hex.split('0x')[2]}", 0)/2137)
+    exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
+    exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
+    exam_id = int(int(f"0x{hex.split('0x')[2]}", 0) / 2137)
     try:
-        exam_user_nickname = bytearray.fromhex(hex.split('0x')[0]).decode()
-        exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0)/7312)
-        exam_id = int(int(f"0x{hex.split('0x')[2]}", 0)/2137)
+        exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
+        exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
+        exam_id = int(int(f"0x{hex.split('0x')[2]}", 0) / 2137)
     except:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -54,12 +55,15 @@ def view_shared_exams(request, hex):
         return redirect(reverse("frontpage"))
     exams = []
     for exam in Exam.objects.filter(id=exam_id):
-        if unidecode(exam.scout.user.nickname) != exam_user_nickname or exam.scout.user.id != exam_user_id:
+        if (
+            unidecode(exam.scout.user.nickname) != exam_user_nickname
+            or exam.scout.user.id != exam_user_id
+        ):
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
             )
             return redirect(reverse("frontpage"))
-            
+
         _all = 0
         _done = 0
         for task in exam.task_set.all():
@@ -77,7 +81,7 @@ def view_shared_exams(request, hex):
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
         return redirect(reverse("frontpage"))
-        
+
     return render(
         request,
         "exam/exam.html",

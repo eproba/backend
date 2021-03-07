@@ -1,9 +1,10 @@
-from apps.teams.models import Patrol, Team
-from apps.users.managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
+
+from apps.teams.models import Patrol, Team
+from apps.users.managers import CustomUserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):

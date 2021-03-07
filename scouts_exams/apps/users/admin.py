@@ -1,8 +1,9 @@
-from apps.users.models import Scout, User
-from apps.users.views import UserCreationForm
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
+
+from apps.users.models import Scout, User
+from apps.users.views import UserCreationForm
 
 
 class CustomUserAdmin(UserAdmin):
@@ -51,12 +52,12 @@ class CustomUserAdmin(UserAdmin):
             self.fieldsets = self.super_fieldsets
 
         return super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
-        
+
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
             return qs.filter(scout__team=request.user.scout.team)
-        else: 
+        else:
             return qs
 
 
@@ -93,7 +94,7 @@ class EventAdmin(admin.ModelAdmin):
 
     def user_nickname(self, obj):
         return obj.user.nickname
-        
+
     def get_form(self, request, obj=None, **kwargs):
         if request.user.is_superuser:
             self.fields = self.super_fields
@@ -106,7 +107,7 @@ class EventAdmin(admin.ModelAdmin):
         qs = super(EventAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
             return qs.filter(team=request.user.scout.team)
-        else: 
+        else:
             return qs
 
     def save_model(self, request, obj, form, change):
