@@ -6,6 +6,10 @@ function confirm_popup(url, message="") {
     location.replace(url);
   }
 }
+function copy_to_clipboard(id, text) {
+  navigator.clipboard.writeText(text)
+  document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
+}
 </script>
 <head>
   <meta charset="utf-8">

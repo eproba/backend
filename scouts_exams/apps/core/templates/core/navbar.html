@@ -130,7 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ERROR     An action was not successful or some other failure occurred
 -->
 {% if messages %}
-<div class="notification is-primary" style="position: relative">
+</br>
+<div class="notification is-info" style="position: relative">
     {% for message in messages %}
     <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>
         {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Błąd: {% endif %}

@@ -1,4 +1,5 @@
 import datetime
+from unidecode import unidecode
 
 from django import forms
 from django.contrib import messages
@@ -28,12 +29,59 @@ def view_exams(request):
             percent = int(round(_done / _all, 2) * 100)
             exam.percent = f"{str(percent)}%"
         else:
-            exam.percent = "Nie masz żadnych zadań"
+            exam.percent = "Nie masz jeszcze żadnych zadań"
+        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(user.id*7312)}{hex(exam.id*2137)}"
         exams.append(exam)
     return render(
         request,
         "exam/exam.html",
         {"user": user, "exams_list": exams},
+    )
+
+def view_shared_exams(request, hex):
+    user = request.user
+    exam_user_nickname = bytearray.fromhex(hex.split('0x')[0]).decode()
+    exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0)/7312)
+    exam_id = int(int(f"0x{hex.split('0x')[2]}", 0)/2137)
+    try:
+        exam_user_nickname = bytearray.fromhex(hex.split('0x')[0]).decode()
+        exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0)/7312)
+        exam_id = int(int(f"0x{hex.split('0x')[2]}", 0)/2137)
+    except:
+        messages.add_message(
+            request, messages.INFO, "Podany link do próby jest nieprawidłowy."
+        )
+        return redirect(reverse("frontpage"))
+    exams = []
+    for exam in Exam.objects.filter(id=exam_id):
+        if unidecode(exam.scout.user.nickname) != exam_user_nickname or exam.scout.user.id != exam_user_id:
+            messages.add_message(
+                request, messages.INFO, "Podany link do próby jest nieprawidłowy."
+            )
+            return redirect(reverse("frontpage"))
+            
+        _all = 0
+        _done = 0
+        for task in exam.task_set.all():
+            _all += 1
+            if task.is_done:
+                _done += 1
+        if _all != 0:
+            percent = int(round(_done / _all, 2) * 100)
+            exam.percent = f"{str(percent)}%"
+        else:
+            exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+        exams.append(exam)
+    if exams is []:
+        messages.add_message(
+            request, messages.INFO, "Podany link do próby jest nieprawidłowy."
+        )
+        return redirect(reverse("frontpage"))
+        
+    return render(
+        request,
+        "exam/exam.html",
+        {"user": user, "exams_list": exams, "is_shared": True},
     )
 
 
@@ -57,8 +105,11 @@ def edit_exams(request):
             _all += 1
             if task.is_done:
                 _done += 1
-        percent = int(round(_done / _all, 2) * 100)
-        exam.percent = f"{str(percent)}%"
+        if _all != 0:
+            percent = int(round(_done / _all, 2) * 100)
+            exam.percent = f"{str(percent)}%"
+        else:
+            exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
         exams.append(exam)
     return render(
         request,

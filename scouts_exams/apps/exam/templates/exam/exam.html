@@ -4,7 +4,7 @@
 {% if request.user.is_authenticated %}
 {% if exams_list %}
 {% for exam in exams_list %}
-{% if request.user.id == exam.scout.user.id %}
+{% if request.user.id == exam.scout.user.id or is_shared %}
 <div class="box">
 <h1 class="title">{{ exam }}</h1>
 <table class="table">
@@ -38,6 +38,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% if not is_shared %}
 {% if exam.percent != "100%" %}
   <a href="{% url 'exam:submit_task' exam.id %}">
     <button class="button is-success is-light">
@@ -55,6 +56,17 @@
 	  <span>Wysłane prośby o zatwierdzenie</span>
 	</button>
   </a>
+  <a>
+    <span class="has-tooltip-arrow has-tooltip-info has-tooltip-top" id="tooltip_text" data-tooltip="Naciśnij aby skopiować">
+    <button onclick="copy_to_clipboard('tooltip_text', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
+	  <span class="icon">
+		<i class="fas fa-share-alt"></i>
+	  </span>
+	  <span>Udostępnij próbę</span>
+	</button>
+	</span>
+  </a>
+{% endif %}
 {% endif %}
 </div>
 {% else %}
@@ -64,9 +76,16 @@
 {% endif %}
 {% endfor %}
 {% else %}
+	{% if not is_shared %}
 	<div class="box">
 	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
 	</div>
+	{% else %}
+	<div class="box">
+	Nie powinno cię tu być, idź już sobie.
+	</div>
+	<meta http-equiv="refresh" content="3;url={% url 'frontpage' %}" />
+	{% endif %}
 {% endif %}
 {% else %}
 	<div class="box">
