@@ -18,14 +18,17 @@ function fallbackCopyTextToClipboard(text, id) {
   document.body.appendChild(textArea);
   textArea.focus();
   textArea.select();
-
+  
+  var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
   try {
     var successful = document.execCommand('copy');
     var msg = successful ? 'Skopiowano do schowka' : 'Nie udało się skopiować';
     document.getElementById(id).setAttribute("data-tooltip", msg);
+	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
   } catch (err) { 
     console.error('Fallback: Oops, unable to copy', err);
 	document.getElementById(id).setAttribute("data-tooltip", 'Wystąpił błąd i nie udało się skopiować');
+	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
   }
 
   document.body.removeChild(textArea);
@@ -36,7 +39,9 @@ function copy_to_clipboard(id, text) {
     return;
   }
   navigator.clipboard.writeText(text)
+  var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
   document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
+  setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
 }
 </script>
 <head>

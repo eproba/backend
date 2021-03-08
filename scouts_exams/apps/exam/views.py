@@ -30,7 +30,7 @@ def view_exams(request):
             exam.percent = f"{str(percent)}%"
         else:
             exam.percent = "Nie masz jeszcze żadnych zadań"
-        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(user.id*7312)}{hex(exam.id*2137)}"
+        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
         exams.append(exam)
     return render(
         request,
@@ -114,6 +114,7 @@ def edit_exams(request):
             exam.percent = f"{str(percent)}%"
         else:
             exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
         exams.append(exam)
     return render(
         request,
