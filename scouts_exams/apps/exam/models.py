@@ -1,20 +1,9 @@
 import datetime
 
-from cryptography.fernet import Fernet
 from django.db import models
 from django.utils import timezone
 
 from ..users.models import Scout, User
-
-key = b"PsDHtsLu37lIQiHzmWO88Do9YpBIiy5STBSwV04HeCg="
-
-
-def encrypt(message: bytes, key: bytes) -> bytes:
-    return Fernet(key).encrypt(message)
-
-
-def decrypt(token: bytes, key: bytes) -> bytes:
-    return Fernet(key).decrypt(token)
 
 
 class Exam(models.Model):
@@ -50,7 +39,7 @@ class Task(models.Model):
         blank=True,
     )
     approval_date = models.DateTimeField(auto_now=True, null=True)
-    # key = models.CharField(max_length=200, blank=True, default=encrypt("task".encode(), key))
+
     def __str__(self):
         return self.task
 

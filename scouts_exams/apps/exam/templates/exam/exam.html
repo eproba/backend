@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% if request.user.is_authenticated %}
+{% if request.user.is_authenticated or is_shared %}
 {% if exams_list %}
 {% for exam in exams_list %}
 {% if request.user.id == exam.scout.user.id or is_shared %}
@@ -40,33 +40,31 @@
 </table>
 {% if not is_shared %}
 {% if exam.percent != "100%" %}
-  <a href="{% url 'exam:submit_task' exam.id %}">
-    <button class="button is-success is-light">
+<div class="buttons">
+    <button class="button is-success is-light" onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
 	  <span class="icon">
 		<i class="fas fa-clipboard-check"></i>
 	  </span>
 	  <span>Wyślij prośbę o zatwierdzenie zadania</span>
 	</button>
-  </a>
-  <a href="{% url 'exam:sent_tasks' exam.id %}">
-    <button class="button is-primary is-light">
+    <button class="button is-primary is-light" onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
 	  <span class="icon">
 		<i class="fas fa-paper-plane"></i>
 	  </span>
 	  <span>Wysłane prośby o zatwierdzenie</span>
 	</button>
-  </a>
-  <a>
-    <span class="has-tooltip-arrow has-tooltip-info has-tooltip-top" id="tooltip_text" data-tooltip="Naciśnij aby skopiować">
-    <button onclick="copy_to_clipboard('tooltip_text', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
+	{% else %}
+	<div class="buttons">
+	{% endif %}
+    <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować">
+    <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
 	  <span class="icon">
 		<i class="fas fa-share-alt"></i>
 	  </span>
 	  <span>Udostępnij próbę</span>
 	</button>
 	</span>
-  </a>
-{% endif %}
+</div>
 {% endif %}
 </div>
 {% else %}
