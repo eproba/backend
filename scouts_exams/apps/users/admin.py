@@ -112,9 +112,7 @@ class EventAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if obj.is_team_leader:
-            print(obj.user.is_staff)
             obj.user.is_staff = True
-            print(obj.user.is_staff)
             try:
                 rgroup = Group.objects.get(name="ZZ")
                 rgroup.user_set.remove(obj.user)
@@ -125,9 +123,7 @@ class EventAdmin(admin.ModelAdmin):
             obj.user.save()
             obj.save()
         elif obj.is_patrol_leader:
-            print(obj.user.is_staff)
             obj.user.is_staff = True
-            print(obj.user.is_staff)
             try:
                 rgroup = Group.objects.get(name="leader")
                 rgroup.user_set.remove(obj.user)
@@ -138,9 +134,8 @@ class EventAdmin(admin.ModelAdmin):
             obj.user.save()
             obj.save()
         elif not obj.is_patrol_leader or not obj.is_team_leader:
-            print(obj.user.is_staff)
-            obj.user.is_staff = False
-            print(obj.user.is_staff)
+            if not obj.user.is_superuser:
+                obj.user.is_staff = False
             try:
                 group = Group.objects.get(name="leader")
                 group.user_set.remove(obj.user)
