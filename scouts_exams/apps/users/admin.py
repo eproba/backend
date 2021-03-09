@@ -74,12 +74,12 @@ class EventAdmin(admin.ModelAdmin):
     leader_fields = (
         ("user"),
         ("team", "patrol"),
-        ("rank", "is_patrol_leader"),
+        ("rank", "is_patrol_leader", "is_second_team_leader"),
     )
     super_fields = (
         ("user"),
         ("team", "patrol"),
-        ("rank", "is_patrol_leader", "is_team_leader"),
+        ("rank", "is_patrol_leader", "is_second_team_leader", "is_team_leader"),
     )
     list_display = (
         "user",
@@ -88,9 +88,10 @@ class EventAdmin(admin.ModelAdmin):
         "patrol",
         "rank",
         "is_team_leader",
+        "is_second_team_leader",
         "is_patrol_leader",
     )
-    list_filter = ("team", "patrol", "rank", "is_team_leader", "is_patrol_leader")
+    list_filter = ("team", "patrol", "rank", "is_team_leader", "is_second_team_leader", "is_patrol_leader")
 
     def user_nickname(self, obj):
         return obj.user.nickname
@@ -116,7 +117,22 @@ class EventAdmin(admin.ModelAdmin):
             try:
                 rgroup = Group.objects.get(name="ZZ")
                 rgroup.user_set.remove(obj.user)
+                rgroup = Group.objects.get(name="second_leader")
+                rgroup.user_set.remove(obj.user)
                 group = Group.objects.get(name="leader")
+                group.user_set.add(obj.user)
+            except:
+                pass
+            obj.user.save()
+            obj.save()
+        if obj.is_second_team_leader:
+            obj.user.is_staff = True
+            try:
+                rgroup = Group.objects.get(name="ZZ")
+                rgroup.user_set.remove(obj.user)
+                rgroup = Group.objects.get(name="leader")
+                rgroup.user_set.remove(obj.user)
+                group = Group.objects.get(name="second_leader")
                 group.user_set.add(obj.user)
             except:
                 pass
@@ -127,17 +143,21 @@ class EventAdmin(admin.ModelAdmin):
             try:
                 rgroup = Group.objects.get(name="leader")
                 rgroup.user_set.remove(obj.user)
+                rgroup = Group.objects.get(name="second_leader")
+                rgroup.user_set.remove(obj.user)
                 group = Group.objects.get(name="ZZ")
                 group.user_set.add(obj.user)
             except:
                 pass
             obj.user.save()
             obj.save()
-        elif not obj.is_patrol_leader or not obj.is_team_leader:
+        elif not obj.is_patrol_leader or not obj.is_team_leader or not obj.is_second_team_leader:
             if not obj.user.is_superuser:
                 obj.user.is_staff = False
             try:
                 group = Group.objects.get(name="leader")
+                group.user_set.remove(obj.user)
+                group = Group.objects.get(name="second_leader")
                 group.user_set.remove(obj.user)
                 group = Group.objects.get(name="ZZ")
                 group.user_set.remove(obj.user)
