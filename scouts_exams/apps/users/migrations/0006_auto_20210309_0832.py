@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_delete_freeday'),
+        ("users", "0005_delete_freeday"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='scout',
-            name='is_second_team_leader',
-            field=models.BooleanField(default=False, verbose_name='Przypoczny(a)'),
+            model_name="scout",
+            name="is_second_team_leader",
+            field=models.BooleanField(default=False, verbose_name="Przypoczny(a)"),
         ),
         migrations.AlterField(
-            model_name='scout',
-            name='is_patrol_leader',
-            field=models.BooleanField(default=False, verbose_name='Zastępowy(a)'),
+            model_name="scout",
+            name="is_patrol_leader",
+            field=models.BooleanField(default=False, verbose_name="Zastępowy(a)"),
         ),
         migrations.AlterField(
-            model_name='scout',
-            name='is_team_leader',
-            field=models.BooleanField(default=False, verbose_name='Drużynowy(a)'),
+            model_name="scout",
+            name="is_team_leader",
+            field=models.BooleanField(default=False, verbose_name="Drużynowy(a)"),
         ),
     ]

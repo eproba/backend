@@ -91,7 +91,14 @@ class EventAdmin(admin.ModelAdmin):
         "is_second_team_leader",
         "is_patrol_leader",
     )
-    list_filter = ("team", "patrol", "rank", "is_team_leader", "is_second_team_leader", "is_patrol_leader")
+    list_filter = (
+        "team",
+        "patrol",
+        "rank",
+        "is_team_leader",
+        "is_second_team_leader",
+        "is_patrol_leader",
+    )
 
     def user_nickname(self, obj):
         return obj.user.nickname
@@ -125,7 +132,7 @@ class EventAdmin(admin.ModelAdmin):
                 pass
             obj.user.save()
             obj.save()
-        if obj.is_second_team_leader:
+        elif obj.is_second_team_leader:
             obj.user.is_staff = True
             try:
                 rgroup = Group.objects.get(name="ZZ")
@@ -151,7 +158,11 @@ class EventAdmin(admin.ModelAdmin):
                 pass
             obj.user.save()
             obj.save()
-        elif not obj.is_patrol_leader or not obj.is_team_leader or not obj.is_second_team_leader:
+        elif (
+            not obj.is_patrol_leader
+            or not obj.is_team_leader
+            or not obj.is_second_team_leader
+        ):
             if not obj.user.is_superuser:
                 obj.user.is_staff = False
             try:
