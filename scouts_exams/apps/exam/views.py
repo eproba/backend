@@ -41,9 +41,6 @@ def view_exams(request):
 
 def view_shared_exams(request, hex):
     user = request.user
-    exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
-    exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
-    exam_id = int(int(f"0x{hex.split('0x')[2]}", 0) / 2137)
     try:
         exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
         exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
