@@ -4,4 +4,4 @@ django-crispy-forms==1.11.1
 whitenoise==5.2.0
 fontawesome-free==5.15.2
 unidecode==1.2.0
-reportlab==3.5.65
+weasyprint==52.4

@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+<h1 class="subtitle has-text-centered	">{{ exam }}</h1>
+<p><strong>Imię:</strong></p>
+<p><strong>Nazwisko:</strong></p>
+{% if exam.scout.user.nickname %}
+<p><strong>Pseudonim:</strong> {{ exam.scout.user.nickname }}</p>
+{% else %}
+<p><strong>Pseudonim:</strong> {{ exam.scout.user.nickname }}</p>
+{% endif %}
+{% if exam.scout.team %}
+<p><strong>Drużyna:</strong> {{ exam.scout.team }}</p>
+{% else %}
+<p><strong>Drużyna:</strong></p>
+{% endif %}
+<br>
+<table class="table is-bordered is-fullwidth">
+  <thead>
+    <tr>
+      <th>Lp.</th>
+      <th>Zadanie</th>
+      <th>Podpis</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in exam.task_set.all %}
+	<tr>
+      <th class="is-narrow">{{ forloop.counter }}</th>
+      <td>{{ task.task }}</td>
+	  {% if task.is_done %}
+      <td>{{ task.approver }} <p style="display:inline" class="is-size-7">(epróba)</p></td>
+	  {% else %}
+		<td></td>
+	  {% endif %}
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -56,6 +56,12 @@
 	{% else %}
 	<div class="buttons">
 	{% endif %}
+    <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
+	  <span class="icon">
+		<i class="fas fa-print"></i>
+	  </span>
+	  <span>Drukuj próbę</span>
+	</button>
     <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować">
     <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
 	  <span class="icon">

@@ -8,6 +8,7 @@ urlpatterns = [
     path("edit", views.edit_exams, name="edit_exams"),
     path("<int:exam_id>/task/submit", views.submit_task, name="submit_task"),
     path("share/view/<str:hex>", views.view_shared_exams, name="view_shared_exams"),
+    path("print/<str:hex>", views.print_exam, name="print_exam"),
     path(
         "<int:exam_id>/<int:task_id>/task/unsubmit",
         views.unsubmit_task,
