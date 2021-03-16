@@ -1,5 +1,6 @@
-from apps.teams.models import Patrol, Team
 from django.contrib import admin
+
+from apps.teams.models import Patrol, Team
 
 
 @admin.register(Team)

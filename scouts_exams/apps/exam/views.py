@@ -80,7 +80,9 @@ def print_exam(request, hex):
         HTML(string=render_to_string("exam/exam_pdf.html", {"exam": exam})).write_pdf(),
         content_type="application/pdf",
     )
-    response["Content-Disposition"] = "inline; filename=" + f"{exam.name}.pdf"
+    response[
+        "Content-Disposition"
+    ] = f'inline; filename="{unidecode(str(exam))} (by epróba).pdf"'
 
     return response
 
