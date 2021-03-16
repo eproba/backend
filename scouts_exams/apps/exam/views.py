@@ -6,16 +6,16 @@ from django.db.models import CharField, Q, Value
 from django.forms import Select
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views import generic
 from unidecode import unidecode
-
 from weasyprint import HTML
-from django.template.loader import render_to_string
 
 from ..teams.models import Patrol
 from ..users.models import Scout, User
 from .models import Exam, SentTask, Task
+
 
 def view_exams(request):
     if request.user.is_authenticated:
@@ -47,6 +47,7 @@ def view_exams(request):
             {"user": request.user, "exams_list": []},
         )
 
+
 def print_exam(request, hex):
     try:
         exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
@@ -75,11 +76,15 @@ def print_exam(request, hex):
         return redirect(reverse("frontpage"))
 
     exam = get_object_or_404(Exam, pk=exam_id)
-    response = HttpResponse(HTML(string=render_to_string('exam/exam_pdf.html', {'exam': exam})).write_pdf(), content_type='application/pdf')
-    response['Content-Disposition'] = ('inline; filename=' + f"{exam.name}.pdf")
+    response = HttpResponse(
+        HTML(string=render_to_string("exam/exam_pdf.html", {"exam": exam})).write_pdf(),
+        content_type="application/pdf",
+    )
+    response["Content-Disposition"] = "inline; filename=" + f"{exam.name}.pdf"
 
     return response
-    
+
+
 def view_shared_exams(request, hex):
     user = request.user
     try:
