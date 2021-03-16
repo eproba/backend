@@ -16,28 +16,34 @@ from .models import Exam, SentTask, Task
 
 
 def view_exams(request):
-    user = request.user
-    exams = []
-    for exam in Exam.objects.filter(scout__user=user):
-        _all = 0
-        _done = 0
-        for task in exam.task_set.all():
-            _all += 1
-            if task.is_done:
-                _done += 1
-        if _all != 0:
-            percent = int(round(_done / _all, 2) * 100)
-            exam.percent = f"{str(percent)}%"
-        else:
-            exam.percent = "Nie masz jeszcze żadnych zadań"
-        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
-        exams.append(exam)
-    return render(
-        request,
-        "exam/exam.html",
-        {"user": user, "exams_list": exams},
-    )
-
+    if request.user.is_authenticated:
+        user = request.user
+        exams = []
+        for exam in Exam.objects.filter(scout__user=user):
+            _all = 0
+            _done = 0
+            for task in exam.task_set.all():
+                _all += 1
+                if task.is_done:
+                    _done += 1
+            if _all != 0:
+                percent = int(round(_done / _all, 2) * 100)
+                exam.percent = f"{str(percent)}%"
+            else:
+                exam.percent = "Nie masz jeszcze żadnych zadań"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exams.append(exam)
+        return render(
+            request,
+            "exam/exam.html",
+            {"user": user, "exams_list": exams},
+        )
+    else:
+        return render(
+            request,
+            "exam/exam.html",
+            {"user": request.user, "exams_list": []},
+        )
 
 def view_shared_exams(request, hex):
     user = request.user
