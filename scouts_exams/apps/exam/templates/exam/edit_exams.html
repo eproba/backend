@@ -5,53 +5,53 @@
 {% if exams_list %}
 {% for exam in exams_list %}
 <div class="box">
-<span class="icon-text"><span class="title">{{ exam }} </span><span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="far fa-clipboard"></i></span></span>
-<span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span></span>
-<p><br/></p>
-<table class="table">
-  <thead>
-    <tr>
-      <th class="is-narrow">Lp.</th>
-      <th>Zadanie</th>
-      <th>Status</th>
-      <th>Akcja</th>
-    </tr>
-  </thead>
-  <tfoot>
-    <tr>
-      <th></th>
-      <th></th>
-      <th></th>
-	  <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
-    </tr>
-  </tfoot>
-  <tbody>
-    {% for task in exam.task_set.all %}
-	<tr>
-      <th>{{ forloop.counter }}</th>
-      <td>{{ task.task }}</td>
-	  {% if task.is_done %}
-        <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
-	  {% elif task.is_await %}
-        <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
-	  {% else %}
-		<td></td>
-	  {% endif %}
-	  <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success " data-tooltip="Zatwierdź zadanie"><a onclick="confirm_popup('{% url 'exam:force_accept_task' exam.id task.id %}', 'Czy na pewno chcesz zatwierdzić zadanie?')"><i class="far fa-check-circle greeniconcolor"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie"><a onclick="confirm_popup('{% url 'exam:force_refuse_task' exam.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
-	</tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <span class="icon-text"><span class="title">{{ exam }} </span><span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="far fa-clipboard"></i></span></span>
+    <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span></span>
+    <p><br/></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="is-narrow">Lp.</th>
+                <th>Zadanie</th>
+                <th>Status</th>
+                <th>Akcja</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for task in exam.task_set.all %}
+            <tr>
+                <th>{{ forloop.counter }}</th>
+                <td>{{ task.task }}</td>
+                {% if task.is_done %}
+                <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+                {% elif task.is_await %}
+                <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
+                {% else %}
+                <td></td>
+                {% endif %}
+                <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success " data-tooltip="Zatwierdź zadanie"><a onclick="confirm_popup('{% url 'exam:force_accept_task' exam.id task.id %}', 'Czy na pewno chcesz zatwierdzić zadanie?')"><i class="far fa-check-circle greeniconcolor"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie"><a onclick="confirm_popup('{% url 'exam:force_refuse_task' exam.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endfor %}
 {% else %}
-	<div class="box">
-	W systemie nie ma jeszcze żadnej próby którą możesz edytować.
-	</div>
+<div class="box">
+    W systemie nie ma jeszcze żadnej próby którą możesz edytować.
+</div>
 {% endif %}
 {% else %}
-	<div class="box">
-	Aby edytować próby musisz się najpierw zalogować.
-	</div>
+<div class="box">
+    Aby edytować próby musisz się najpierw zalogować.
+</div>
 {% endif %}
 {% endblock %}

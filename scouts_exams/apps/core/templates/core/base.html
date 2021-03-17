@@ -1,80 +1,84 @@
 <html>
 {% load static %}
-<script>
-function confirm_popup(url, message="") {
-  if (confirm(message)) {
-    location.replace(url);
-  }
-}
-function fallbackCopyTextToClipboard(text, id) {
-  var textArea = document.createElement("textarea");
-  textArea.value = text;
-  
-  // Avoid scrolling to bottom
-  textArea.style.top = "0";
-  textArea.style.left = "0";
-  textArea.style.position = "fixed";
-
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
-  
-  var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
-  try {
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'Skopiowano do schowka' : 'Nie udało się skopiować';
-    document.getElementById(id).setAttribute("data-tooltip", msg);
-	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
-  } catch (err) { 
-    console.error('Fallback: Oops, unable to copy', err);
-	document.getElementById(id).setAttribute("data-tooltip", 'Wystąpił błąd i nie udało się skopiować');
-	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
-  }
-
-  document.body.removeChild(textArea);
-}
-function copy_to_clipboard(id, text) {
-  if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(text, id);
-    return;
-  }
-  navigator.clipboard.writeText(text)
-  var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
-  document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
-  setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
-}
-</script>
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A" />
-  <title>e-próba</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
-  <link href="{% static 'css/mystyles.css' %}" rel="stylesheet" type="text/css">
-  <link href="{% static 'stylesheet.css' %}" rel="stylesheet" type="text/css">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  {% block headcontent %}
-  {% endblock %}
-
-</head>
-<body>
-<div class="container" id="container">
-  {% include "core/navbar.html" %}
-<br>
-
-  {% block subnavbarcontent %}
-  {% endblock %}
-
-  <div class="container" style="position: relative; margin-bottom: 10vh;">
-      {% block content %}
-      {% endblock %}
-  </div>
+    <script>
+        function confirm_popup(url, message="") {
+          if (confirm(message)) {
+            location.replace(url);
+          }
+        }
+        function fallbackCopyTextToClipboard(text, id) {
+          var textArea = document.createElement("textarea");
+          textArea.value = text;
+          
+          // Avoid scrolling to bottom
+          textArea.style.top = "0";
+          textArea.style.left = "0";
+          textArea.style.position = "fixed";
+        
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
+          try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'Skopiowano do schowka' : 'Nie udało się skopiować';
+            document.getElementById(id).setAttribute("data-tooltip", msg);
+        	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
+          } catch (err) { 
+            console.error('Fallback: Oops, unable to copy', err);
+        	document.getElementById(id).setAttribute("data-tooltip", 'Wystąpił błąd i nie udało się skopiować');
+        	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
+          }
+        
+          document.body.removeChild(textArea);
+        }
+        function copy_to_clipboard(id, text) {
+          if (!navigator.clipboard) {
+            fallbackCopyTextToClipboard(text, id);
+            return;
+          }
+          navigator.clipboard.writeText(text)
+          var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
+          document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
+          setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
+        }
+    </script>
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A" />
+        <title>e-próba</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'css/mystyles.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'stylesheet.css' %}" rel="stylesheet" type="text/css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block headcontent %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container" id="container">
+            {% include "core/navbar.html" %}
+            <br>
+            {% block subnavbarcontent %}
+            {% endblock %}
+            <div class="container" style="position: relative; margin-bottom: 10vh;">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+        <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+{% block footer %}
+<div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
+    <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pt-6 pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
+    <p class="has-text-centered">
+        <strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
+    </p>
 </div>
-<script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-</body>
+{% endblock %}
+    </body>
 </html>

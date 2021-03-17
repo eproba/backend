@@ -8,92 +8,92 @@
 <div class="box">
 <h1 class="title">{{ exam }}</h1>
 <table class="table">
-  <thead>
-    <tr>
-      <th class="is-narrow">Lp.</th>
-      <th>Zadanie</th>
-      <th>Zaliczone?</th>
-    </tr>
-  </thead>
-  <tfoot>
-    <tr>
-      <th></th>
-      <th></th>
-	  <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
-    </tr>
-  </tfoot>
-  <tbody>
-    {% for task in exam.task_set.all %}
-	<tr>
-      <th>{{ forloop.counter }}</th>
-      <td>{{ task.task }}</td>
-	  {% if task.is_done %}
-      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
-	  {% elif task.is_await %}
-      <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
-	  {% else %}
-		<td></td>
-	  {% endif %}
-	</tr>
-    {% endfor %}
-  </tbody>
+    <thead>
+        <tr>
+            <th class="is-narrow">Lp.</th>
+            <th>Zadanie</th>
+            <th>Zaliczone?</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th></th>
+            <th></th>
+            <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+        </tr>
+    </tfoot>
+    <tbody>
+        {% for task in exam.task_set.all %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <td>{{ task.task }}</td>
+            {% if task.is_done %}
+            <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+            {% elif task.is_await %}
+            <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% if not is_shared %}
 {% if exam.percent != "100%" %}
 <div class="buttons">
     <button class="button is-success is-light" onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
-	  <span class="icon">
-		<i class="fas fa-clipboard-check"></i>
-	  </span>
-	  <span>Wyślij prośbę o zatwierdzenie zadania</span>
-	</button>
+    <span class="icon">
+    <i class="fas fa-clipboard-check"></i>
+    </span>
+    <span>Wyślij prośbę o zatwierdzenie zadania</span>
+    </button>
     <button class="button is-primary is-light" onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
-	  <span class="icon">
-		<i class="fas fa-paper-plane"></i>
-	  </span>
-	  <span>Wysłane prośby o zatwierdzenie</span>
-	</button>
-	{% else %}
-	<div class="buttons">
-	{% endif %}
-    <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
-	  <span class="icon">
-		<i class="fas fa-print"></i>
-	  </span>
-	  <span>Drukuj próbę</span>
-	</button>
-    <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować">
-    <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
-	  <span class="icon">
-		<i class="fas fa-share-alt"></i>
-	  </span>
-	  <span>Udostępnij próbę</span>
-	</button>
-	</span>
-</div>
-{% endif %}
+    <span class="icon">
+    <i class="fas fa-paper-plane"></i>
+    </span>
+    <span>Wysłane prośby o zatwierdzenie</span>
+    </button>
+    {% else %}
+    <div class="buttons">
+        {% endif %}
+        <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
+        <span class="icon">
+        <i class="fas fa-print"></i>
+        </span>
+        <span>Drukuj próbę</span>
+        </button>
+        <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować">
+        <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
+        <span class="icon">
+        <i class="fas fa-share-alt"></i>
+        </span>
+        <span>Udostępnij próbę</span>
+        </button>
+        </span>
+    </div>
+    {% endif %}
 </div>
 {% else %}
-	<div class="box">
-	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
-	</div>
+<div class="box">
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+</div>
 {% endif %}
 {% endfor %}
 {% else %}
-	{% if not is_shared %}
-	<div class="box">
-	Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
-	</div>
-	{% else %}
-	<div class="box">
-	Nie powinno cię tu być, idź już sobie.
-	</div>
-	<meta http-equiv="refresh" content="3;url={% url 'frontpage' %}" />
-	{% endif %}
+{% if not is_shared %}
+<div class="box">
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+</div>
+{% else %}
+<div class="box">
+    Nie powinno cię tu być, idź już sobie.
+</div>
+<meta http-equiv="refresh" content="3;url={% url 'frontpage' %}" />
+{% endif %}
 {% endif %}
 {% else %}
-	<div class="box">
-	Aby wyświetlić swoje próby musisz się najpierw zalogować.
-	</div>
+<div class="box">
+    Aby wyświetlić swoje próby musisz się najpierw zalogować.
+</div>
 {% endif %}
 {% endblock %}
