@@ -75,14 +75,14 @@
 </div>
 {% else %}
 <div class="box">
-    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a href="{% url 'exam:create_exam' %}">tutaj</a>.
 </div>
 {% endif %}
 {% endfor %}
 {% else %}
 {% if not is_shared %}
 <div class="box">
-    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym.
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a href="{% url 'exam:create_exam' %}">tutaj</a>.
 </div>
 {% else %}
 <div class="box">
@@ -94,6 +94,18 @@
 {% else %}
 <div class="box">
     Aby wyświetlić swoje próby musisz się najpierw zalogować.
+</div>
+{% endif %}
+{% if request.user.is_authenticated and not is_shared %}
+<div class="level">
+	<div class="level-item">
+		<button class="button is-link is-outlined" onclick="location.href='{% url 'exam:create_exam' %}'">
+        <span class="icon">
+        <i class="fas fa-plus"></i>
+        </span>
+        <span>Dodaj nową próbę</span>
+        </button>
+    </div>
 </div>
 {% endif %}
 {% endblock %}

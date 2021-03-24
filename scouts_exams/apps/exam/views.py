@@ -4,6 +4,7 @@ from django import forms
 from django.contrib import messages
 from django.db.models import CharField, Q, Value
 from django.forms import Select
+from django.forms.formsets import formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -14,6 +15,7 @@ from weasyprint import HTML
 
 from ..teams.models import Patrol
 from ..users.models import Scout, User
+from .forms import ExamCreateForm, TaskForm
 from .models import Exam, SentTask, Task
 
 
@@ -140,6 +142,7 @@ def edit_exams(request):
     if (
         not request.user.scout.is_team_leader
         and not request.user.scout.is_patrol_leader
+        and not request.user.scout.is_second_team_leader
     ):
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
@@ -168,11 +171,42 @@ def edit_exams(request):
     )
 
 
+def create_exam(request):
+    TaskFormSet = formset_factory(
+        TaskForm, extra=1
+    )  # Set maximum to avoid default of 1000 forms.
+    if request.method == "POST":
+        # Django will become valid even if an empty form is submitted. Adding initial data causes unbound form and
+        # trigger formset.errors
+        exam = ExamCreateForm(request.POST)
+        tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
+
+        if exam.is_valid():
+            exam_obj = exam.save()
+            exam_obj.scout = request.user.scout
+            exam_obj.save()
+            if tasks.is_valid():
+                tasks_data = tasks.cleaned_data
+                for task in tasks_data:
+                    if "task" in task:
+                        Task.objects.create(exam=exam_obj, task=task["task"])
+
+            messages.add_message(request, messages.INFO, "Próba została utworzona.")
+            return redirect(reverse("exam:exam"))
+
+    else:
+        exam = ExamCreateForm()
+        tasks = TaskFormSet()
+
+    return render(request, "exam/create_exam.html", {"exam": exam, "tasks": tasks})
+
+
 def check_tasks(request):
     user = request.user
     exams = []
     if (
         not request.user.scout.is_team_leader
+        and not request.user.scout.is_second_team_leader
         and not request.user.scout.is_patrol_leader
     ):
         messages.add_message(
@@ -260,6 +294,7 @@ def force_refuse_task(request, exam_id, task_id):
     task = get_object_or_404(Task, id=task_id)
     if task.exam != exam or (
         not request.user.scout.is_patrol_leader
+        and not request.user.scout.is_second_team_leader
         and not request.user.scout.is_team_leader
     ):
         messages.add_message(
@@ -277,6 +312,7 @@ def force_accept_task(request, exam_id, task_id):
     task = get_object_or_404(Task, id=task_id)
     if task.exam != exam or (
         not request.user.scout.is_patrol_leader
+        and not request.user.scout.is_second_team_leader
         and not request.user.scout.is_team_leader
     ):
         messages.add_message(
@@ -298,6 +334,7 @@ class SumbitTaskForm(forms.ModelForm):
         self.fields["approver"].widget.attrs["required"] = "required"
         if request.user.scout.team:
             query = Q(is_patrol_leader=True)
+            query.add(Q(is_second_team_leader=True), Q.OR)
             query.add(Q(is_team_leader=True), Q.OR)
             query.add(Q(team=request.user.scout.team), Q.AND)
             self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
@@ -305,7 +342,9 @@ class SumbitTaskForm(forms.ModelForm):
             )
         else:
             self.fields["approver"].queryset = Scout.objects.filter(
-                Q(is_patrol_leader=True) | Q(is_team_leader=True)
+                Q(is_patrol_leader=True)
+                | Q(is_team_leader=True)
+                | Q(is_second_team_leader=True)
             ).exclude(user=request.user)
 
     class Meta:

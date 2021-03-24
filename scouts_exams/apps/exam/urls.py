@@ -5,6 +5,7 @@ from . import views
 app_name = "exam"
 urlpatterns = [
     path("", views.view_exams, name="exam"),
+    path("create", views.create_exam, name="create_exam"),
     path("edit", views.edit_exams, name="edit_exams"),
     path("<int:exam_id>/task/submit", views.submit_task, name="submit_task"),
     path("share/view/<str:hex>", views.view_shared_exams, name="view_shared_exams"),
