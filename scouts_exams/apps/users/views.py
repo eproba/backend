@@ -1,5 +1,3 @@
-from apps.teams.models import Patrol
-from apps.users.models import Scout, User
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
@@ -14,6 +12,9 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.forms import Select
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+
+from apps.teams.models import Patrol
+from apps.users.models import Scout, User
 
 
 class SiteUserCreationForm(UserCreationForm):
