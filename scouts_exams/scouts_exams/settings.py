@@ -32,7 +32,7 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "exam:exam"
 LOGOUT_REDIRECT_URL = "frontpage"
 SITE_ID = 3
-
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,10 +49,10 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
-    "apps.core",
+    "apps.core.apps.CoreConfig",
     "apps.exam.apps.ExamConfig",
-    "apps.users",
-    "apps.teams",
+    "apps.users.apps.UsersConfig",
+    "apps.teams.apps.TeamsConfig",
     "fontawesome-free",
     "crispy_forms",
 ]
@@ -93,28 +93,28 @@ SOCIALACCOUNT_PROVIDERS = {
             "access_type": "online",
         },
     },
-    "facebook": {
-        "METHOD": "oauth2",
-        "SCOPE": ["email", "public_profile", "user_friends"],
-        "AUTH_PARAMS": {"auth_type": "reauthenticate"},
-        "FIELDS": [
-            "id",
-            "email",
-            "name",
-            "first_name",
-            "last_name",
-            "verified",
-            "locale",
-            "timezone",
-            "link",
-            "gender",
-            "updated_time",
-        ],
-        "EXCHANGE_TOKEN": True,
-        "LOCALE_FUNC": lambda request: "kr_KR",
-        "VERIFIED_EMAIL": False,
-        "VERSION": "v2.4",
-    },
+    # "facebook": {
+        # "METHOD": "oauth2",
+        # "SCOPE": ["email", "public_profile", "user_friends"],
+        # "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+        # "FIELDS": [
+            # "id",
+            # "email",
+            # "name",
+            # "first_name",
+            # "last_name",
+            # "verified",
+            # "locale",
+            # "timezone",
+            # "link",
+            # "gender",
+            # "updated_time",
+        # ],
+        # "EXCHANGE_TOKEN": True,
+        # "LOCALE_FUNC": lambda request: "kr_KR",
+        # "VERIFIED_EMAIL": False,
+        # "VERSION": "v2.4",
+    # },
 }
 
 # Templates
