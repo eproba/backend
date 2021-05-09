@@ -267,7 +267,7 @@ def refuse_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
-    Task.objects.filter(task=task).update(is_await=False, approver=None)
+    Task.objects.filter(id=task.id).update(is_await=False, approver=None)
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -283,7 +283,7 @@ def accept_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do akceptacji tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
-    Task.objects.filter(task=task).update(
+    Task.objects.filter(id=task.id).update(
         is_await=False, is_done=True, approval_date=datetime.datetime.now()
     )
     return redirect(reverse("exam:check_tasks"))
@@ -301,7 +301,7 @@ def force_refuse_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
-    Task.objects.filter(task=task).update(
+    Task.objects.filter(id=task.id).update(
         is_await=False, is_done=False, approver=None, approval_date=None
     )
     return redirect(reverse("exam:edit_exams"))
@@ -319,7 +319,7 @@ def force_accept_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
-    Task.objects.filter(task=task).update(
+    Task.objects.filter(id=task.id).update(
         is_await=False,
         is_done=True,
         approver=request.user.scout,
