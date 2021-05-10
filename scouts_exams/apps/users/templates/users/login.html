@@ -10,7 +10,12 @@
   </div>
 	<div class="buttons">
       <div class="control">
-        <button class="button is-success  is-outlined" type="submit">Zaloguj się</button>
+        <button class="button is-success  is-outlined" type="submit">
+		  <span class="icon">
+		    <i class="fas fa-key"></i>
+          </span>
+          <span>Zaloguj się</span>
+		</button>
         <button onclick="window.location.href='/accounts/google/login/'" class="button is-danger is-outlined" type="button">
 		  <span class="icon">
 		    <i class="fab fa-google"></i>
@@ -25,6 +30,12 @@
           <span>Zaloguj się z Facebook</span>
 		</button>
 		-->
+        <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-info is-outlined" type="button">
+		  <span class="icon">
+		    <i class="fas fa-unlock-alt"></i>
+          </span>
+          <span>Zapomniałeś hasła?</span>
+		</button>
 	  </div>
     </div>
   </div>

@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "exam:exam"
 LOGOUT_REDIRECT_URL = "frontpage"
-SITE_ID = 3
+SITE_ID = 4
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Application definition
 
@@ -168,12 +168,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Emails
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-DEFAULT_FROM_EMAIL = "e-proba@protonmail.com"
-EMAIL_HOST = "smtp.sendgrid.net"
-EMAIL_HOST_USER = "apikey"
-EMAIL_HOST_PASSWORD = (
-    "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"
-)
+DEFAULT_FROM_EMAIL = "eproba.zhr@gmail.com"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "eproba.zhr@gmail.com"
+EMAIL_HOST_PASSWORD = "eproba45"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 

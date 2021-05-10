@@ -101,6 +101,24 @@ class ScoutChangeForm(forms.ModelForm):
         }
 
 
+def password_reset_done(request):
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        "Wysłaliśmy do ciebie maila z linkiem do zresetowania hasła, jeśli go nie otrzymałeś odczekaj kilka sekund, sprawdź kosz i spam. Jeśli nadal nie możesz go znaleźć, spróbuj ponownie zresetować hasło uważając na poprawność adresu email.",
+    )
+    return redirect(reverse("frontpage"))
+
+
+def password_reset_complete(request):
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        "Hasło zostało zresetowane i możesz się już zalogować.",
+    )
+    return redirect(reverse("login"))
+
+
 @login_required
 @transaction.atomic
 def edit_profile(request, user_id):

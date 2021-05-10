@@ -6,6 +6,10 @@ from django.shortcuts import redirect, render, reverse
 from .forms import ContactForm, IssueContactForm
 
 
+def handler500(request):
+    return render(request, "sites/500.html", status=500)
+
+
 def frontpage(request):
     return render(request, "core/frontpage.html")
 
