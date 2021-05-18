@@ -49,6 +49,7 @@
         <meta content="width=device-width, initial-scale=1" name="viewport">
         <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A" />
         <title>e-próba</title>
+		<script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
         <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
         <link href="{% static 'css/mystyles.css' %}" rel="stylesheet" type="text/css">
@@ -68,17 +69,16 @@
                 {% endblock %}
             </div>
         </div>
-        <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-{% block footer %}
-<div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-    <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
-    <p class="has-text-centered">
-        <strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
-    </p>
-</div>
-{% endblock %}
+		{% block footer %}
+		<div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
+			<div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
+			<p class="has-text-centered">
+				<strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
+			</p>
+		</div>
+		{% endblock %}
     </body>
 </html>
