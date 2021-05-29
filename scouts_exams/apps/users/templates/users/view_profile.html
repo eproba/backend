@@ -49,8 +49,7 @@
 	  <span>Zmień hasło</span>
 	</button>
   </a>
-  {% endif %}
-  {% if not user.has_usable_password %}
+  {% else %}
   <a href="{% url 'set_password' user.id %}">
     <button class="button is-success is-light">
 	  <span class="icon">
@@ -70,8 +69,7 @@
 	  <span>Połącz z Google</span>
 	</button>
   </a>
-  {% endif %}
-  {% if accounts.google %}
+  {% else %}
   <a href="{% url 'disconect_socials' %}">
     <button class="button is-danger is-light">
 	  <span class="icon">
@@ -83,17 +81,16 @@
   {% endif %}
   {% if not accounts.facebook %}
   <a href="/accounts/facebook/login/?process=connect">
-    <button class="button is-link is-outlined">
+    <button class="button is-info is-outlined">
 	  <span class="icon">
 		<i class="fab fa-facebook"></i>
 	  </span>
 	  <span>Połącz z Facebook</span>
 	</button>
   </a>
-  {% endif %}
-  {% if accounts.facebook %}
+  {% else %}
   <a href="{% url 'disconect_socials' %}">
-    <button class="button is-link is-light">
+    <button class="button is-info is-light">
 	  <span class="icon">
 		<i class="fab fa-facebook"></i>
 	  </span>
