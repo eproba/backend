@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,7 +77,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_REDIRECT_URL = "finish_signup"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL='https'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
@@ -94,25 +94,25 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     },
     "facebook": {
-    "METHOD": "oauth2",
-    "SCOPE": ["email", "public_profile", "user_friends"],
-    "AUTH_PARAMS": {"auth_type": "reauthenticate"},
-    "FIELDS": [
-    "id",
-    "email",
-    "name",
-    "first_name",
-    "last_name",
-    "verified",
-    "locale",
-    "timezone",
-    "link",
-    "gender",
-    "updated_time",
-    ],
-    "EXCHANGE_TOKEN": True,
-    "VERIFIED_EMAIL": False,
-    "VERSION": "v2.4",
+        "METHOD": "oauth2",
+        "SCOPE": ["email", "public_profile", "user_friends"],
+        "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+        "FIELDS": [
+            "id",
+            "email",
+            "name",
+            "first_name",
+            "last_name",
+            "verified",
+            "locale",
+            "timezone",
+            "link",
+            "gender",
+            "updated_time",
+        ],
+        "EXCHANGE_TOKEN": True,
+        "VERIFIED_EMAIL": False,
+        "VERSION": "v2.4",
     },
 }
 
