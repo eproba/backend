@@ -212,6 +212,7 @@ def check_tasks(request):
         not request.user.scout.is_team_leader
         and not request.user.scout.is_second_team_leader
         and not request.user.scout.is_patrol_leader
+        and not request.user.scout.is_second_patrol_leader
     ):
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do akceptacji zadań."
@@ -368,6 +369,18 @@ class SumbitTaskForm(forms.ModelForm):
             query.add(Q(is_second_team_leader=True), Q.OR)
             query.add(Q(is_team_leader=True), Q.OR)
             query.add(Q(team=request.user.scout.team), Q.AND)
+            if (
+                request.user.scout.patrol
+                and request.user.scout.is_second_patrol_leader == False
+                and request.user.scout.is_patrol_leader == False
+                and request.user.scout.is_second_team_leader == False
+                and request.user.scout.is_team_leader == False
+            ):
+                query.add(
+                    Q(is_second_patrol_leader=True)
+                    & Q(patrol=request.user.scout.patrol),
+                    Q.OR,
+                )
             self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
                 user=request.user
             )
