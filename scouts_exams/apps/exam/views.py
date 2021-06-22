@@ -137,6 +137,8 @@ def view_shared_exams(request, hex):
 
 
 def edit_exams(request):
+    if not request.user.is_authenticated:
+        return render(request, "exam/edit_exams.html")
     user = request.user
     exams = []
     if (
@@ -202,6 +204,8 @@ def create_exam(request):
 
 
 def check_tasks(request):
+    if not request.user.is_authenticated:
+        return render(request, "exam/check_tasks.html")
     user = request.user
     exams = []
     if (

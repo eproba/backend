@@ -23,7 +23,7 @@
       <a class="navbar-item"  href="{% url 'exam:exam' %}">
         Twoje próby
       </a>
-	  {% if request.user.scout.is_team_leader or request.user.scout.is_patrol_leader %}
+	  {% if request.user.scout.is_team_leader or request.user.scout.is_second_team_leader  or request.user.scout.is_patrol_leader  or request.user.scout.is_second_patrol_leader %}
 	  <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
           Zarządzaj próbami

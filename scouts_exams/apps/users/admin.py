@@ -70,15 +70,36 @@ class EventAdmin(admin.ModelAdmin):
         ("team", "patrol"),
         ("rank"),
     )
+    patrol_leader_fields = (
+        ("user"),
+        ("team", "patrol"),
+        ("rank", "is_second_patrol_leader"),
+    )
+    second_team_leader_fields = (
+        ("user"),
+        ("team", "patrol"),
+        ("rank", "is_second_patrol_leader", "is_patrol_leader"),
+    )
     leader_fields = (
         ("user"),
         ("team", "patrol"),
-        ("rank", "is_patrol_leader", "is_second_team_leader"),
+        (
+            "rank",
+            "is_second_patrol_leader",
+            "is_patrol_leader",
+            "is_second_team_leader",
+        ),
     )
     super_fields = (
         ("user"),
         ("team", "patrol"),
-        ("rank", "is_patrol_leader", "is_second_team_leader", "is_team_leader"),
+        (
+            "rank",
+            "is_second_patrol_leader",
+            "is_patrol_leader",
+            "is_second_team_leader",
+            "is_team_leader",
+        ),
     )
     list_display = (
         "user",
@@ -89,6 +110,7 @@ class EventAdmin(admin.ModelAdmin):
         "is_team_leader",
         "is_second_team_leader",
         "is_patrol_leader",
+        "is_second_patrol_leader",
     )
     list_filter = (
         "team",
@@ -97,6 +119,7 @@ class EventAdmin(admin.ModelAdmin):
         "is_team_leader",
         "is_second_team_leader",
         "is_patrol_leader",
+        "is_second_patrol_leader",
     )
 
     def user_nickname(self, obj):
@@ -107,6 +130,10 @@ class EventAdmin(admin.ModelAdmin):
             self.fields = self.super_fields
         elif request.user.scout.is_team_leader:
             self.fields = self.leader_fields
+        elif request.user.scout.is_second_team_leader:
+            self.fields = self.second_team_leader_fields
+        elif request.user.scout.is_patrol_leader:
+            self.fields = self.patrol_leader_fields
 
         return super(EventAdmin, self).get_form(request, obj, **kwargs)
 

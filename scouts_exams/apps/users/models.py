@@ -51,6 +51,7 @@ class Scout(models.Model):
         Team, on_delete=models.RESTRICT, null=True, default=None, related_name="scouts"
     )
     rank = models.CharField(max_length=20, choices=RANK_CHOICES, default=" ")
+    is_second_patrol_leader = models.BooleanField("Podzastępowy(a)", default=False)
     is_patrol_leader = models.BooleanField("Zastępowy(a)", default=False)
     is_second_team_leader = models.BooleanField("Przypoczny(a)", default=False)
     is_team_leader = models.BooleanField("Drużynowy(a)", default=False)

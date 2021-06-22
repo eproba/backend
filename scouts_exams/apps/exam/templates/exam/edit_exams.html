@@ -4,7 +4,7 @@
 {% if request.user.is_authenticated %}
 {% if exams_list %}
 {% for exam in exams_list %}
-<div id="exam_{{ exam.id }}">
+<div class="block" id="exam_{{ exam.id }}">
 <div class="box">
     <span class="icon-text"><span class="title">{{ exam }} </span><span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="far fa-clipboard"></i></span></span>
     <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span></span>
