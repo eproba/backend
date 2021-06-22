@@ -145,27 +145,61 @@ def edit_exams(request):
         not request.user.scout.is_team_leader
         and not request.user.scout.is_patrol_leader
         and not request.user.scout.is_second_team_leader
+        and not request.user.scout.is_second_patrol_leader
     ):
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    for exam in Exam.objects.filter(scout__team=user.scout.team).exclude(
-        scout=user.scout
-    ):
-        _all = 0
-        _done = 0
-        for task in exam.task_set.all():
-            _all += 1
-            if task.is_done:
-                _done += 1
-        if _all != 0:
-            percent = int(round(_done / _all, 2) * 100)
-            exam.percent = f"{str(percent)}%"
-        else:
-            exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-        exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
-        exams.append(exam)
+    if request.user.scout.is_team_leader or request.user.scout.is_second_team_leader:
+        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
+            _all = 0
+            _done = 0
+            for task in exam.task_set.all():
+                _all += 1
+                if task.is_done:
+                    _done += 1
+            if _all != 0:
+                percent = int(round(_done / _all, 2) * 100)
+                exam.percent = f"{str(percent)}%"
+            else:
+                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exams.append(exam)
+    elif request.user.scout.is_patrol_leader:
+        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
+            scout=user.scout
+        ):
+            _all = 0
+            _done = 0
+            for task in exam.task_set.all():
+                _all += 1
+                if task.is_done:
+                    _done += 1
+            if _all != 0:
+                percent = int(round(_done / _all, 2) * 100)
+                exam.percent = f"{str(percent)}%"
+            else:
+                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exams.append(exam)
+    elif request.user.scout.is_second_patrol_leader:
+        for exam in Exam.objects.filter(scout__patrol__id=user.scout.patrol.id).exclude(
+            scout=user.scout
+        ):
+            _all = 0
+            _done = 0
+            for task in exam.task_set.all():
+                _all += 1
+                if task.is_done:
+                    _done += 1
+            if _all != 0:
+                percent = int(round(_done / _all, 2) * 100)
+                exam.percent = f"{str(percent)}%"
+            else:
+                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exams.append(exam)
     return render(
         request,
         "exam/edit_exams.html",

@@ -9,14 +9,16 @@
       <td>Drużyna</td>
       <td><p>
         {{ user.scout.team }}
-        {% if user.scout.is_team_leader %} - <b>Drużynowy</b>{% endif %}
+        {% if user.scout.is_team_leader %} - <b>Drużynowy(-a)</b>{% endif %}
+        {% if user.scout.is_second_team_leader %} - <b>Przyboczny(-a)</b>{% endif %}
       </p></td>
     </tr>
     <tr>
       <td>Zastęp</td>
       <td><p>
         {{ user.scout.patrol }}
-        {% if user.scout.is_patrol_leader %} - <b>Zastępowy</b>{% endif %}
+        {% if user.scout.is_patrol_leader %} - <b>Zastępowy(-a)</b>{% endif %}
+        {% if user.scout.is_second_patrol_leader %} - <b>Podzastępowy(-a)</b>{% endif %}
       </p></td>
     </tr>
   </table>
