@@ -4,6 +4,7 @@
 {% if request.user.is_authenticated %}
 {% if exams_list %}
 {% for exam in exams_list %}
+<div id="exam_{{ exam.id }}">
 <div class="box">
     <span class="icon-text"><span class="title">{{ exam }} </span><span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="far fa-clipboard"></i></span></span>
     <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span></span>
@@ -31,17 +32,18 @@
                 <th>{{ forloop.counter }}</th>
                 <td>{{ task.task }}</td>
                 {% if task.is_done %}
-                <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
+                <td><div id="status-icon_{{ task.id }}"><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></div></td>
                 {% elif task.is_await %}
-                <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
+                <td><div id="status-icon_{{ task.id }}"><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></div></td>
                 {% else %}
-                <td></td>
+                <td><div id="status-icon_{{ task.id }}"></div></td>
                 {% endif %}
-                <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success " data-tooltip="Zatwierdź zadanie"><a onclick="confirm_popup('{% url 'exam:force_accept_task' exam.id task.id %}', 'Czy na pewno chcesz zatwierdzić zadanie?')"><i class="far fa-check-circle greeniconcolor"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie"><a onclick="confirm_popup('{% url 'exam:force_refuse_task' exam.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i class="far fa-times-circle rediconcolor"></i></a></span></td>
+                <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success" data-tooltip="Zatwierdź zadanie" id="{{ task.id }}"><a onclick="send_post('{% url 'exam:force_accept_task' exam.id task.id %}', '{{ task.id }}', '{{ exam.id }}', 'Czy na pewno chcesz zatwierdzić zadanie?')"><i class="far fa-check-circle" style="color:green;"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie"><a onclick="send_post('{% url 'exam:force_refuse_task' exam.id task.id %}', '{{ task.id }}', '{{ exam.id }}', 'Czy na pewno chcesz odrzucić zadanie?')"><i class="far fa-times-circle" style="color:red;"></i></a></span></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 </div>
 {% endfor %}
 {% else %}
@@ -54,4 +56,23 @@
     Aby edytować próby musisz się najpierw zalogować.
 </div>
 {% endif %}
+<script>
+function send_post(url, task_id="", exam_id="", message="") {
+  if (message) {
+    if (confirm(message)) {
+	  $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
+      var posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
+      posting.done(function(data) {
+        $("#exam_" + exam_id).load(document.URL +  " #exam_" + exam_id);
+      });
+      posting.fail(function(data) {
+		alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
+        $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
+      });
+    }
+  } else {
+    console.log("No message");
+  }
+}
+</script>
 {% endblock %}

@@ -292,40 +292,67 @@ def accept_task(request, exam_id, task_id):
 def force_refuse_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
-    if task.exam != exam or (
-        not request.user.scout.is_patrol_leader
-        and not request.user.scout.is_second_team_leader
-        and not request.user.scout.is_team_leader
-    ):
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
+    if request.method == "POST":
+        if task.exam != exam or (
+            not request.user.scout.is_patrol_leader
+            and not request.user.scout.is_second_team_leader
+            and not request.user.scout.is_team_leader
+        ):
+            return HttpResponse("401 Unauthorized", status=401)
+        Task.objects.filter(id=task.id).update(
+            is_await=False, is_done=False, approver=None, approval_date=None
+        )
+        return HttpResponse("OK", status=200)
+    else:
+        if task.exam != exam or (
+            not request.user.scout.is_patrol_leader
+            and not request.user.scout.is_second_team_leader
+            and not request.user.scout.is_team_leader
+        ):
+            messages.add_message(
+                request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
+            )
+            return redirect(reverse("exam:edit_exams"))
+        Task.objects.filter(id=task.id).update(
+            is_await=False, is_done=False, approver=None, approval_date=None
         )
         return redirect(reverse("exam:edit_exams"))
-    Task.objects.filter(id=task.id).update(
-        is_await=False, is_done=False, approver=None, approval_date=None
-    )
-    return redirect(reverse("exam:edit_exams"))
 
 
 def force_accept_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
-    if task.exam != exam or (
-        not request.user.scout.is_patrol_leader
-        and not request.user.scout.is_second_team_leader
-        and not request.user.scout.is_team_leader
-    ):
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
+    if request.method == "POST":
+        if task.exam != exam or (
+            not request.user.scout.is_patrol_leader
+            and not request.user.scout.is_second_team_leader
+            and not request.user.scout.is_team_leader
+        ):
+            return HttpResponse("401 Unauthorized", status=401)
+        Task.objects.filter(id=task.id).update(
+            is_await=False,
+            is_done=True,
+            approver=request.user.scout,
+            approval_date=datetime.datetime.now(),
+        )
+        return HttpResponse("OK", status=200)
+    else:
+        if task.exam != exam or (
+            not request.user.scout.is_patrol_leader
+            and not request.user.scout.is_second_team_leader
+            and not request.user.scout.is_team_leader
+        ):
+            messages.add_message(
+                request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
+            )
+            return redirect(reverse("exam:edit_exams"))
+        Task.objects.filter(id=task.id).update(
+            is_await=False,
+            is_done=True,
+            approver=request.user.scout,
+            approval_date=datetime.datetime.now(),
         )
         return redirect(reverse("exam:edit_exams"))
-    Task.objects.filter(id=task.id).update(
-        is_await=False,
-        is_done=True,
-        approver=request.user.scout,
-        approval_date=datetime.datetime.now(),
-    )
-    return redirect(reverse("exam:edit_exams"))
 
 
 class SumbitTaskForm(forms.ModelForm):
