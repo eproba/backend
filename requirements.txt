@@ -1,7 +1,7 @@
 django==3.2.5
 django-allauth==0.44.0
 django-crispy-forms==1.12.0
-whitenoise==5.2.0
+whitenoise==5.3.0
 fontawesome-free==5.15.3
 unidecode==1.2.0
 weasyprint==52.5
