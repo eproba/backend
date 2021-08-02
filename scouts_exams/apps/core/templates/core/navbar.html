@@ -80,8 +80,18 @@
 		  <span>Wyloguj się</span>
 		  </a>
 		  {% else %}
-		  <a href="{% url 'signup' %}" button class="button is-primary">Załóż konto</a>
-		  <a href="{% url 'login' %}" class="button is-light">Zaloguj się</a>
+		  <a href="{% url 'signup' %}" class="button is-primary">
+			<span class="icon">
+			  <i class="fas fa-user-plus"></i>
+			</span>
+		  <span>Załóż konto</span>
+		  </a>
+		  <a href="{% url 'login' %}" class="button is-light">
+			<span class="icon">
+			  <i class="fas fa-sign-in-alt"></i>
+			</span>
+		  <span>Zaloguj się</span>
+		  </a>
 		  {% endif %}
         </div>
       </div>
