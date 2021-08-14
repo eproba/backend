@@ -14,6 +14,7 @@ media
 migrations
 settings.py
 scouts_exams/scouts_exams_uwsgi.ini
+scouts_exams/scouts_exams/static
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
