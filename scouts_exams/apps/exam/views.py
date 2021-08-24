@@ -35,7 +35,7 @@ def view_exams(request):
                 exam.percent = f"{str(percent)}%"
             else:
                 exam.percent = "Nie masz jeszcze żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
         return render(
             request,
@@ -164,7 +164,7 @@ def edit_exams(request):
                 exam.percent = f"{str(percent)}%"
             else:
                 exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
     elif request.user.scout.is_patrol_leader:
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
@@ -181,7 +181,7 @@ def edit_exams(request):
                 exam.percent = f"{str(percent)}%"
             else:
                 exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
     elif request.user.scout.is_second_patrol_leader:
         for exam in Exam.objects.filter(scout__patrol__id=user.scout.patrol.id).exclude(
@@ -198,7 +198,7 @@ def edit_exams(request):
                 exam.percent = f"{str(percent)}%"
             else:
                 exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id*7312)}{hex(exam.id*2137)}"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
     return render(
         request,

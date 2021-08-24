@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from apps.blog.sitemaps import PostSitemap
 from apps.core.views import IssueContactView, contactView, frontpage, handler500
 from apps.users.views import (
     change_password,
@@ -40,7 +41,10 @@ from django.views.generic import TemplateView
 
 from .sitemaps import Sitemap
 
-sitemaps = {"static": Sitemap}
+sitemaps = {
+    "posts": PostSitemap,
+    "static": Sitemap,
+}
 admin.site.site_title = "EPRÓBA"
 admin.site.site_header = "Panel administratora"
 handler404 = TemplateView.as_view(template_name="sites/404.html")
@@ -52,6 +56,7 @@ urlpatterns = [
         name="django.contrib.sitemaps.views.sitemap",
     ),
     path("admin/", admin.site.urls, name="admin"),
+    path("news/", include("apps.blog.urls")),
     path("exam/", include("apps.exam.urls")),
     path(
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
