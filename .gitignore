@@ -10,9 +10,7 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
-migrations
-settings.py
+medi
 scouts_exams/scouts_exams_uwsgi.ini
 scouts_exams/scouts_exams/static
 
