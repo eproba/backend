@@ -26,7 +26,6 @@ SECRET_KEY = "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-BASE_DIR = Path(__file__).resolve().parent.parent
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "exam:exam"
 LOGOUT_REDIRECT_URL = "frontpage"
