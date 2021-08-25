@@ -759,7 +759,7 @@
     this.textSprite = textSprite;
     this.restartImg = restartImg;
     this.draw();
-    };
+    }
     /**
     * Dimensions used in the panel.
     * @enum {number}
@@ -873,7 +873,7 @@
     }
     }
     return false;
-    };
+    }
     /**
     * Adjust the collision box.
     * @param {!CollisionBox} box The original box.
@@ -886,7 +886,7 @@
     box.y + adjustment.y,
     box.width,
     box.height);
-    };
+    }
     /**
     * Draw the collision boxes for debug.
     */
@@ -899,7 +899,7 @@
     canvasCtx.strokeRect(obstacleBox.x, obstacleBox.y,
     obstacleBox.width, obstacleBox.height);
     canvasCtx.restore();
-    };
+    }
     /**
     * Compare two collision boxes for a collision.
     * @param {CollisionBox} tRexBox
@@ -920,7 +920,7 @@
     crashed = true;
     }
     return crashed;
-    };
+    }
     //******************************************************************************
     /**
     * Collision box object.
@@ -934,7 +934,7 @@
     this.y = y;
     this.width = w;
     this.height = h;
-    };
+    }
     //******************************************************************************
     /**
     * Obstacle.
@@ -960,7 +960,7 @@
     this.collisionBoxes = [];
     this.gap = 0;
     this.init(speed);
-    };
+    }
     /**
     * Coefficient for calculating the maximum gap.
     * @const
@@ -1131,7 +1131,7 @@
     this.jumpCount = 0;
     this.jumpspotX = 0;
     this.init();
-    };
+    }
     /**
     * T-rex player config.
     * @enum {number}
@@ -1393,7 +1393,7 @@
     this.flashIterations = 0;
     this.config = DistanceMeter.config;
     this.init(canvasWidth);
-    };
+    }
     /**
     * @enum {number}
     */
@@ -1594,7 +1594,7 @@
     this.cloudGap = getRandomNum(Cloud.config.MIN_CLOUD_GAP,
     Cloud.config.MAX_CLOUD_GAP);
     this.init();
-    };
+    }
     /**
     * Cloud object config.
     * @enum {number}
@@ -1675,7 +1675,7 @@
     this.bumpThreshold = 0.5;
     this.setSourceDimensions();
     this.draw();
-    };
+    }
     /**
     * Horizon line dimensions.
     * @enum {number}
@@ -1793,7 +1793,7 @@
     CACTUS_LARGE: images.CACTUS_LARGE
     };
     this.init();
-    };
+    }
     /**
     * Horizon config.
     * @enum {number}
