@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import IssueContactView, contactView, frontpage, handler500
+from apps.core.views import IssueContactView, contactView, frontpage
 from apps.users.views import (
     change_password,
     disconect_socials,
@@ -30,9 +30,7 @@ from django.contrib import admin
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
-    PasswordResetCompleteView,
     PasswordResetConfirmView,
-    PasswordResetDoneView,
     PasswordResetView,
 )
 from django.contrib.sitemaps.views import sitemap
@@ -54,6 +52,10 @@ urlpatterns = [
         sitemap,
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
+    ),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     path("admin/", admin.site.urls, name="admin"),
     path("news/", include("apps.blog.urls")),
