@@ -3,17 +3,17 @@
 
 {% block content %}
 
-<h1 class="title">{{ info }}</h1>
-<form method="post">
-  {% csrf_token %}
-  {% for form in forms %}
-  {{ form|crispy }}
-  {% endfor %}
-  <div class="field">
-    <div class="control">
-      <button class="button is-primary" type="submit">Zapisz</button>
-    </div>
-  </div>
-</form>
+    <h1 class="title">{{ info }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for form in forms %}
+            {{ form|crispy }}
+        {% endfor %}
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit">Zapisz</button>
+            </div>
+        </div>
+    </form>
 
 {% endblock %}

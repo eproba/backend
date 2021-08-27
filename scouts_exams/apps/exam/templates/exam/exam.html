@@ -45,67 +45,74 @@
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
     </span>
-    <span>Wyślij prośbę o zatwierdzenie zadania</span>
-    </button>
-    <button class="button is-primary is-light" onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
+                                <span>Wyślij prośbę o zatwierdzenie zadania</span>
+                            </button>
+                            <button class="button is-primary is-light"
+                                    onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
     <span class="icon">
     <i class="fas fa-paper-plane"></i>
     </span>
-    <span>Wysłane prośby o zatwierdzenie</span>
-    </button>
-    {% else %}
-    <div class="buttons">
-        {% endif %}
-        <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
+                                <span>Wysłane prośby o zatwierdzenie</span>
+                            </button>
+                        {% else %}
+                            <div class="buttons">
+                        {% endif %}
+                    <button class="button is-warning is-light"
+                            onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
         <span class="icon">
         <i class="fas fa-print"></i>
         </span>
-        <span>Drukuj próbę</span>
-        </button>
-        <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować">
-        <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
+                        <span>Drukuj próbę</span>
+                    </button>
+                    <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
+                          data-tooltip="Naciśnij aby skopiować">
+        <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '
+                {{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')"
+                class="button is-link is-light">
         <span class="icon">
         <i class="fas fa-share-alt"></i>
         </span>
         <span>Udostępnij próbę</span>
         </button>
         </span>
-    </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                    <div class="box">
+                        Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją
+                        klikając <a href="{% url 'exam:create_exam' %}">tutaj</a>.
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {% if not is_shared %}
+                <div class="box">
+                    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a
+                        href="{% url 'exam:create_exam' %}">tutaj</a>.
+                </div>
+            {% else %}
+                <div class="box">
+                    Nie powinno cię tu być, idź już sobie.
+                </div>
+                <meta http-equiv="refresh" content="3;url={% url 'frontpage' %}"/>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <div class="box">
+            Aby wyświetlić swoje próby musisz się najpierw zalogować.
+        </div>
     {% endif %}
-</div>
-{% else %}
-<div class="box">
-    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a href="{% url 'exam:create_exam' %}">tutaj</a>.
-</div>
-{% endif %}
-{% endfor %}
-{% else %}
-{% if not is_shared %}
-<div class="box">
-    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a href="{% url 'exam:create_exam' %}">tutaj</a>.
-</div>
-{% else %}
-<div class="box">
-    Nie powinno cię tu być, idź już sobie.
-</div>
-<meta http-equiv="refresh" content="3;url={% url 'frontpage' %}" />
-{% endif %}
-{% endif %}
-{% else %}
-<div class="box">
-    Aby wyświetlić swoje próby musisz się najpierw zalogować.
-</div>
-{% endif %}
 {% if request.user.is_authenticated and not is_shared %}
-<div class="level">
-	<div class="level-item">
-		<button class="button is-link is-outlined" onclick="location.href='{% url 'exam:create_exam' %}'">
+    <div class="level">
+        <div class="level-item">
+            <button class="button is-link is-outlined" onclick="location.href='{% url 'exam:create_exam' %}'">
         <span class="icon">
         <i class="fas fa-plus"></i>
         </span>
-        <span>Dodaj nową próbę</span>
-        </button>
+                <span>Dodaj nową próbę</span>
+            </button>
+        </div>
     </div>
-</div>
 {% endif %}
 {% endblock %}

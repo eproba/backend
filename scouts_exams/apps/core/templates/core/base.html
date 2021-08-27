@@ -1,94 +1,114 @@
 <html>
-    {% load static %}
-    <script>
-        function confirm_popup(url, message="") {
-          if (confirm(message)) {
+{% load static %}
+<script>
+    function confirm_popup(url, message = "") {
+        if (confirm(message)) {
             location.replace(url);
-          }
         }
-        function fallbackCopyTextToClipboard(text, id) {
-          var textArea = document.createElement("textarea");
-          textArea.value = text;
-          
-          // Avoid scrolling to bottom
-          textArea.style.top = "0";
-          textArea.style.left = "0";
-          textArea.style.position = "fixed";
-        
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          
-          var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
-          try {
+    }
+
+    function fallbackCopyTextToClipboard(text, id) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
+        try {
             var successful = document.execCommand('copy');
             var msg = successful ? 'Skopiowano do schowka' : 'Nie udało się skopiować';
             document.getElementById(id).setAttribute("data-tooltip", msg);
-        	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
-          } catch (err) { 
+            setTimeout(() => {
+                document.getElementById(id).setAttribute("data-tooltip", old_tooltip);
+            }, 5000);
+        } catch (err) {
             console.error('Fallback: Oops, unable to copy', err);
-        	document.getElementById(id).setAttribute("data-tooltip", 'Wystąpił błąd i nie udało się skopiować');
-        	setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
-          }
-        
-          document.body.removeChild(textArea);
+            document.getElementById(id).setAttribute("data-tooltip", 'Wystąpił błąd i nie udało się skopiować');
+            setTimeout(() => {
+                document.getElementById(id).setAttribute("data-tooltip", old_tooltip);
+            }, 5000);
         }
-        function copy_to_clipboard(id, text) {
-          if (!navigator.clipboard) {
+
+        document.body.removeChild(textArea);
+    }
+
+    function copy_to_clipboard(id, text) {
+        if (!navigator.clipboard) {
             fallbackCopyTextToClipboard(text, id);
             return;
-          }
-          navigator.clipboard.writeText(text)
-          var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
-          document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
-          setTimeout(() => {  document.getElementById(id).setAttribute("data-tooltip", old_tooltip); }, 5000);
         }
-    </script>
-    <head>
-        <meta charset="utf-8">
-        <meta content="width=device-width, initial-scale=1" name="viewport">
-        <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A" />
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-SMRNGPDD8F"></script>
-		<script>
-		  window.dataLayer = window.dataLayer || [];
-		  function gtag(){dataLayer.push(arguments);}
-		  gtag('js', new Date());
+        navigator.clipboard.writeText(text)
+        var old_tooltip = document.getElementById(id).getAttribute("data-tooltip");
+        document.getElementById(id).setAttribute("data-tooltip", "Skopiowano do schowka");
+        setTimeout(() => {
+            document.getElementById(id).setAttribute("data-tooltip", old_tooltip);
+        }, 5000);
+    }
+</script>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A"/>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SMRNGPDD8F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-		  gtag('config', 'G-SMRNGPDD8F');
-		</script>
-        <title>e-próba</title>
-        <script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-        <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
-        <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
-        <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-		<script type="text/javascript" charset="UTF-8" src="//cdn.cookie-script.com/s/885b512168b0f9e771984917f48c7251.js"></script>
-        {% block headcontent %}
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'G-SMRNGPDD8F');
+    </script>
+    <title>e-próba</title>
+    <script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" charset="UTF-8"
+            src="//cdn.cookie-script.com/s/885b512168b0f9e771984917f48c7251.js"></script>
+    {% block headcontent %}
+    {% endblock %}
+</head>
+<body>
+<div class="container" id="container">
+    {% include "core/navbar.html" %}
+    <br>
+    {% block subnavbarcontent %}
+    {% endblock %}
+    <div class="container" style="position: relative; margin-bottom: 10vh;">
+        {% block content %}
         {% endblock %}
-    </head>
-    <body>
-        <div class="container" id="container">
-            {% include "core/navbar.html" %}
-            <br>
-            {% block subnavbarcontent %}
-            {% endblock %}
-            <div class="container" style="position: relative; margin-bottom: 10vh;">
-                {% block content %}
-                {% endblock %}
-            </div>
-        </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-        {% block footer %}
-        <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-            <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
-            <p class="has-text-centered">
-                <strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
-            </p>
-        </div>
-        {% endblock %}
-    </body>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+{% block footer %}
+    <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
+        <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
+        <p class="has-text-centered">
+            <strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code
+            is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
+        </p>
+    </div>
+{% endblock %}
+</body>
 </html>

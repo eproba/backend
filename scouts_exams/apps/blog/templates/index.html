@@ -1,25 +1,26 @@
 {% extends "core/base.html" %}
 {% block content %}
 
-<div class="container">
-    <div class="row">
-        <!-- Blog Entries Column -->
-        <div>
-            {% for post in post_list %}
-            <div class="block card" onclick="location.href='{% url 'post_detail' post.slug  %}'" style="cursor: pointer;">
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-content">
-                    <p class="title is-4">{{ post.title }}</p>
-                    <p class="subtitle is-6">{{ post.created_on}}</p>
-                  </div>
-                </div>
+    <div class="container">
+        <div class="row">
+            <!-- Blog Entries Column -->
+            <div>
+                {% for post in post_list %}
+                    <div class="block card" onclick="location.href='{% url 'post_detail' post.slug %}'"
+                         style="cursor: pointer;">
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="title is-4">{{ post.title }}</p>
+                                    <p class="subtitle is-6">{{ post.created_on }}</p>
+                                </div>
+                            </div>
 
-                <div class="content">{{post.content}}</div>
-              </div>
+                            <div class="content">{{ post.content }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
-{%endblock%}
+{% endblock %}

@@ -1,41 +1,44 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-<h1 class="title">Zaloguj się</h1>
-<form action="." method="post">
-  {% csrf_token %}
-  {{ form|crispy }}
-  <div class="field">
-  <div class="block">
-  </div>
-	<div class="buttons">
-      <div class="control">
-        <button class="button is-success  is-outlined" type="submit">
+    <h1 class="title">Zaloguj się</h1>
+    <form action="." method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="field">
+            <div class="block">
+            </div>
+            <div class="buttons">
+                <div class="control">
+                    <button class="button is-success  is-outlined" type="submit">
 		  <span class="icon">
 		    <i class="fas fa-key"></i>
           </span>
-          <span>Zaloguj się</span>
-		</button>
-        <button onclick="window.location.href='/accounts/google/login/'" class="button is-danger is-outlined" type="button">
+                        <span>Zaloguj się</span>
+                    </button>
+                    <button onclick="window.location.href='/accounts/google/login/'"
+                            class="button is-danger is-outlined" type="button">
 		  <span class="icon">
 		    <i class="fab fa-google"></i>
           </span>
-          <span>Zaloguj się z Google</span>
-		</button>
-        <button onclick="window.location.href='/accounts/facebook/login/'" class="button is-info  is-outlined" type="button">
+                        <span>Zaloguj się z Google</span>
+                    </button>
+                    <button onclick="window.location.href='/accounts/facebook/login/'"
+                            class="button is-info  is-outlined" type="button">
 		  <span class="icon">
 		    <i class="fab fa-facebook"></i>
           </span>
-          <span>Zaloguj się z Facebook</span>
-		</button>
-        <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-info is-outlined" type="button">
+                        <span>Zaloguj się z Facebook</span>
+                    </button>
+                    <button onclick="window.location.href='{% url 'password_reset' %}'"
+                            class="button is-info is-outlined" type="button">
 		  <span class="icon">
 		    <i class="fas fa-unlock-alt"></i>
           </span>
-          <span>Zapomniałeś hasła?</span>
-		</button>
-	  </div>
-    </div>
-  </div>
-</form>
+                        <span>Zapomniałeś hasła?</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}
