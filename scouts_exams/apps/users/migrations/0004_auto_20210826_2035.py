@@ -6,7 +6,7 @@ from django.db import migrations
 def remove_staff(apps, schema_editor):
     # We can't import the Person model directly as it may be a newer
     # version than this migration expects. We use the historical version.
-    Scout = apps.get_model('users', 'Scout')
+    Scout = apps.get_model("users", "Scout")
     for scout in Scout.objects.all():
         if scout.function < 4 and not scout.user.is_superuser:
             scout.user.is_staff = False
@@ -16,7 +16,7 @@ def remove_staff(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('users', '0003_auto_20210826_1616'),
+        ("users", "0003_auto_20210826_1616"),
     ]
 
     operations = [

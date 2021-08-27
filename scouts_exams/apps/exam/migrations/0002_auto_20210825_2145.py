@@ -6,19 +6,30 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('exam', '0001_initial'),
+        ("exam", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='status',
+            model_name="task",
+            name="status",
             field=models.IntegerField(
-                choices=[(0, 'available'), (1, 'waiting_for_approval'), (2, 'approved'), (3, 'denied')], default=0),
+                choices=[
+                    (0, "available"),
+                    (1, "waiting_for_approval"),
+                    (2, "approved"),
+                    (3, "denied"),
+                ],
+                default=0,
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='exam',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to='exam.exam'),
+            model_name="task",
+            name="exam",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tasks",
+                to="exam.exam",
+            ),
         ),
     ]

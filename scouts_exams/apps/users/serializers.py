@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from .models import User, Scout
+from .models import Scout, User
 
 
 class ScoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scout
-        fields = ['patrol', 'team', 'rank', 'function']
+        fields = ["patrol", "team", "rank", "function"]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -14,4 +14,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ['url', 'nickname', 'email', 'is_staff', 'scout']
+        fields = ["url", "nickname", "email", "is_staff", "scout"]

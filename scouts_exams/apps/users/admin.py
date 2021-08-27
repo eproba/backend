@@ -106,19 +106,53 @@ class EventAdmin(admin.ModelAdmin):
         elif obj.function == 4:
             obj.user.is_staff = True
             obj.user.user_permissions.clear()
-            for perm in ['delete_task', 'change_user', 'view_task', 'change_scout', 'view_exam', 'add_patrol',
-                         'view_scout', 'view_user', 'add_task', 'change_exam', 'change_task', 'delete_patrol',
-                         'change_team', 'delete_exam', 'add_exam', 'view_patrol', 'view_team', 'change_patrol']:
+            for perm in [
+                "delete_task",
+                "change_user",
+                "view_task",
+                "change_scout",
+                "view_exam",
+                "add_patrol",
+                "view_scout",
+                "view_user",
+                "add_task",
+                "change_exam",
+                "change_task",
+                "delete_patrol",
+                "change_team",
+                "delete_exam",
+                "add_exam",
+                "view_patrol",
+                "view_team",
+                "change_patrol",
+            ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
             obj.user.save()
             obj.save()
         elif obj.function >= 5:
             obj.user.is_staff = True
             obj.user.user_permissions.clear()
-            for perm in ['delete_task', 'change_user', 'view_task', 'change_scout', 'view_exam', 'add_patrol',
-                         'view_scout', 'view_user', 'add_task', 'change_exam', 'change_task', 'delete_patrol',
-                         'add_team', 'change_team', 'delete_exam', 'add_exam', 'view_patrol', 'view_team',
-                         'change_patrol']:
+            for perm in [
+                "delete_task",
+                "change_user",
+                "view_task",
+                "change_scout",
+                "view_exam",
+                "add_patrol",
+                "view_scout",
+                "view_user",
+                "add_task",
+                "change_exam",
+                "change_task",
+                "delete_patrol",
+                "add_team",
+                "change_team",
+                "delete_exam",
+                "add_exam",
+                "view_patrol",
+                "view_team",
+                "change_patrol",
+            ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
             obj.user.save()
             obj.save()

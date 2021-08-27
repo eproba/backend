@@ -12,9 +12,9 @@ from django.urls import reverse
 from unidecode import unidecode
 from weasyprint import HTML
 
+from ..users.models import Scout
 from .forms import ExamCreateForm, TaskForm
 from .models import Exam, SentTask, Task
-from ..users.models import Scout
 
 
 def view_exams(request):
@@ -61,8 +61,8 @@ def print_exam(request, hex):
     exams = []
     for exam in Exam.objects.filter(id=exam_id):
         if (
-                unidecode(exam.scout.user.nickname) != exam_user_nickname
-                or exam.scout.user.id != exam_user_id
+            unidecode(exam.scout.user.nickname) != exam_user_nickname
+            or exam.scout.user.id != exam_user_id
         ):
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -101,8 +101,8 @@ def view_shared_exams(request, hex):
     exams = []
     for exam in Exam.objects.filter(id=exam_id):
         if (
-                unidecode(exam.scout.user.nickname) != exam_user_nickname
-                or exam.scout.user.id != exam_user_id
+            unidecode(exam.scout.user.nickname) != exam_user_nickname
+            or exam.scout.user.id != exam_user_id
         ):
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -146,7 +146,7 @@ def edit_exams(request):
         return redirect(reverse("exam:exam"))
     elif request.user.scout.function == 2:
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
-                scout=user.scout
+            scout=user.scout
         ):
             _all = 0
             _done = 0
@@ -199,9 +199,7 @@ def edit_exams(request):
 
 
 def create_exam(request):
-    TaskFormSet = formset_factory(
-        TaskForm, extra=1
-    )
+    TaskFormSet = formset_factory(TaskForm, extra=1)
     if request.method == "POST":
         exam = ExamCreateForm(request.POST)
         tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
@@ -281,11 +279,7 @@ def unsubmit_task(request, exam_id, task_id):
 def refuse_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
-    if (
-            task.status != 1
-            or task.exam != exam
-            or task.approver != request.user.scout
-    ):
+    if task.status != 1 or task.exam != exam or task.approver != request.user.scout:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
@@ -297,11 +291,7 @@ def refuse_task(request, exam_id, task_id):
 def accept_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
-    if (
-            task.status != 1
-            or task.exam != exam
-            or task.approver != request.user.scout
-    ):
+    if task.status != 1 or task.exam != exam or task.approver != request.user.scout:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do akceptacji tego zadania."
         )

@@ -6,7 +6,7 @@ from django.db import migrations
 def detect_task_state(apps, schema_editor):
     # We can't import the Person model directly as it may be a newer
     # version than this migration expects. We use the historical version.
-    Task = apps.get_model('exam', 'Task')
+    Task = apps.get_model("exam", "Task")
     for task in Task.objects.all():
         if task.is_done:
             task.status = 2
@@ -19,7 +19,7 @@ def detect_task_state(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('exam', '0002_auto_20210825_2145'),
+        ("exam", "0002_auto_20210825_2145"),
     ]
 
     operations = [

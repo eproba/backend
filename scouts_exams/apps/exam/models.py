@@ -3,7 +3,12 @@ from django.utils import timezone
 
 from ..users.models import Scout, User
 
-STATUS = ((0, "Do zrobienia"), (1, "Oczekuje na zatwierdzenie"), (2, "Zatwierdzono"), (3, "Odrzucono"))
+STATUS = (
+    (0, "Do zrobienia"),
+    (1, "Oczekuje na zatwierdzenie"),
+    (2, "Zatwierdzono"),
+    (3, "Odrzucono"),
+)
 
 
 class Exam(models.Model):
@@ -26,7 +31,7 @@ class Exam(models.Model):
 
 
 class Task(models.Model):
-    exam = models.ForeignKey(Exam, related_name='tasks', on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, related_name="tasks", on_delete=models.CASCADE)
     task = models.CharField(max_length=250)
     status = models.IntegerField(choices=STATUS, default=0)
     approver = models.ForeignKey(

@@ -5,23 +5,29 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('exam', '0003_auto_20210827_0916'),
+        ("exam", "0003_auto_20210827_0916"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='task',
-            name='is_await',
+            model_name="task",
+            name="is_await",
         ),
         migrations.RemoveField(
-            model_name='task',
-            name='is_done',
+            model_name="task",
+            name="is_done",
         ),
         migrations.AlterField(
-            model_name='task',
-            name='status',
+            model_name="task",
+            name="status",
             field=models.IntegerField(
-                choices=[(0, 'Do zrobienia'), (1, 'Oczekuje na zatwierdzenie'), (2, 'Zatwierdzono'), (3, 'Odrzucono')],
-                default=0),
+                choices=[
+                    (0, "Do zrobienia"),
+                    (1, "Oczekuje na zatwierdzenie"),
+                    (2, "Zatwierdzono"),
+                    (3, "Odrzucono"),
+                ],
+                default=0,
+            ),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('exam', '0004_auto_20210827_1054'),
+        ("exam", "0004_auto_20210827_1054"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='task',
-            name='approval_date',
+            model_name="task",
+            name="approval_date",
             field=models.DateTimeField(default=django.utils.timezone.now, null=True),
         ),
     ]

@@ -6,7 +6,7 @@ from .models import Exam, Task
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['task', 'status', 'approver', 'approval_date']
+        fields = ["task", "status", "approver", "approval_date"]
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -14,4 +14,4 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ['id', 'name', 'scout', 'tasks']
+        fields = ["id", "name", "scout", "tasks"]

@@ -36,11 +36,19 @@ from django.contrib.auth.views import (
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
-from oauth2_provider.urls import base_urlpatterns, app_name
+from oauth2_provider.urls import app_name, base_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
-from .utils import UserList, UserDetails, UserExamList, UserExamDetails, ExamDetails, ExamList, UserInfo
+from .utils import (
+    ExamDetails,
+    ExamList,
+    UserDetails,
+    UserExamDetails,
+    UserExamList,
+    UserInfo,
+    UserList,
+)
 
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
@@ -66,14 +74,14 @@ urlpatterns = [
     path("account/socials/disconect", disconect_socials, name="disconect_socials"),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
-    path('api/oauth/', include((base_urlpatterns, app_name), namespace=app_name)),
-    path('api/user/', UserInfo.as_view({'get': 'list'})),
-    path('api/exams/', UserExamList.as_view({'get': 'list'})),
-    path('api/exams/<pk>/', UserExamDetails.as_view()),
-    path('api/all/exams/', ExamList.as_view({'get': 'list'})),
-    path('api/all/exams/<pk>/', ExamDetails.as_view()),
-    path('api/all/users/', UserList.as_view()),
-    path('api/all/users/<pk>/', UserDetails.as_view()),
+    path("api/oauth/", include((base_urlpatterns, app_name), namespace=app_name)),
+    path("api/user/", UserInfo.as_view({"get": "list"})),
+    path("api/exams/", UserExamList.as_view({"get": "list"})),
+    path("api/exams/<pk>/", UserExamDetails.as_view()),
+    path("api/all/exams/", ExamList.as_view({"get": "list"})),
+    path("api/all/exams/<pk>/", ExamDetails.as_view()),
+    path("api/all/users/", UserList.as_view()),
+    path("api/all/users/<pk>/", UserDetails.as_view()),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("exam/", include("apps.exam.urls")),
