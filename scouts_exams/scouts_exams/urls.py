@@ -50,6 +50,9 @@ from .utils import (
     UserList,
 )
 
+handler404 = 'apps.core.views.handler404'
+handler500 = 'apps.core.views.handler500'
+
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
 
