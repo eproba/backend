@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 LOGIN_URL = "login"
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
     "django.contrib.sites",
+    "rest_framework",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
+    'oauth2_provider',
 ]
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 MIDDLEWARE = [
@@ -68,6 +70,21 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "scouts_exams.urls"
 
+# API
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+}
 # Accounts
 AUTH_USER_MODEL = "users.User"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -188,5 +205,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "scouts_exams/static"]
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
