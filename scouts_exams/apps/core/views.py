@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.mail import BadHeaderError, send_mail
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 
 from .forms import ContactForm, IssueContactForm

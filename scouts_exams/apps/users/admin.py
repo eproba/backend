@@ -2,7 +2,7 @@ from apps.users.models import Scout, User
 from apps.users.views import UserCreationForm
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 
 
 class CustomUserAdmin(UserAdmin):
@@ -26,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {"fields": ("email", "password", "nickname")}),
         (
             "Permissions",
-            {"fields": ("is_staff", "is_active", "is_superuser", "groups")},
+            {"fields": ("is_staff", "is_active", "is_superuser", "user_permissions")},
         ),
     )
     add_fieldsets = (
@@ -68,37 +68,9 @@ class EventAdmin(admin.ModelAdmin):
     fields = (
         ("user"),
         ("team", "patrol"),
-        ("rank"),
-    )
-    patrol_leader_fields = (
-        ("user"),
-        ("team", "patrol"),
-        ("rank", "is_second_patrol_leader"),
-    )
-    second_team_leader_fields = (
-        ("user"),
-        ("team", "patrol"),
-        ("rank", "is_second_patrol_leader", "is_patrol_leader"),
-    )
-    leader_fields = (
-        ("user"),
-        ("team", "patrol"),
         (
             "rank",
-            "is_second_patrol_leader",
-            "is_patrol_leader",
-            "is_second_team_leader",
-        ),
-    )
-    super_fields = (
-        ("user"),
-        ("team", "patrol"),
-        (
-            "rank",
-            "is_second_patrol_leader",
-            "is_patrol_leader",
-            "is_second_team_leader",
-            "is_team_leader",
+            "function",
         ),
     )
     list_display = (
@@ -107,35 +79,17 @@ class EventAdmin(admin.ModelAdmin):
         "team",
         "patrol",
         "rank",
-        "is_team_leader",
-        "is_second_team_leader",
-        "is_patrol_leader",
-        "is_second_patrol_leader",
+        "function",
     )
     list_filter = (
         "team",
         "patrol",
         "rank",
-        "is_team_leader",
-        "is_second_team_leader",
-        "is_patrol_leader",
-        "is_second_patrol_leader",
+        "function",
     )
 
     def user_nickname(self, obj):
         return obj.user.nickname
-
-    def get_form(self, request, obj=None, **kwargs):
-        if request.user.is_superuser:
-            self.fields = self.super_fields
-        elif request.user.scout.is_team_leader:
-            self.fields = self.leader_fields
-        elif request.user.scout.is_second_team_leader:
-            self.fields = self.second_team_leader_fields
-        elif request.user.scout.is_patrol_leader:
-            self.fields = self.patrol_leader_fields
-
-        return super(EventAdmin, self).get_form(request, obj, **kwargs)
 
     def get_queryset(self, request):
         qs = super(EventAdmin, self).get_queryset(request)
@@ -145,62 +99,31 @@ class EventAdmin(admin.ModelAdmin):
             return qs
 
     def save_model(self, request, obj, form, change):
-        if obj.is_team_leader:
+        if obj.user.is_superuser:
             obj.user.is_staff = True
-            try:
-                rgroup = Group.objects.get(name="ZZ")
-                rgroup.user_set.remove(obj.user)
-                rgroup = Group.objects.get(name="second_leader")
-                rgroup.user_set.remove(obj.user)
-                group = Group.objects.get(name="leader")
-                group.user_set.add(obj.user)
-            except:
-                pass
             obj.user.save()
             obj.save()
-        elif obj.is_second_team_leader:
+        elif obj.function == 4:
             obj.user.is_staff = True
-            try:
-                rgroup = Group.objects.get(name="ZZ")
-                rgroup.user_set.remove(obj.user)
-                rgroup = Group.objects.get(name="leader")
-                rgroup.user_set.remove(obj.user)
-                group = Group.objects.get(name="second_leader")
-                group.user_set.add(obj.user)
-            except:
-                pass
+            obj.user.user_permissions.clear()
+            for perm in ['delete_task', 'change_user', 'view_task', 'change_scout', 'view_exam', 'add_patrol',
+                         'view_scout', 'view_user', 'add_task', 'change_exam', 'change_task', 'delete_patrol',
+                         'change_team', 'delete_exam', 'add_exam', 'view_patrol', 'view_team', 'change_patrol']:
+                obj.user.user_permissions.add(Permission.objects.get(codename=perm))
             obj.user.save()
             obj.save()
-        elif obj.is_patrol_leader:
+        elif obj.function >= 5:
             obj.user.is_staff = True
-            try:
-                rgroup = Group.objects.get(name="leader")
-                rgroup.user_set.remove(obj.user)
-                rgroup = Group.objects.get(name="second_leader")
-                rgroup.user_set.remove(obj.user)
-                group = Group.objects.get(name="ZZ")
-                group.user_set.add(obj.user)
-            except:
-                pass
-            obj.user.save()
-            obj.save()
-        elif (
-            not obj.is_patrol_leader
-            or not obj.is_team_leader
-            or not obj.is_second_team_leader
-        ):
-            if not obj.user.is_superuser:
-                obj.user.is_staff = False
-            try:
-                group = Group.objects.get(name="leader")
-                group.user_set.remove(obj.user)
-                group = Group.objects.get(name="second_leader")
-                group.user_set.remove(obj.user)
-                group = Group.objects.get(name="ZZ")
-                group.user_set.remove(obj.user)
-            except:
-                pass
+            obj.user.user_permissions.clear()
+            for perm in ['delete_task', 'change_user', 'view_task', 'change_scout', 'view_exam', 'add_patrol',
+                         'view_scout', 'view_user', 'add_task', 'change_exam', 'change_task', 'delete_patrol',
+                         'add_team', 'change_team', 'delete_exam', 'add_exam', 'view_patrol', 'view_team',
+                         'change_patrol']:
+                obj.user.user_permissions.add(Permission.objects.get(codename=perm))
             obj.user.save()
             obj.save()
         else:
+            obj.user.is_staff = False
+            obj.user.user_permissions.clear()
+            obj.user.save()
             obj.save()

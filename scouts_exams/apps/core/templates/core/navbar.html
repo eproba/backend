@@ -21,33 +21,33 @@
                 Strona główna
             </a>
 
-      <a class="navbar-item"  href="{% url 'exam:exam' %}">
-        Twoje próby
-      </a>
-	  {% if request.user.scout.is_team_leader or request.user.scout.is_second_team_leader  or request.user.scout.is_patrol_leader  or request.user.scout.is_second_patrol_leader %}
-	  <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          Zarządzaj próbami
-        </a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item"  href="{% url 'exam:check_tasks' %}">
-			Prośby o zatwierdzenie
-          </a>
-          <a class="navbar-item"  href="{% url 'exam:edit_exams' %}">
-            Zarządzaj próbami
-          </a>
-        </div>
-      </div>
-	  {% endif %}
-	  {% if request.user.is_superuser or request.user.scout.is_patrol_leader or request.user.scout.is_team_leader %}
-      <a class="navbar-item"  href="/admin">
-        Panel administratora
-      </a>
-	  {% endif %}
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          Więcej
-        </a>
+            <a class="navbar-item" href="{% url 'exam:exam' %}">
+                Twoje próby
+            </a>
+            {% if request.user.scout.function >= 2 %}
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Zarządzaj próbami
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="{% url 'exam:check_tasks' %}">
+                            Prośby o zatwierdzenie
+                        </a>
+                        <a class="navbar-item" href="{% url 'exam:edit_exams' %}">
+                            Zarządzaj próbami
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            {% if request.user.is_superuser or request.user.scout.function >= 4 %}
+                <a class="navbar-item" href="/admin">
+                    Panel administratora
+                </a>
+            {% endif %}
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Więcej
+                </a>
 
                 <div class="navbar-dropdown">
                     <a class="navbar-item" href="{% url 'about' %}">

@@ -23,10 +23,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Scout(models.Model):
-    """
-    Harcerz (jako dodatkowe atrybuty użytkownika)
-    """
-
     RANK_CHOICES = [
         (" ", "bez stopnia"),
         ("mł.", "mł."),
@@ -38,6 +34,14 @@ class Scout(models.Model):
         ("pwd. HR", "pwd. HR"),
         ("phm. HR", "phm. HR"),
         ("hm. HR", "hm. HR"),
+    ]
+    FUNCTION_CHOICES = [
+        (0, "Druh"),
+        (1, "Podzastępowy"),
+        (2, "Zastępowy"),
+        (3, "Przyboczny"),
+        (4, "Drużynowy"),
+        (5, "Wyższa funkcja"),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     patrol = models.ForeignKey(
@@ -51,10 +55,7 @@ class Scout(models.Model):
         Team, on_delete=models.RESTRICT, null=True, default=None, related_name="scouts"
     )
     rank = models.CharField(max_length=20, choices=RANK_CHOICES, default=" ")
-    is_second_patrol_leader = models.BooleanField("Podzastępowy(a)", default=False)
-    is_patrol_leader = models.BooleanField("Zastępowy(a)", default=False)
-    is_second_team_leader = models.BooleanField("Przypoczny(a)", default=False)
-    is_team_leader = models.BooleanField("Drużynowy(a)", default=False)
+    function = models.IntegerField(choices=FUNCTION_CHOICES, default=0)
 
     REQUIRED_FIELDS = ["initials", "patrol", "team", "rank"]
 

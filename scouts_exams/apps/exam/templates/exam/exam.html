@@ -1,47 +1,53 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% if request.user.is_authenticated or is_shared %}
-{% if exams_list %}
-{% for exam in exams_list %}
-{% if request.user.id == exam.scout.user.id or is_shared %}
-<div class="box">
-<h1 class="title">{{ exam }}</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th class="is-narrow">Lp.</th>
-            <th>Zadanie</th>
-            <th>Zaliczone?</th>
-        </tr>
-    </thead>
-    <tfoot>
-        <tr>
-            <th></th>
-            <th></th>
-            <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
-        </tr>
-    </tfoot>
-    <tbody>
-        {% for task in exam.task_set.all %}
-        <tr>
-            <th>{{ forloop.counter }}</th>
-            <td>{{ task.task }}</td>
-            {% if task.is_done %}
-            <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></td>
-            {% elif task.is_await %}
-            <td><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></td>
-            {% else %}
-            <td></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% if not is_shared %}
-{% if exam.percent != "100%" %}
-<div class="buttons">
-    <button class="button is-success is-light" onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
+    {% if request.user.is_authenticated or is_shared %}
+        {% if exams_list %}
+            {% for exam in exams_list %}
+                {% if request.user.id == exam.scout.user.id or is_shared %}
+                    <div class="box">
+                    <h1 class="title">{{ exam }}</h1>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th class="is-narrow">Lp.</th>
+                            <th>Zadanie</th>
+                            <th>Zaliczone?</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary"
+                                      data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for task in exam.tasks.all %}
+                            <tr>
+                                <th>{{ forloop.counter }}</th>
+                                <td>{{ task.task }}</td>
+                                {% if task.status == 2 %}
+                                    <td><span class="has-tooltip-arrow has-tooltip-right"
+                                              data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                            class="far fa-check-circle"></i></span></td>
+                                {% elif task.status == 1 %}
+                                    <td><span class="has-tooltip-arrow has-tooltip-right"
+                                              data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                            class="far fa-clock"></i></span></td>
+                                {% else %}
+                                    <td></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if not is_shared %}
+                        {% if exam.percent != "100%" %}
+                            <div class="buttons">
+                            <button class="button is-success is-light"
+                                    onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
     </span>

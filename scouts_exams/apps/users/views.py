@@ -10,7 +10,6 @@ from django.contrib.auth.forms import (
     UserChangeForm,
     UserCreationForm,
 )
-from django.contrib.auth.models import Group
 from django.db import transaction
 from django.forms import Select
 from django.shortcuts import get_object_or_404, redirect, render, reverse

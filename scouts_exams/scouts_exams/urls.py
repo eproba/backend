@@ -45,7 +45,6 @@ sitemaps = {
 }
 admin.site.site_title = "EPRÓBA"
 admin.site.site_header = "Panel administratora"
-handler404 = TemplateView.as_view(template_name="sites/404.html")
 urlpatterns = [
     path(
         "sitemap.xml",

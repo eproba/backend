@@ -1,9 +1,9 @@
-import datetime
-
 from django.db import models
 from django.utils import timezone
 
 from ..users.models import Scout, User
+
+STATUS = ((0, "Do zrobienia"), (1, "Oczekuje na zatwierdzenie"), (2, "Zatwierdzono"), (3, "Odrzucono"))
 
 
 class Exam(models.Model):
@@ -26,10 +26,9 @@ class Exam(models.Model):
 
 
 class Task(models.Model):
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, related_name='tasks', on_delete=models.CASCADE)
     task = models.CharField(max_length=250)
-    is_done = models.BooleanField(default=False)
-    is_await = models.BooleanField(default=False)
+    status = models.IntegerField(choices=STATUS, default=0)
     approver = models.ForeignKey(
         Scout,
         on_delete=models.RESTRICT,
@@ -38,7 +37,7 @@ class Task(models.Model):
         related_name="approver",
         blank=True,
     )
-    approval_date = models.DateTimeField(auto_now=True, null=True)
+    approval_date = models.DateTimeField(default=timezone.now, null=True)
 
     def __str__(self):
         return self.task
@@ -50,6 +49,7 @@ class Task(models.Model):
         verbose_name_plural = "Zadania"
 
 
+# TODO: merge SentTask model with Task
 class SentTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, default=None)
     user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True, default=None)

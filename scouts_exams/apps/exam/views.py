@@ -2,21 +2,19 @@ import datetime
 
 from django import forms
 from django.contrib import messages
-from django.db.models import CharField, Q, Value
+from django.db.models import Q
 from django.forms import Select
 from django.forms.formsets import formset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.views import generic
 from unidecode import unidecode
 from weasyprint import HTML
 
-from ..teams.models import Patrol
-from ..users.models import Scout, User
 from .forms import ExamCreateForm, TaskForm
 from .models import Exam, SentTask, Task
+from ..users.models import Scout
 
 
 def view_exams(request):
@@ -26,9 +24,9 @@ def view_exams(request):
         for exam in Exam.objects.filter(scout__user=user):
             _all = 0
             _done = 0
-            for task in exam.task_set.all():
+            for task in exam.tasks.all():
                 _all += 1
-                if task.is_done:
+                if task.status == 2:
                     _done += 1
             if _all != 0:
                 percent = int(round(_done / _all, 2) * 100)
@@ -63,8 +61,8 @@ def print_exam(request, hex):
     exams = []
     for exam in Exam.objects.filter(id=exam_id):
         if (
-            unidecode(exam.scout.user.nickname) != exam_user_nickname
-            or exam.scout.user.id != exam_user_id
+                unidecode(exam.scout.user.nickname) != exam_user_nickname
+                or exam.scout.user.id != exam_user_id
         ):
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -103,8 +101,8 @@ def view_shared_exams(request, hex):
     exams = []
     for exam in Exam.objects.filter(id=exam_id):
         if (
-            unidecode(exam.scout.user.nickname) != exam_user_nickname
-            or exam.scout.user.id != exam_user_id
+                unidecode(exam.scout.user.nickname) != exam_user_nickname
+                or exam.scout.user.id != exam_user_id
         ):
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -113,9 +111,9 @@ def view_shared_exams(request, hex):
 
         _all = 0
         _done = 0
-        for task in exam.task_set.all():
+        for task in exam.tasks.all():
             _all += 1
-            if task.is_done:
+            if task.status == 2:
                 _done += 1
         if _all != 0:
             percent = int(round(_done / _all, 2) * 100)
@@ -141,23 +139,35 @@ def edit_exams(request):
         return render(request, "exam/edit_exams.html")
     user = request.user
     exams = []
-    if (
-        not request.user.scout.is_team_leader
-        and not request.user.scout.is_patrol_leader
-        and not request.user.scout.is_second_team_leader
-        and not request.user.scout.is_second_patrol_leader
-    ):
+    if request.user.scout.function == 0 or request.user.scout.function == 1:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    if request.user.scout.is_team_leader or request.user.scout.is_second_team_leader:
+    elif request.user.scout.function == 2:
+        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
+                scout=user.scout
+        ):
+            _all = 0
+            _done = 0
+            for task in exam.tasks.all():
+                _all += 1
+                if task.status == 2:
+                    _done += 1
+            if _all != 0:
+                percent = int(round(_done / _all, 2) * 100)
+                exam.percent = f"{str(percent)}%"
+            else:
+                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
+            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
+            exams.append(exam)
+    elif request.user.scout.function == 3 or request.user.scout.function == 4:
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
             _all = 0
             _done = 0
-            for task in exam.task_set.all():
+            for task in exam.tasks.all():
                 _all += 1
-                if task.is_done:
+                if task.status == 2:
                     _done += 1
             if _all != 0:
                 percent = int(round(_done / _all, 2) * 100)
@@ -166,32 +176,13 @@ def edit_exams(request):
                 exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
             exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
-    elif request.user.scout.is_patrol_leader:
-        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
-            scout=user.scout
-        ):
+    elif request.user.scout.function >= 5:
+        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
             _all = 0
             _done = 0
-            for task in exam.task_set.all():
+            for task in exam.tasks.all():
                 _all += 1
-                if task.is_done:
-                    _done += 1
-            if _all != 0:
-                percent = int(round(_done / _all, 2) * 100)
-                exam.percent = f"{str(percent)}%"
-            else:
-                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-            exams.append(exam)
-    elif request.user.scout.is_second_patrol_leader:
-        for exam in Exam.objects.filter(scout__patrol__id=user.scout.patrol.id).exclude(
-            scout=user.scout
-        ):
-            _all = 0
-            _done = 0
-            for task in exam.task_set.all():
-                _all += 1
-                if task.is_done:
+                if task.status == 2:
                     _done += 1
             if _all != 0:
                 percent = int(round(_done / _all, 2) * 100)
@@ -210,10 +201,8 @@ def edit_exams(request):
 def create_exam(request):
     TaskFormSet = formset_factory(
         TaskForm, extra=1
-    )  # Set maximum to avoid default of 1000 forms.
+    )
     if request.method == "POST":
-        # Django will become valid even if an empty form is submitted. Adding initial data causes unbound form and
-        # trigger formset.errors
         exam = ExamCreateForm(request.POST)
         tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
 
@@ -242,28 +231,23 @@ def check_tasks(request):
         return render(request, "exam/check_tasks.html")
     user = request.user
     exams = []
-    if (
-        not request.user.scout.is_team_leader
-        and not request.user.scout.is_second_team_leader
-        and not request.user.scout.is_patrol_leader
-        and not request.user.scout.is_second_patrol_leader
-    ):
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do akceptacji zadań."
+    if user.scout.function >= 2:
+        for exam in Exam.objects.all():
+            tasks = []
+            for task in exam.tasks.filter(status=1, approver=user.scout):
+                tasks.append(task)
+            if tasks != []:
+                exam.task_list = tasks
+                exams.append(exam)
+        return render(
+            request,
+            "exam/check_tasks.html",
+            {"user": user, "exams_list": exams},
         )
-        return redirect(reverse("exam:exam"))
-    for exam in Exam.objects.all():
-        tasks = []
-        for task in exam.task_set.filter(is_await=True, approver=user.scout):
-            tasks.append(task)
-        if tasks != []:
-            exam.task_list = tasks
-            exams.append(exam)
-    return render(
-        request,
-        "exam/check_tasks.html",
-        {"user": user, "exams_list": exams},
+    messages.add_message(
+        request, messages.INFO, "Nie masz uprawnień do akceptacji zadań."
     )
+    return redirect(reverse("exam:exam"))
 
 
 def sent_tasks(request, exam_id):
@@ -277,7 +261,7 @@ def sent_tasks(request, exam_id):
         {
             "user": request.user,
             "exam": exam,
-            "tasks_list": Task.objects.filter(is_await=True, exam=exam),
+            "tasks_list": Task.objects.filter(status=1, exam=exam),
         },
     )
 
@@ -285,12 +269,12 @@ def sent_tasks(request, exam_id):
 def unsubmit_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
-    if request.user.scout != exam.scout or task.is_await != True or task.exam != exam:
+    if request.user.scout != exam.scout or task.status != 1 or task.exam != exam:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do edycji tego zadania."
         )
         return redirect(reverse("exam:exam"))
-    Task.objects.filter(task=task).update(is_await=False, approver=None)
+    Task.objects.filter(task=task).update(status=0, approver=None)
     return redirect(f"/exam/{str(exam_id)}/tasks/sent")
 
 
@@ -298,15 +282,15 @@ def refuse_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if (
-        task.is_await != True
-        or task.exam != exam
-        or task.approver != request.user.scout
+            task.status != 1
+            or task.exam != exam
+            or task.approver != request.user.scout
     ):
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
-    Task.objects.filter(id=task.id).update(is_await=False, approver=None)
+    Task.objects.filter(id=task.id).update(status=3, approver=None)
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -314,16 +298,16 @@ def accept_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if (
-        task.is_await != True
-        or task.exam != exam
-        or task.approver != request.user.scout
+            task.status != 1
+            or task.exam != exam
+            or task.approver != request.user.scout
     ):
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do akceptacji tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
     Task.objects.filter(id=task.id).update(
-        is_await=False, is_done=True, approval_date=datetime.datetime.now()
+        status=2, approval_date=datetime.datetime.now()
     )
     return redirect(reverse("exam:check_tasks"))
 
@@ -332,28 +316,20 @@ def force_refuse_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
-        if task.exam != exam or (
-            not request.user.scout.is_patrol_leader
-            and not request.user.scout.is_second_team_leader
-            and not request.user.scout.is_team_leader
-        ):
+        if task.exam != exam or request.user.scout.function < 2:
             return HttpResponse("401 Unauthorized", status=401)
         Task.objects.filter(id=task.id).update(
-            is_await=False, is_done=False, approver=None, approval_date=None
+            status=3, approver=None, approval_date=None
         )
         return HttpResponse("OK", status=200)
     else:
-        if task.exam != exam or (
-            not request.user.scout.is_patrol_leader
-            and not request.user.scout.is_second_team_leader
-            and not request.user.scout.is_team_leader
-        ):
+        if task.exam != exam or request.user.scout.function < 2:
             messages.add_message(
                 request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
             )
             return redirect(reverse("exam:edit_exams"))
         Task.objects.filter(id=task.id).update(
-            is_await=False, is_done=False, approver=None, approval_date=None
+            status=3, approver=None, approval_date=None
         )
         return redirect(reverse("exam:edit_exams"))
 
@@ -362,32 +338,22 @@ def force_accept_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
-        if task.exam != exam or (
-            not request.user.scout.is_patrol_leader
-            and not request.user.scout.is_second_team_leader
-            and not request.user.scout.is_team_leader
-        ):
+        if task.exam != exam or request.user.scout.function < 2:
             return HttpResponse("401 Unauthorized", status=401)
         Task.objects.filter(id=task.id).update(
-            is_await=False,
-            is_done=True,
+            status=2,
             approver=request.user.scout,
             approval_date=datetime.datetime.now(),
         )
         return HttpResponse("OK", status=200)
     else:
-        if task.exam != exam or (
-            not request.user.scout.is_patrol_leader
-            and not request.user.scout.is_second_team_leader
-            and not request.user.scout.is_team_leader
-        ):
+        if task.exam != exam or request.user.scout.function < 2:
             messages.add_message(
                 request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
             )
             return redirect(reverse("exam:edit_exams"))
         Task.objects.filter(id=task.id).update(
-            is_await=False,
-            is_done=True,
+            status=2,
             approver=request.user.scout,
             approval_date=datetime.datetime.now(),
         )
@@ -399,30 +365,15 @@ class SumbitTaskForm(forms.ModelForm):
         super(SumbitTaskForm, self).__init__(*args, **kwargs)
         self.fields["approver"].widget.attrs["required"] = "required"
         if request.user.scout.team:
-            query = Q(is_patrol_leader=True)
-            query.add(Q(is_second_team_leader=True), Q.OR)
-            query.add(Q(is_team_leader=True), Q.OR)
+            query = Q(function__gte=2)
+            query.add(Q(function__gt=request.user.scout.function), Q.AND)
             query.add(Q(team=request.user.scout.team), Q.AND)
-            if (
-                request.user.scout.patrol
-                and request.user.scout.is_second_patrol_leader == False
-                and request.user.scout.is_patrol_leader == False
-                and request.user.scout.is_second_team_leader == False
-                and request.user.scout.is_team_leader == False
-            ):
-                query.add(
-                    Q(is_second_patrol_leader=True)
-                    & Q(patrol=request.user.scout.patrol),
-                    Q.OR,
-                )
             self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
                 user=request.user
             )
         else:
             self.fields["approver"].queryset = Scout.objects.filter(
-                Q(is_patrol_leader=True)
-                | Q(is_team_leader=True)
-                | Q(is_second_team_leader=True)
+                Q(function__gte=2)
             ).exclude(user=request.user)
 
     class Meta:
@@ -444,7 +395,7 @@ class SumbitSelectTaskForm(forms.ModelForm):
             if hasattr(bound_field, "field") and bound_field.field.required:
                 bound_field.field.widget.attrs["required"] = "required"
         self.fields["task"].queryset = (
-            Task.objects.filter(exam=exam).exclude(is_done=True).exclude(is_await=True)
+            Task.objects.filter(exam=exam).exclude(status=1).exclude(status=2)
         )
 
     class Meta:
@@ -485,7 +436,7 @@ def submit_task(request, exam_id):
             submited_task = submit_task_form.save(commit=False)
             submited_task.user = request.user
             submited_task.exam = exam
-            submited_task.is_await = True
+            submited_task.status = 1
             submited_task.save()
 
             return redirect(reverse("exam:exam"))
