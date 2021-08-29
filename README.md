@@ -17,7 +17,7 @@ First make sure you have installed python in min. version 3.7 or recommend 3.9
 10. Start server: `python3 scouts_exams/manage.py runserver`  
 
 ### Windows
-First make sure you have installed [git](https://git-scm.com/downloads) [python](https://www.python.org/downloads/) in min. version 3.7 or recommend 3.9.  
+First make sure you have installed [git](https://git-scm.com/downloads) and [python](https://www.python.org/downloads/) in min. version 3.7 or recommend 3.9.  
 If you are using Windows 10 or Windows 11, you can download python from the [Microsoft store](https://www.microsoft.com/store/productId/9P7QFQMJRFP7).
 1. Clone repository to your disk using `git clone git@github.com:Antoni-Czaplicki/scouts_exams.git`  
 2. Navigate to repo directory: `cd scouts_exams`  
