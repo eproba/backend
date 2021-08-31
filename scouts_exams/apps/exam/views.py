@@ -1,20 +1,17 @@
 import datetime
 
-from django import forms
 from django.contrib import messages
-from django.db.models import Q
-from django.forms import Select
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from unidecode import unidecode
 from weasyprint import HTML
 
-from ..users.models import Scout
-from .forms import ExamCreateForm, TaskForm
-from .models import Exam, SentTask, Task
+from .forms import ExamCreateForm, ExtendedExamCreateForm, SubmitTaskForm, TaskForm
+from .models import Exam, Task
 
 
 def view_exams(request):
@@ -24,15 +21,21 @@ def view_exams(request):
         for exam in Exam.objects.filter(scout__user=user):
             _all = 0
             _done = 0
+            exam.show_submit_task_button = False
+            exam.show_sent_tasks_button = False
             for task in exam.tasks.all():
                 _all += 1
                 if task.status == 2:
                     _done += 1
+                elif task.status == 0 or task.status == 3:
+                    exam.show_submit_task_button = True
+                elif task.status == 1:
+                    exam.show_sent_tasks_button = True
             if _all != 0:
                 percent = int(round(_done / _all, 2) * 100)
                 exam.percent = f"{str(percent)}%"
             else:
-                exam.percent = "Nie masz jeszcze żadnych zadań"
+                exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
             exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
         return render(
@@ -134,9 +137,9 @@ def view_shared_exams(request, hex):
     )
 
 
-def edit_exams(request):
+def manage_exams(request):
     if not request.user.is_authenticated:
-        return render(request, "exam/edit_exams.html")
+        return render(request, "exam/manage_exams.html")
     user = request.user
     exams = []
     if request.user.scout.function == 0 or request.user.scout.function == 1:
@@ -193,7 +196,7 @@ def edit_exams(request):
             exams.append(exam)
     return render(
         request,
-        "exam/edit_exams.html",
+        "exam/manage_exams.html",
         {"user": user, "exams_list": exams},
     )
 
@@ -201,13 +204,18 @@ def edit_exams(request):
 def create_exam(request):
     TaskFormSet = formset_factory(TaskForm, extra=1)
     if request.method == "POST":
-        exam = ExamCreateForm(request.POST)
+        if request.user.scout.function >= 2:
+            exam = ExtendedExamCreateForm(request.user, request.POST)
+        else:
+            exam = ExamCreateForm(request.POST)
         tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
-
         if exam.is_valid():
-            exam_obj = exam.save()
-            exam_obj.scout = request.user.scout
-            exam_obj.save()
+            if request.user.scout.function >= 2:
+                exam_obj = exam.save()
+            else:
+                exam_obj = exam.save(commit=False)
+                exam_obj.scout = request.user.scout
+                exam_obj.save()
             if tasks.is_valid():
                 tasks_data = tasks.cleaned_data
                 for task in tasks_data:
@@ -215,10 +223,16 @@ def create_exam(request):
                         Task.objects.create(exam=exam_obj, task=task["task"])
 
             messages.add_message(request, messages.INFO, "Próba została utworzona.")
-            return redirect(reverse("exam:exam"))
+            if request.GET.get("next", False):
+                return redirect(request.GET.get("next"))
+            else:
+                return redirect(reverse("exam:exam"))
 
     else:
-        exam = ExamCreateForm()
+        if request.user.scout.function >= 2:
+            exam = ExtendedExamCreateForm(request.user)
+        else:
+            exam = ExamCreateForm()
         tasks = TaskFormSet()
 
     return render(request, "exam/create_exam.html", {"exam": exam, "tasks": tasks})
@@ -350,98 +364,37 @@ def force_accept_task(request, exam_id, task_id):
         return redirect(reverse("exam:edit_exams"))
 
 
-class SumbitTaskForm(forms.ModelForm):
-    def __init__(self, request, user, exam, *args, **kwargs):
-        super(SumbitTaskForm, self).__init__(*args, **kwargs)
-        self.fields["approver"].widget.attrs["required"] = "required"
-        if request.user.scout.team:
-            query = Q(function__gte=2)
-            query.add(Q(function__gt=request.user.scout.function), Q.AND)
-            query.add(Q(team=request.user.scout.team), Q.AND)
-            self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
-                user=request.user
-            )
-        else:
-            self.fields["approver"].queryset = Scout.objects.filter(
-                Q(function__gte=2)
-            ).exclude(user=request.user)
-
-    class Meta:
-        model = Task
-        fields = ["approver"]
-
-        labels = {
-            "approver": "Do kogo chcesz wysłać prośbę o zatwierddzenie?*",
-        }
-        widgets = {
-            "approver": Select(),
-        }
-
-
-class SumbitSelectTaskForm(forms.ModelForm):
-    def __init__(self, request, user, exam, *args, **kwargs):
-        super(SumbitSelectTaskForm, self).__init__(*args, **kwargs)
-        for bound_field in self:
-            if hasattr(bound_field, "field") and bound_field.field.required:
-                bound_field.field.widget.attrs["required"] = "required"
-        self.fields["task"].queryset = (
-            Task.objects.filter(exam=exam).exclude(status=1).exclude(status=2)
-        )
-
-    class Meta:
-        model = SentTask
-        fields = ["task"]
-
-        labels = {
-            "task": "Wbierz zadanie",
-        }
-        widgets = {
-            "task": Select(),
-        }
-
-
 def submit_task(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     if request.user.scout != exam.scout:
         messages.add_message(request, messages.INFO, "Nie masz dostępu do tej próby.")
         return redirect(reverse("exam:exam"))
     if request.method == "POST":
-        submit_select_task_form = SumbitSelectTaskForm(
-            request, request.user, exam, request.POST
-        )
-        if submit_select_task_form.is_valid():
-            submited_select_task = submit_select_task_form.save(commit=False)
-            submited_select_task.user = request.user
-
-            submited_select_task.save()
-
-        submit_task_form = SumbitTaskForm(
+        submit_task_form = SubmitTaskForm(
             request,
             request.user,
             exam,
             request.POST,
-            instance=submited_select_task.task,
+            instance=Task.objects.get(id=request.POST.__getitem__("task")),
         )
         if submit_task_form.is_valid():
             submited_task = submit_task_form.save(commit=False)
             submited_task.user = request.user
             submited_task.exam = exam
+            submited_task.approval_date = timezone.now()
             submited_task.status = 1
             submited_task.save()
 
             return redirect(reverse("exam:exam"))
 
     else:
-        submit_task_form = SumbitTaskForm(request=request, user=request.user, exam=exam)
-        submit_select_task_form = SumbitSelectTaskForm(
-            request=request, user=request.user, exam=exam
-        )
+        submit_task_form = SubmitTaskForm(request=request, user=request.user, exam=exam)
     return render(
         request,
         "exam/request_task_check.html",
         {
             "user": request.user,
             "exam": exam,
-            "forms": [submit_select_task_form, submit_task_form],
+            "forms": [submit_task_form],
         },
     )

@@ -5,7 +5,7 @@
     <div class="box">
         <h1 class="title">Poproś o zatwierdzenie zadania</h1>
         <h1 class="subtitle">{{ exam }}</h1>
-        <form method="post">
+        <form action="{% url 'exam:submit_task' exam.id %}" method="post" id="form">
             {% csrf_token %}
             {% for form in forms %}
                 {{ form|crispy }}
