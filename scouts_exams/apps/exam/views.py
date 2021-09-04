@@ -10,6 +10,7 @@ from django.utils import timezone
 from unidecode import unidecode
 from weasyprint import HTML
 
+from ..teams.models import Patrol
 from .forms import ExamCreateForm, ExtendedExamCreateForm, SubmitTaskForm, TaskForm
 from .models import Exam, Task
 
@@ -194,10 +195,11 @@ def manage_exams(request):
                 exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
             exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
             exams.append(exam)
+    patrols = Patrol.objects.filter(team__id=user.scout.team.id)
     return render(
         request,
         "exam/manage_exams.html",
-        {"user": user, "exams_list": exams},
+        {"user": user, "exams_list": exams, "patrols": patrols},
     )
 
 
