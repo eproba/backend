@@ -125,7 +125,7 @@
                 $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
                 var posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
                 posting.done(function (data) {
-                    $("#exam_" + exam_id).load(document.URL + " #exam_" + exam_id);
+                    $("#exam_" + exam_id).load(document.URL + " #exam_" + exam_id + " > div");
                 });
                 posting.fail(function (data) {
                     alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
