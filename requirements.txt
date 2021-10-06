@@ -1,4 +1,4 @@
-django==3.2.7
+django==3.2.8
 django-allauth==0.45.0
 django-crispy-forms==1.12.0
 django-oauth-toolkit==1.5.0
