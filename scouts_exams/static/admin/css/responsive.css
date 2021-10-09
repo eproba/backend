@@ -7,6 +7,7 @@ input[type="submit"], button {
 
 @media (max-width: 1024px) {
     /* Basic */
+
     html {
         -webkit-text-size-adjust: 100%;
     }
@@ -21,6 +22,7 @@ input[type="submit"], button {
     }
 
     /* Layout */
+
     #container {
         min-width: 0;
     }
@@ -34,6 +36,7 @@ input[type="submit"], button {
     }
 
     /* Header */
+
     #header {
         flex-direction: column;
         padding: 15px 30px;
@@ -59,6 +62,7 @@ input[type="submit"], button {
     }
 
     /* Dashboard */
+
     .dashboard #content {
         width: auto;
     }
@@ -88,6 +92,7 @@ input[type="submit"], button {
     }
 
     /* Changelist */
+
     #toolbar {
         border: none;
         padding: 15px;
@@ -159,6 +164,7 @@ input[type="submit"], button {
     .change-list .filtered .paginator,
     .filtered #toolbar,
     .filtered .actions,
+
     #changelist .paginator {
         border-top-color: var(--hairline-color); /* XXX Is this used at all? */
     }
@@ -168,6 +174,7 @@ input[type="submit"], button {
     }
 
     /* Forms */
+
     label {
         font-size: 14px;
     }
@@ -230,6 +237,7 @@ input[type="submit"], button {
     }
 
     /* Related widget */
+
     .related-widget-wrapper {
         float: none;
     }
@@ -245,6 +253,7 @@ input[type="submit"], button {
     }
 
     /* Selector */
+
     .selector {
         display: flex;
         width: 100%;
@@ -406,6 +415,7 @@ input[type="submit"], button {
     }
 
     /* Messages */
+
     ul.messagelist li {
         padding-left: 55px;
         background-position: 30px 12px;
@@ -420,6 +430,7 @@ input[type="submit"], button {
     }
 
     /* Login */
+
     .login #header {
         padding: 15px 20px;
     }
@@ -429,6 +440,7 @@ input[type="submit"], button {
     }
 
     /* GIS */
+
     div.olMap {
         max-width: calc(100vw - 30px);
         max-height: 300px;
@@ -440,6 +452,7 @@ input[type="submit"], button {
     }
 
     /* Docs */
+
     .module table.xfull {
         width: 100%;
     }
@@ -453,6 +466,7 @@ input[type="submit"], button {
 
 @media (max-width: 767px) {
     /* Layout */
+
     #header, #content, #footer {
         padding: 15px;
     }
@@ -466,6 +480,7 @@ input[type="submit"], button {
     }
 
     /* Dashboard */
+
     .colMS, .colSM {
         margin: 0;
     }
@@ -485,6 +500,7 @@ input[type="submit"], button {
     }
 
     /* Changelist */
+
     #changelist {
         align-items: stretch;
         flex-direction: column;
@@ -534,6 +550,7 @@ input[type="submit"], button {
     }
 
     /* Forms */
+
     .form-row {
         padding: 15px 0;
     }
@@ -643,6 +660,7 @@ input[type="submit"], button {
     }
 
     /* Related widget */
+
     .related-widget-wrapper {
         width: 100%;
         display: flex;
@@ -671,6 +689,7 @@ input[type="submit"], button {
     }
 
     /* Selector */
+
     .selector {
         flex-direction: column;
     }
@@ -710,7 +729,7 @@ input[type="submit"], button {
         background-position: 0 -20px;
     }
 
-    .selector-add {
+    .selector-add  {
         background-position: 0 -40px;
     }
 
@@ -719,6 +738,7 @@ input[type="submit"], button {
     }
 
     /* Inlines */
+
     .inline-group[data-inline-type="stacked"] .inline-related {
         border: 1px solid var(--hairline-color);
         border-radius: 4px;
@@ -789,6 +809,7 @@ input[type="submit"], button {
     }
 
     /* Submit row */
+
     .submit-row {
         padding: 10px 10px 0;
         margin: 0 0 15px;
@@ -815,6 +836,7 @@ input[type="submit"], button {
     }
 
     /* Messages */
+
     ul.messagelist li {
         padding-left: 40px;
         background-position: 15px 12px;
@@ -829,11 +851,13 @@ input[type="submit"], button {
     }
 
     /* Paginator */
+
     .paginator .this-page, .paginator a:link, .paginator a:visited {
         padding: 4px 10px;
     }
 
     /* Login */
+
     body.login {
         padding: 0 15px;
     }
@@ -886,6 +910,7 @@ input[type="submit"], button {
     }
 
     /* Calendar and clock */
+
     .calendarbox, .clockbox {
         position: fixed !important;
         top: 50% !important;
@@ -959,6 +984,7 @@ input[type="submit"], button {
     }
 
     /* History */
+
     table#change-history tbody th, table#change-history tbody td {
         font-size: 13px;
         word-break: break-word;
@@ -969,6 +995,7 @@ input[type="submit"], button {
     }
 
     /* Docs */
+
     table.model tbody th, table.model tbody td {
         font-size: 13px;
         word-break: break-word;
