@@ -9,7 +9,7 @@
     <div class="level-right">
         <div class="level-item">
             <div class="select">
-                <select name="patrol_select" style="background-color: #161B22; color: #a2aeb0; border-color: #2c2f2f" onchange="filter_by_patrol(this.value)">
+                <select name="patrol_select" class="select is-colored" onchange="filter_by_patrol(this.value)">
                     <option value="all">Wszystkie zastępy</option>
                     {% for patrol in patrols %}
                         <option value={{ patrol.id }}>{{ patrol.name }}</option>
