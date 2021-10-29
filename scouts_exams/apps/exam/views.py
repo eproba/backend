@@ -15,30 +15,38 @@ from .forms import ExamCreateForm, ExtendedExamCreateForm, SubmitTaskForm, TaskF
 from .models import Exam, Task
 
 
+def prepare_exam(exam):
+    _all = 0
+    _done = 0
+    exam.show_submit_task_button = False
+    exam.show_sent_tasks_button = False
+    exam.show_description_column = False
+    for task in exam.tasks.all():
+        _all += 1
+        if task.status == 2:
+            _done += 1
+        elif task.status == 0 or task.status == 3:
+            exam.show_submit_task_button = True
+        elif task.status == 1:
+            exam.show_sent_tasks_button = True
+        if task.description is not "":
+            exam.show_description_column = True
+    if _all != 0:
+        percent = int(round(_done / _all, 2) * 100)
+        exam.percent = f"{str(percent)}%"
+    else:
+        exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
+    exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
+
+    return exam
+
+
 def view_exams(request):
     if request.user.is_authenticated:
         user = request.user
         exams = []
         for exam in Exam.objects.filter(scout__user=user):
-            _all = 0
-            _done = 0
-            exam.show_submit_task_button = False
-            exam.show_sent_tasks_button = False
-            for task in exam.tasks.all():
-                _all += 1
-                if task.status == 2:
-                    _done += 1
-                elif task.status == 0 or task.status == 3:
-                    exam.show_submit_task_button = True
-                elif task.status == 1:
-                    exam.show_sent_tasks_button = True
-            if _all != 0:
-                percent = int(round(_done / _all, 2) * 100)
-                exam.percent = f"{str(percent)}%"
-            else:
-                exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-            exams.append(exam)
+            exams.append(prepare_exam(exam))
         return render(
             request,
             "exam/exam.html",
@@ -113,18 +121,8 @@ def view_shared_exams(request, hex):
             )
             return redirect(reverse("frontpage"))
 
-        _all = 0
-        _done = 0
-        for task in exam.tasks.all():
-            _all += 1
-            if task.status == 2:
-                _done += 1
-        if _all != 0:
-            percent = int(round(_done / _all, 2) * 100)
-            exam.percent = f"{str(percent)}%"
-        else:
-            exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-        exams.append(exam)
+        exams.append(prepare_exam(exam))
+
     if exams is []:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
@@ -152,49 +150,13 @@ def manage_exams(request):
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
             scout=user.scout
         ):
-            _all = 0
-            _done = 0
-            for task in exam.tasks.all():
-                _all += 1
-                if task.status == 2:
-                    _done += 1
-            if _all != 0:
-                percent = int(round(_done / _all, 2) * 100)
-                exam.percent = f"{str(percent)}%"
-            else:
-                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-            exams.append(exam)
+            exams.append(prepare_exam(exam))
     elif request.user.scout.function == 3 or request.user.scout.function == 4:
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
-            _all = 0
-            _done = 0
-            for task in exam.tasks.all():
-                _all += 1
-                if task.status == 2:
-                    _done += 1
-            if _all != 0:
-                percent = int(round(_done / _all, 2) * 100)
-                exam.percent = f"{str(percent)}%"
-            else:
-                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-            exams.append(exam)
+            exams.append(prepare_exam(exam))
     elif request.user.scout.function >= 5:
         for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
-            _all = 0
-            _done = 0
-            for task in exam.tasks.all():
-                _all += 1
-                if task.status == 2:
-                    _done += 1
-            if _all != 0:
-                percent = int(round(_done / _all, 2) * 100)
-                exam.percent = f"{str(percent)}%"
-            else:
-                exam.percent = "Ta próba nie ma jeszcze dodanych żadnych zadań"
-            exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-            exams.append(exam)
+            exams.append(prepare_exam(exam))
     patrols = Patrol.objects.filter(team__id=user.scout.team.id)
     return render(
         request,

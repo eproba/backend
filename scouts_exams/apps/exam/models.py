@@ -12,12 +12,13 @@ STATUS = (
 
 
 class Exam(models.Model):
-    scout = models.ForeignKey(
+    scout = models.ForeignKey(Scout, on_delete=models.RESTRICT, related_name="scout")
+    supervisor = models.ForeignKey(
         Scout,
         on_delete=models.RESTRICT,
         null=True,
         default=None,
-        related_name="scout",
+        related_name="supervisor",
         blank=True,
     )
     name = models.CharField(max_length=200)
@@ -36,13 +37,14 @@ class Task(models.Model):
     status = models.IntegerField(choices=STATUS, default=0)
     approver = models.ForeignKey(
         Scout,
-        on_delete=models.RESTRICT,
+        on_delete=models.SET_NULL,
         null=True,
         default=None,
         related_name="approver",
         blank=True,
     )
     approval_date = models.DateTimeField(default=timezone.now, null=True)
+    description = models.TextField(default="", blank=True)
 
     def __str__(self):
         return self.task

@@ -12,7 +12,7 @@
                 <select name="patrol_select" class="select is-colored" onchange="filter_by_patrol(this.value)">
                     <option value="all">Wszystkie zastępy</option>
                     {% for patrol in patrols %}
-                        <option value={{ patrol.id }}>{{ patrol.name }}</option>
+                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -30,6 +30,9 @@
                 <tr>
                     <th class="is-narrow">Lp.</th>
                     <th>Zadanie</th>
+                    {% if exam.show_description_column %}
+                    <th>Opis</th>
+                    {% endif %}
                     <th>Status</th>
                     <th>Akcja</th>
                 </tr>
@@ -38,6 +41,9 @@
                 <tr>
                     <th></th>
                     <th></th>
+                    {% if exam.show_description_column %}
+                    <th></th>
+                    {% endif %}
                     <th></th>
                     <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
                 </tr>
@@ -47,6 +53,13 @@
                 <tr>
                     <th>{{ forloop.counter }}</th>
                     <td>{{ task.task }}</td>
+                    {% if exam.show_description_column %}
+                    {% if task.description != "" %}
+                    <td>{{ task.description }}</td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                    {% endif %}
                     {% if task.status == 2 %}
                     <td>
                         <div id="status-icon_{{ task.id }}"><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></div>
@@ -138,11 +151,11 @@
     }
 </script>
 <style>
-.exam {
-  display: none; /* Hidden by default */
-}
-.show {
-  display: block;
-}
+    .exam {
+    display: none; /* Hidden by default */
+    }
+    .show {
+    display: block;
+    }
 </style>
 {% endblock %}

@@ -1,161 +1,173 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-    {% if request.user.is_authenticated or is_shared %}
-        {% if exams_list %}
-            {% for exam in exams_list %}
-                {% if request.user.id == exam.scout.user.id or is_shared %}
-                    <div class="box">
-                    <h1 class="title">{{ exam }}</h1>
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="is-narrow">Lp.</th>
-                            <th>Zadanie</th>
-                            <th>Zaliczone?</th>
-                        </tr>
-                        </thead>
-                        <tfoot>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary"
-                                      data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
-                        </tr>
-                        </tfoot>
-                        <tbody>
-                        {% for task in exam.tasks.all %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <td>{{ task.task }}</td>
-                                {% if task.status == 2 %}
-                                    <td><span class="has-tooltip-arrow has-tooltip-right"
-                                              data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
-                                            class="far fa-check-circle"></i></span></td>
-                                {% elif task.status == 1 %}
-                                    <td><span class="has-tooltip-arrow has-tooltip-right"
-                                              data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
-                                            class="far fa-clock"></i></span></td>
-                                {% else %}
-                                    <td></td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% if not is_shared %}
-                        {% if exam.percent != "100%" %}
-                            <div class="modal" id="request_task_check_modal_{{ exam.id }}">
-                                <div class="modal-background"></div>
-                                    <div class="modal-card">
-                                    <header class="modal-card-head">
-                                      <p class="modal-card-title">Wyślij prośbę o zatwierdzenie zadania</p>
-                                      <button class="delete" aria-label="close" onclick="document.getElementById('request_task_check_modal_{{ exam.id }}').classList.remove('is-active');"></button>
-                                    </header>
-                                    <section class="modal-card-body">
-                                        <h1 class="subtitle">{{ exam }}</h1>
-                                        <div id="request_task_check_modal_div_{{ exam.id }}"/>
-                                        <!-- Dynamic Content ... -->
-                                        <div class="loader-wrapper">
-                                            <div class="loader is-loading"></div>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <div class="buttons">
-                            {% if exam.show_submit_task_button %}
-                            <button class="button is-success is-light" id="button-desktop" onclick="$('#request_task_check_modal_div_{{ exam.id }}').load('{% url 'exam:submit_task' exam.id %} #form'); document.getElementById('request_task_check_modal_{{ exam.id }}').classList.add('is-active');">
-                                <span class="icon">
-                                    <i class="fas fa-clipboard-check"></i>
-                                </span>
-                                <span>Wyślij prośbę o zatwierdzenie zadania</span>
-                            </button>
-                            <button class="button is-success is-light" id="button-mobile" onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
-                                <span class="icon">
-                                    <i class="fas fa-clipboard-check"></i>
-                                </span>
-                                <span>Wyślij prośbę o zatwierdzenie zadania</span>
-                            </button>
-                            {%  endif %}
-                            {% if exam.show_sent_tasks_button %}
-                            <button class="button is-primary is-light" onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
-                                <span class="icon">
-                                    <i class="fas fa-paper-plane"></i>
-                                </span>
-                                <span>Wysłane prośby o zatwierdzenie</span>
-                            </button>
-                            {%  endif %}
-                        {% else %}
-                            <div class="buttons">
-                        {% endif %}
-                    <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
-                        <span class="icon">
-                            <i class="fas fa-print"></i>
-                        </span>
-                        <span>Drukuj próbę</span>
-                    </button>
-                    <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
-                          data-tooltip="Naciśnij aby skopiować link">
-                        <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
-                        <span class="icon">
-                        <i class="fas fa-share-alt"></i>
-                        </span>
-                        <span>Udostępnij próbę</span>
-                        </button>
-                        </span>
-                    </div>
-                    {% endif %}
-                </div>
-                {% else %}
-                    <div class="box">
-                        Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją
-                        klikając <a href="{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}">tutaj</a>.
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            {% if not is_shared %}
-                <div class="box">
-                    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a
-                        href="{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}">tutaj</a>.
-                </div>
-            {% else %}
-                <div class="box">
-                    Nie powinno cię tu być, idź już sobie.
-                </div>
-                <meta http-equiv="refresh" content="3;url={% url 'frontpage' %}"/>
+{% if request.user.is_authenticated or is_shared %}
+{% if exams_list %}
+{% for exam in exams_list %}
+{% if request.user.id == exam.scout.user.id or is_shared %}
+<div class="box">
+<h1 class="title">{{ exam }}</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="is-narrow">Lp.</th>
+            <th>Zadanie</th>
+            {% if exam.show_description_column %}
+            <th>Opis</th>
             {% endif %}
-        {% endif %}
+            <th>Zaliczone?</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th></th>
+            <th></th>
+            {% if exam.show_description_column %}
+            <th></th>
+            {% endif %}
+            <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary"
+                data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+        </tr>
+    </tfoot>
+    <tbody>
+        {% for task in exam.tasks.all %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <td>{{ task.task }}</td>
+            {% if exam.show_description_column %}
+            {% if task.description != "" %}
+            <td>{{ task.description }}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% endif %}
+            {% if task.status == 2 %}
+            <td><span class="has-tooltip-arrow has-tooltip-right"
+                data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                class="far fa-check-circle"></i></span></td>
+            {% elif task.status == 1 %}
+            <td><span class="has-tooltip-arrow has-tooltip-right"
+                data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                class="far fa-clock"></i></span></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not is_shared %}
+{% if exam.percent != "100%" %}
+<div class="modal" id="request_task_check_modal_{{ exam.id }}">
+<div class="modal-background"></div>
+<div class="modal-card">
+    <header class="modal-card-head">
+        <p class="modal-card-title">Wyślij prośbę o zatwierdzenie zadania</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('request_task_check_modal_{{ exam.id }}').classList.remove('is-active');"></button>
+    </header>
+    <section class="modal-card-body">
+        <h1 class="subtitle">{{ exam }}</h1>
+        <div id="request_task_check_modal_div_{{ exam.id }}"/>
+            <!-- Dynamic Content ... -->
+            <div class="loader-wrapper">
+                <div class="loader is-loading"></div>
+            </div>
+    </section>
+    </div>
+</div>
+<div class="buttons">
+    {% if exam.show_submit_task_button %}
+    <button class="button is-success is-light" id="button-desktop" onclick="$('#request_task_check_modal_div_{{ exam.id }}').load('{% url 'exam:submit_task' exam.id %} #form'); document.getElementById('request_task_check_modal_{{ exam.id }}').classList.add('is-active');">
+    <span class="icon">
+    <i class="fas fa-clipboard-check"></i>
+    </span>
+    <span>Wyślij prośbę o zatwierdzenie zadania</span>
+    </button>
+    <button class="button is-success is-light" id="button-mobile" onclick="location.href='{% url 'exam:submit_task' exam.id %}'">
+    <span class="icon">
+    <i class="fas fa-clipboard-check"></i>
+    </span>
+    <span>Wyślij prośbę o zatwierdzenie zadania</span>
+    </button>
+    {%  endif %}
+    {% if exam.show_sent_tasks_button %}
+    <button class="button is-primary is-light" onclick="location.href='{% url 'exam:sent_tasks' exam.id %}'">
+    <span class="icon">
+    <i class="fas fa-paper-plane"></i>
+    </span>
+    <span>Wysłane prośby o zatwierdzenie</span>
+    </button>
+    {%  endif %}
     {% else %}
-        <div class="box">
-            Aby wyświetlić swoje próby musisz się najpierw zalogować.
-        </div>
+    <div class="buttons">
+        {% endif %}
+        <button class="button is-warning is-light" onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'">
+        <span class="icon">
+        <i class="fas fa-print"></i>
+        </span>
+        <span>Drukuj próbę</span>
+        </button>
+        <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
+            data-tooltip="Naciśnij aby skopiować link">
+        <button onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="button is-link is-light">
+        <span class="icon">
+        <i class="fas fa-share-alt"></i>
+        </span>
+        <span>Udostępnij próbę</span>
+        </button>
+        </span>
+    </div>
     {% endif %}
+</div>
+{% else %}
+<div class="box">
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją
+    klikając <a href="{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}">tutaj</a>.
+</div>
+{% endif %}
+{% endfor %}
+{% else %}
+{% if not is_shared %}
+<div class="box">
+    Nie masz jeszcze dodanej żadnej próby, skontaktuj się ze swoim przełożonym bądź dodaj ją klikając <a
+        href="{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}">tutaj</a>.
+</div>
+{% else %}
+<div class="box">
+    Nie powinno cię tu być, idź już sobie.
+</div>
+<meta http-equiv="refresh" content="3;url={% url 'frontpage' %}"/>
+{% endif %}
+{% endif %}
+{% else %}
+<div class="box">
+    Aby wyświetlić swoje próby musisz się najpierw zalogować.
+</div>
+{% endif %}
 {% if request.user.is_authenticated and not is_shared %}
-    <div class="level">
-        <div class="level-item">
-            <button class="button is-link is-outlined" onclick="location.href='{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}'">
+<div class="level">
+    <div class="level-item">
+        <button class="button is-link is-outlined" onclick="location.href='{% url 'exam:create_exam' %}?next={% url 'exam:exam' %}'">
         <span class="icon">
         <i class="fas fa-plus"></i>
         </span>
-                <span>Dodaj nową próbę</span>
-            </button>
-        </div>
+        <span>Dodaj nową próbę</span>
+        </button>
     </div>
+</div>
 {% endif %}
 <style>
-@media (min-width:600px)  {
-  #button-mobile {
+    @media (min-width:600px)  {
+    #button-mobile {
     display: none;
-  }
-}
-@media (max-width:599px)  {
-  #button-desktop {
+    }
+    }
+    @media (max-width:599px)  {
+    #button-desktop {
     display: none;
-  }
-}
-
-.loader-wrapper {
+    }
+    }
+    .loader-wrapper {
     top: 0;
     left: 0;
     display: flex;
@@ -164,12 +176,10 @@
     border-radius: 6px;
     opacity: 1;
     z-index: 1;
-}
-
-.loader {
+    }
+    .loader {
     height: 80px;
     width: 80px;
-}
-
+    }
 </style>
 {% endblock %}
