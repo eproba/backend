@@ -43,7 +43,7 @@ class Task(models.Model):
         related_name="approver",
         blank=True,
     )
-    approval_date = models.DateTimeField(default=timezone.now, null=True)
+    approval_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     description = models.TextField(default="", blank=True)
 
     def __str__(self):

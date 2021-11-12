@@ -9,6 +9,8 @@ from django.utils import timezone
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField("email address", unique=True)
     nickname = models.CharField(max_length=20)
+    first_name = models.CharField(max_length=20, blank=True, null=True)
+    last_name = models.CharField(max_length=40, blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -20,6 +22,34 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.email} ({self.nickname})"
+
+    def full_name(self):
+        return (
+            f"{self.first_name} {self.last_name}"
+            if self.first_name is not None and self.last_name is not None
+            else self.first_name
+            if self.first_name is not None
+            else self.last_name
+            if self.last_name is not None
+            else None
+        )
+
+    def full_name_nickname(self):
+        return (
+            f"{self.first_name} {self.last_name} „{self.nickname}”"
+            if self.first_name is not None
+            and self.last_name is not None
+            and self.nickname is not None
+            else f"{self.first_name} {self.last_name}"
+            if self.first_name is not None and self.last_name is not None
+            else self.first_name
+            if self.first_name is not None
+            else self.last_name
+            if self.last_name is not None
+            else self.nickname
+            if self.nickname is not None
+            else None
+        )
 
 
 class Scout(models.Model):

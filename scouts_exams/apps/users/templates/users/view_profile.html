@@ -33,6 +33,22 @@
                     <td>Email</td>
                     <td><p>{{ user.email }}</p></td>
                 </tr>
+                <tr>
+                    <td>Imię</td>
+                    {%  if user.first_name != null %}
+                        <td><p>{{ user.first_name }}</p></td>
+                    {% else %}
+                        <td><p><i>Nie podano</i></p></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>Nazwisko</td>
+                    {%  if user.last_name != null %}
+                        <td><p>{{ user.last_name }}</p></td>
+                    {% else %}
+                        <td><p><i>Nie podano</i></p></td>
+                    {% endif %}
+                </tr>
             </table>
             <a href="{% url 'edit_profile' user.id %}">
                 <button class="button is-primary is-light">

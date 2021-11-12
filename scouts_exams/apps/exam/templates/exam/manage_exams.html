@@ -24,6 +24,9 @@
     <div class="box">
         <span class="icon-text"><span class="title">{{ exam }} </span><span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="far fa-clipboard"></i></span></span>
         <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span></span>
+        {% if exam.supervisor %}
+            <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a></h2>
+        {% endif %}
         <p><br/></p>
         <table class="table">
             <thead>

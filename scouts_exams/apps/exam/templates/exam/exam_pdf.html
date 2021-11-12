@@ -1,12 +1,15 @@
 <title>{{ exam }}</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
 <h1 class="subtitle has-text-centered">{{ exam }}</h1>
-<p><strong>Imię:</strong></p>
-<p><strong>Nazwisko:</strong></p>
-{% if exam.scout.user.nickname %}
-    <p><strong>Pseudonim:</strong> {{ exam.scout.user.nickname }}</p>
+{% if exam.scout.user.first_name and exam.scout.user.last_name and exam.scout.user.nickname %}
+    <p><strong>Imię, nazwisko i pseudonim:</strong> {{ exam.scout.user.full_name_nickname }}</p>
 {% else %}
-    <p><strong>Pseudonim:</strong> {{ exam.scout.user.nickname }}</p>
+    <p><strong>Imię, nazwisko, pseudonim:</strong></p>
+{% endif %}
+{% if exam.supervisor.user.first_name and exam.supervisor.user.last_name and exam.supervisor.user.nickname %}
+    <p><strong>Opiekun próby:</strong> {{ exam.supervisor.user.full_name_nickname }}</p>
+{% elif exam.supervisor.user.nickname %}
+    <p><strong>Opiekun próby:</strong> {{ exam.scout.supervisor.nickname }}</p>
 {% endif %}
 {% if exam.scout.team %}
     <p><strong>Drużyna:</strong> {{ exam.scout.team }}</p>

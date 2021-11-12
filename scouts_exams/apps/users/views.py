@@ -18,8 +18,13 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 class SiteUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ["email", "nickname"]
-        labels = {"nickname": "Pseudonim", "email": "Email"}
+        fields = ["email", "nickname", "first_name", "last_name"]
+        labels = {
+            "nickname": "Pseudonim",
+            "email": "Email",
+            "first_name": "Imię",
+            "last_name": "Nazwisko",
+        }
 
 
 class ScoutCreationForm(forms.ModelForm):
@@ -73,9 +78,13 @@ class UserChangeForm(UserChangeForm):
 
     class Meta:
         model = User
-        fields = ["nickname"]
+        fields = ["nickname", "first_name", "last_name"]
 
-        labels = {"nickname": "Pseudonim"}
+        labels = {
+            "nickname": "Pseudonim",
+            "first_name": "Imię",
+            "last_name": "Nazwisko",
+        }
 
 
 class ScoutChangeForm(forms.ModelForm):

@@ -13,17 +13,25 @@ class CustomUserAdmin(UserAdmin):
         "nickname",
         "is_superuser",
         "is_active",
+        "first_name",
+        "last_name",
     )
     list_filter = (
-        "email",
-        "nickname",
         "is_staff",
         "is_superuser",
         "is_active",
     )
-    fieldsets = ((None, {"fields": ("email", "password", "nickname")}),)
+    fieldsets = (
+        (
+            None,
+            {"fields": ("email", "password", "nickname", "first_name", "last_name")},
+        ),
+    )
     super_fieldsets = (
-        (None, {"fields": ("email", "password", "nickname")}),
+        (
+            None,
+            {"fields": ("email", "password", "nickname", "first_name", "last_name")},
+        ),
         (
             "Permissions",
             {"fields": ("is_staff", "is_active", "is_superuser", "user_permissions")},

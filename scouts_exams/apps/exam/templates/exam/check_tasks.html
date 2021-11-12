@@ -7,6 +7,9 @@
                 {% if exam.task_list %}
                     <div class="box">
                         <h1 class="title">{{ exam }}</h1>
+                        {% if exam.supervisor %}
+                            <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a></h2>
+                        {% endif %}
                         <table class="table">
                             <thead>
                             <tr>
