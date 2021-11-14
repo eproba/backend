@@ -120,13 +120,12 @@
                             data: {
                                 "registration_id": currentToken,
                                 "name": $.ua.browser.name + ': ' + $.ua.os.name + ' ' + $.ua.os.version,
-                                "cloud_message_type": "FCM",
-                                "active": true
+                                "type": "web"
                             },
                             headers: {'X-CSRFToken': '{{ csrf_token }}'},
                             dataType: 'json',
                             success: function (data) {
-                                console.info(data);
+                                console.info("Zarejestrowano urządzenie dla FCM");
                             }
                         });
                     }

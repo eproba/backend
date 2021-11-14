@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from firebase_admin import credentials, initialize_app
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -55,12 +57,14 @@ INSTALLED_APPS = [
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
     "oauth2_provider",
-    "push_notifications",
+    "fcm_django",
 ]
-PUSH_NOTIFICATIONS_SETTINGS = {
-    "FCM_API_KEY": "AAAA0PJcfEs:APA91bG40PAC3yKGNQLrChWmMYTSa4MJFojj1zECjlXulNVSPTOBERTnVfmOIP9gxG8irxsIvHetu7pABBtPHD1fknjtpmW4nVUoxWcAyib5lC9JzudKOMkOmEArM3FdfdbvUXY5LSim",
-    "UPDATE_ON_DUPLICATE_REG_ID": True,
-}
+FIREBASE_APP = initialize_app(
+    credentials.Certificate(
+        BASE_DIR / "scouts-exams-firebase-adminsdk-43fka-cf32dfa703.json"
+    )
+)
+FCM_DJANGO_SETTINGS = {"APP_VERBOSE_NAME": "Powiadomienia (FCM)"}
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

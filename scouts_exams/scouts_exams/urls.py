@@ -36,8 +36,8 @@ from django.contrib.auth.views import (
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name, base_urlpatterns
-from push_notifications.api.rest_framework import GCMDeviceAuthorizedViewSet
 from rest_framework import routers
 
 from .sitemaps import Sitemap
@@ -56,7 +56,7 @@ handler500 = "apps.core.views.handler500"
 
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
-api.register(r"fcm/devices", GCMDeviceAuthorizedViewSet, "fcm_devices")
+api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
 
 sitemaps = {
     "posts": PostSitemap,
