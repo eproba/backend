@@ -66,3 +66,9 @@ def IssueContactView(request):
             )
             return redirect(reverse("frontpage"))
     return render(request, "sites/contact/email-issue.html", {"form": form})
+
+
+def fcm_sw(request):
+    return render(
+        request, "firebase-messaging-sw.js", content_type="application/javascript"
+    )

@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="pl">
 {% load static %}
 <script>
     function confirm_popup(url, message = "") {
@@ -70,20 +71,74 @@
         gtag('config', 'G-SMRNGPDD8F');
     </script>
     <title>e-próba</title>
-    <script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-          integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.2/ua-parser.min.js" integrity="sha512-M/6+/Ib+r5t/hijvSPLPO76abBzT8vlMVRSJ16JDA+NV9CGCkAjq8UD4kHN6KpHncDTRRIb0oUU01yhW+yfqng==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" charset="UTF-8" src="https://cdn.cookie-script.com/s/885b512168b0f9e771984917f48c7251.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript" charset="UTF-8" src="//cdn.cookie-script.com/s/885b512168b0f9e771984917f48c7251.js"></script>
     {% block headcontent %}
     {% endblock %}
 </head>
 <body>
+<script type="module">
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
+    import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-analytics.js";
+    import {getMessaging, getToken} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-messaging.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
+        authDomain: "scouts-exams.firebaseapp.com",
+        databaseURL: "https://scouts-exams-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "scouts-exams",
+        storageBucket: "scouts-exams.appspot.com",
+        messagingSenderId: "897419344971",
+        appId: "1:897419344971:web:dd3325a492cc57756d61ce",
+        measurementId: "G-YB1DB8G1WG"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    const messaging = getMessaging();
+    getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
+        if (currentToken) {
+            $.ajax({
+                url: '{% url 'fcm_devices-list' %}',
+                type: 'get',
+                data: {},
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                dataType: 'json',
+                success: function (data) {
+                    if (data.filter(e => e.registration_id === currentToken).length === 0) {
+                        $.ajax({
+                            url: '{% url 'fcm_devices-list' %}',
+                            type: 'post',
+                            data: {
+                                "registration_id": currentToken,
+                                "name": $.ua.browser.name + ': ' + $.ua.os.name + ' ' + $.ua.os.version,
+                                "cloud_message_type": "FCM",
+                                "active": true
+                            },
+                            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                            dataType: 'json',
+                            success: function (data) {
+                                console.info(data);
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            console.log('No registration token available. Request permission to generate one.');
+        }
+    }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
+    });
+</script>
 <div class="container" id="container">
     {% include "core/navbar.html" %}
     <br>
@@ -94,12 +149,6 @@
         {% endblock %}
     </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
-        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
-        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script>
 {% block footer %}
     <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
         <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>

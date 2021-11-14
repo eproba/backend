@@ -55,9 +55,11 @@ INSTALLED_APPS = [
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
     "oauth2_provider",
+    "push_notifications",
 ]
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "FCM_API_KEY": "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"
+    "FCM_API_KEY": "AAAA0PJcfEs:APA91bG40PAC3yKGNQLrChWmMYTSa4MJFojj1zECjlXulNVSPTOBERTnVfmOIP9gxG8irxsIvHetu7pABBtPHD1fknjtpmW4nVUoxWcAyib5lC9JzudKOMkOmEArM3FdfdbvUXY5LSim",
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
 }
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 MIDDLEWARE = [
@@ -80,9 +82,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
-    ),
 }
 OAUTH2_PROVIDER = {
     # this is the list of available scopes

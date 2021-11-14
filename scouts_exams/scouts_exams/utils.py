@@ -7,13 +7,13 @@ from rest_framework import generics, permissions, viewsets
 
 
 class UserList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAdminUser, TokenHasReadWriteScope]
+    permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class UserDetails(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAdminUser, TokenHasReadWriteScope]
+    permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -40,7 +40,7 @@ class ExamDetails(generics.RetrieveAPIView):
 
 
 class UserExamDetails(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 

@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import IssueContactView, contactView, frontpage
+from apps.core.views import IssueContactView, contactView, fcm_sw, frontpage
 from apps.users.views import (
     change_password,
     disconect_socials,
@@ -37,6 +37,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
 from oauth2_provider.urls import app_name, base_urlpatterns
+from push_notifications.api.rest_framework import GCMDeviceAuthorizedViewSet
 from rest_framework import routers
 
 from .sitemaps import Sitemap
@@ -55,6 +56,7 @@ handler500 = "apps.core.views.handler500"
 
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
+api.register(r"fcm/devices", GCMDeviceAuthorizedViewSet, "fcm_devices")
 
 sitemaps = {
     "posts": PostSitemap,
@@ -64,6 +66,7 @@ admin.site.site_title = "EPRÓBA"
 admin.site.site_header = "Panel administratora"
 urlpatterns = [
     path("", frontpage, name="frontpage"),
+    path("firebase-messaging-sw.js", fcm_sw, name="fcm_sw"),
     path(
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
@@ -78,7 +81,7 @@ urlpatterns = [
     path("api/all/exams/", ExamList.as_view({"get": "list"})),
     path("api/all/exams/<pk>/", ExamDetails.as_view()),
     path("api/all/users/", UserList.as_view()),
-    path("api/all/users/<pk>/", UserDetails.as_view()),
+    path("api/all/users/<pk>/", UserDetails.as_view(), name="user-detail"),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("exam/", include("apps.exam.urls")),
