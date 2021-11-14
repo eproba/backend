@@ -84,6 +84,7 @@
     {% endblock %}
 </head>
 <body>
+{% if request.user.is_authenticated %}
 <script type="module">
     import {initializeApp} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
     import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-analytics.js";
@@ -138,6 +139,7 @@
         console.log('An error occurred while retrieving token. ', err);
     });
 </script>
+{% endif %}
 <div class="container" id="container">
     {% include "core/navbar.html" %}
     <br>
