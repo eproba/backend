@@ -68,13 +68,7 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
     path("accounts/", include("allauth.urls")),
-    path(
-        "accounts/social/connections/",
-        view_profile,
-        name="socialaccount_connections",
-        kwargs={"user_id": None},
-    ),
-    path("account/socials/disconect", disconect_socials, name="disconect_socials"),
+    path("account/disconect/<provider>", disconect_socials, name="disconect_socials"),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/oauth/", include((base_urlpatterns, app_name), namespace=app_name)),

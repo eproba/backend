@@ -56,6 +56,9 @@ INSTALLED_APPS = [
     "crispy_forms",
     "oauth2_provider",
 ]
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "FCM_API_KEY": "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"
+}
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -132,6 +135,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
+SOCIALACCOUNT_ADAPTER = "apps.users.adapter.SocialAccountAdapter"
+
 # Templates
 TEMPLATES = [
     {
@@ -205,4 +210,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+else:
+    STATICFILES_DIRS = [BASE_DIR / "static"]

@@ -1,6 +1,9 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
+{% load socialaccount %}
+{% load provider_ids %}
 {% block content %}
+{% get_providers as socialaccount_providers %}
     <h1 class="title">Zaloguj się</h1>
     <form action="." method="post">
         {% csrf_token %}
@@ -10,33 +13,14 @@
             </div>
             <div class="buttons">
                 <div class="control">
-                    <button class="button is-success  is-outlined" type="submit">
-		  <span class="icon">
-		    <i class="fas fa-key"></i>
-          </span>
-                        <span>Zaloguj się</span>
-                    </button>
-                    <button onclick="window.location.href='/accounts/google/login/'"
-                            class="button is-danger is-outlined" type="button">
-		  <span class="icon">
-		    <i class="fab fa-google"></i>
-          </span>
-                        <span>Zaloguj się z Google</span>
-                    </button>
-                    <button onclick="window.location.href='/accounts/facebook/login/'"
-                            class="button is-info  is-outlined" type="button">
-		  <span class="icon">
-		    <i class="fab fa-facebook"></i>
-          </span>
-                        <span>Zaloguj się z Facebook</span>
-                    </button>
-                    <button onclick="window.location.href='{% url 'password_reset' %}'"
-                            class="button is-info is-outlined" type="button">
-		  <span class="icon">
-		    <i class="fas fa-unlock-alt"></i>
-          </span>
-                        <span>Zapomniałeś hasła?</span>
-                    </button>
+                    <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
+                    {% if "google" in socialaccount_providers|ids %}
+                    <button onclick="window.location.href='/accounts/google/login/'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
+                    {% endif %}
+                    {% if "facebook" in socialaccount_providers|ids %}
+                    <button onclick="window.location.href='/accounts/facebook/login/'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zaloguj się z Facebook</span></button>
+                    {% endif %}
+                    <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
                 </div>
             </div>
         </div>

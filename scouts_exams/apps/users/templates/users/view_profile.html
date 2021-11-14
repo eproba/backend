@@ -1,122 +1,138 @@
 {% extends 'core/base.html' %}
 {% block content %}
-    {% load socialaccount %}
-
-    <div class="box" style="position:relative; width:100%;">
-        <h1 class="subtitle">{{ user.scout }}</h1>
-        <table class="table">
-            <tr>
-                <td>Drużyna</td>
-                <td><p>
+{% load socialaccount %}
+<div class="box" style="position:relative; width:100%;">
+    <h1 class="subtitle">Informacje publiczne</h1>
+    <table class="table">
+        <tr>
+            <td>Imię</td>
+            {%  if user.first_name != null %}
+            <td>
+                <p>{{ user.first_name }}</p>
+            </td>
+            {% else %}
+            <td>
+                <p><i>Nie podano</i></p>
+            </td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Nazwisko</td>
+            {%  if user.last_name != null %}
+            <td>
+                <p>{{ user.last_name }}</p>
+            </td>
+            {% else %}
+            <td>
+                <p><i>Nie podano</i></p>
+            </td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Pseudonim</td>
+            <td>
+                <p>
+                    {{ user.nickname }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>Stopień</td>
+            <td>
+                <p>
+                    {{ user.scout.rank }}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>Drużyna</td>
+            <td>
+                <p>
                     {{ user.scout.team }}
                     {% if user.scout.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
                     {% if user.scout.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
-                </p></td>
-            </tr>
-            <tr>
-                <td>Zastęp</td>
-                <td><p>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>Zastęp</td>
+            <td>
+                <p>
                     {{ user.scout.patrol }}
                     {% if user.scout.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
                     {% if user.scout.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
-                </p></td>
+                </p>
+            </td>
+        </tr>
+    </table>
+</div>
+{% if allow_edit %}
+{% load provider_ids %}
+    <div class="box" style="position:relative; width:100%;">
+        <h1 class="subtitle">Informacje prywatne</h1>
+        <table class="table">
+            <tr>
+                <td>Email</td>
+                <td>
+                    <p>{{ user.email }}</p>
+                </td>
             </tr>
         </table>
     </div>
-
-    {% if allow_edit %}
-        <br>
-        <div class="box" style="position:relative; width:100%;">
-            <h3>Informacje prywatne</h3>
-            <table class="table">
-                <tr>
-                    <td>Email</td>
-                    <td><p>{{ user.email }}</p></td>
-                </tr>
-                <tr>
-                    <td>Imię</td>
-                    {%  if user.first_name != null %}
-                        <td><p>{{ user.first_name }}</p></td>
-                    {% else %}
-                        <td><p><i>Nie podano</i></p></td>
-                    {% endif %}
-                </tr>
-                <tr>
-                    <td>Nazwisko</td>
-                    {%  if user.last_name != null %}
-                        <td><p>{{ user.last_name }}</p></td>
-                    {% else %}
-                        <td><p><i>Nie podano</i></p></td>
-                    {% endif %}
-                </tr>
-            </table>
-            <a href="{% url 'edit_profile' user.id %}">
-                <button class="button is-primary is-light">
-	  <span class="icon">
-		<i class="fas fa-user-edit"></i>
-	  </span>
-                    <span>Edytuj profil</span>
+    <div class="box" style="position:relative; width:100%;">
+        <h1 class="subtitle">Powiadomienia</h1>
+    </div>
+    <div class="box" style="position:relative; width:100%;">
+        <a href="{% url 'edit_profile' user.id %}">
+            <button class="button is-primary is-light">
+                <span class="icon"><i class="fas fa-user-edit"></i></span><span>Edytuj profil</span>
+            </button>
+        </a>
+        {% if user.has_usable_password %}
+            <a href="{% url 'change_password' user.id %}">
+                <button class="button is-success is-light">
+                    <span class="icon"><i class="fas fa-key"></i></span><span>Zmień hasło</span>
                 </button>
             </a>
-            {% if user.has_usable_password %}
-                <a href="{% url 'change_password' user.id %}">
-                    <button class="button is-success is-light">
-	  <span class="icon">
-		<i class="fas fa-key"></i>
-	  </span>
-                        <span>Zmień hasło</span>
-                    </button>
-                </a>
-            {% else %}
-                <a href="{% url 'set_password' user.id %}">
-                    <button class="button is-success is-light">
-	  <span class="icon">
-		<i class="fas fa-key"></i>
-	  </span>
-                        <span>Ustaw hasło</span>
-                    </button>
-                </a>
-            {% endif %}
-            {% get_social_accounts user as accounts %}
+        {% else %}
+            <a href="{% url 'set_password' user.id %}">
+                <button class="button is-success is-light">
+                    <span class="icon"><i class="fas fa-key"></i></span><span>Ustaw hasło</span>
+                </button>
+            </a>
+        {% endif %}
+        {% get_social_accounts user as accounts %}
+        {% get_providers as socialaccount_providers %}
+        {% if "google" in socialaccount_providers|ids %}
             {% if not accounts.google %}
                 <a href="/accounts/google/login/?process=connect">
                     <button class="button is-danger is-outlined">
-	  <span class="icon">
-		<i class="fab fa-google"></i>
-	  </span>
-                        <span>Połącz z Google</span>
+                        <span class="icon"><i class="fab fa-google"></i></span><span>Połącz z Google</span>
                     </button>
                 </a>
             {% else %}
-                <a href="{% url 'disconect_socials' %}">
+                <a onclick="confirm_popup('{% url 'disconect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
                     <button class="button is-danger is-light">
-	  <span class="icon">
-		<i class="fab fa-google"></i>
-	  </span>
-                        <span>Połączono z Google</span>
+                        <span class="icon"><i class="fab fa-google"></i></span><span>Połączono z Google</span>
                     </button>
                 </a>
             {% endif %}
+        {% endif %}
+        {% if "facebook" in socialaccount_providers|ids %}
             {% if not accounts.facebook %}
                 <a href="/accounts/facebook/login/?process=connect">
                     <button class="button is-info is-outlined">
-	  <span class="icon">
-		<i class="fab fa-facebook"></i>
-	  </span>
-                        <span>Połącz z Facebook</span>
+                        <span class="icon"><i class="fab fa-facebook"></i></span><span>Połącz z Facebook</span>
                     </button>
                 </a>
             {% else %}
-                <a href="{% url 'disconect_socials' %}">
+                <a onclick="confirm_popup('{% url 'disconect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
                     <button class="button is-info is-light">
-	  <span class="icon">
-		<i class="fab fa-facebook"></i>
-	  </span>
-                        <span>Połączono z Facebook</span>
+                        <span class="icon"><i class="fab fa-facebook"></i></span><span>Połączono z Facebook</span>
                     </button>
                 </a>
             {% endif %}
-        </div>
-    {% endif %}
-
+        {% endif %}
+    </div>
+{% endif %}
 {% endblock %}

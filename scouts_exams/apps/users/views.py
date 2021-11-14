@@ -1,3 +1,5 @@
+from allauth.socialaccount import signals as social_signals
+from allauth.socialaccount.models import SocialAccount
 from apps.teams.models import Patrol
 from apps.users.models import Scout, User
 from django import forms
@@ -13,6 +15,7 @@ from django.contrib.auth.forms import (
 from django.db import transaction
 from django.forms import Select
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.safestring import mark_safe
 
 
 class SiteUserCreationForm(UserCreationForm):
@@ -185,6 +188,9 @@ def set_password(request, user_id):
     if request.user != user:
         return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
 
+    if request.user.has_usable_password():
+        return redirect(reverse("change_password", kwargs={"user_id": user_id}))
+
     if request.method == "POST":
         password_form = SetPasswordForm(request.user, request.POST)
         if password_form.is_valid():
@@ -232,12 +238,34 @@ def finish_signup(request):
 
 @login_required
 @transaction.atomic
-def disconect_socials(request):
+def disconect_socials(request, provider):
     user_id = request.user.id
     user = get_object_or_404(User, id=user_id)
+    accounts = SocialAccount.objects.filter(user=user)
+    for account in accounts:
+        if account.provider == provider:
+            if len(accounts) == 1:
+                # No usable password would render the local account unusable
+                if not account.user.has_usable_password():
+                    messages.add_message(
+                        request,
+                        messages.INFO,
+                        mark_safe(
+                            f"Aby odłączyć konto społecznościowe musisz najpierw <a href='{reverse(set_password, kwargs={'user_id': user_id})}' >utworzyć hasło</a>."
+                        ),
+                    )
+                    return redirect(
+                        reverse("view_profile", kwargs={"user_id": user_id})
+                    )
+            account.delete()
+            social_signals.social_account_removed.send(
+                sender=SocialAccount, request=request, socialaccount=account
+            )
+            print(account.provider)
+
     messages.add_message(
         request,
         messages.INFO,
-        "Aby odłączyć konto społecznościowe skontaktuj się z administratorem.",
+        f"Konto {provider.capitalize()}™ zostało odłączone.",
     )
     return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
