@@ -88,7 +88,7 @@
 <script type="module">
     import {initializeApp} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
     import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-analytics.js";
-    import {getMessaging, getToken} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-messaging.js";
+    import {getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-messaging.js";
     const firebaseConfig = {
         apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
         authDomain: "scouts-exams.firebaseapp.com",
@@ -138,6 +138,16 @@
     }).catch((err) => {
         console.log('An error occurred while retrieving token. ', err);
     });
+
+    onMessage(messaging, (payload) => {
+      $( "#notifications" ).append( `\
+        <div class="notification" style="background-color: rgb(20 62 119 / 75%)">\
+            <button class="delete" onclick="this.parentElement.remove()"></button>\
+            <strong>${payload.notification.title}</strong><br>\
+            ${payload.notification.body}\
+        </div>`
+    )
+    });
 </script>
 {% endif %}
 <div class="container" id="container">
@@ -150,6 +160,7 @@
         {% endblock %}
     </div>
 </div>
+<div id="notifications" style="z-index: 10; position: fixed; bottom: 10px; right: 10px"></div>
 {% block footer %}
     <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
         <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>

@@ -274,9 +274,7 @@ def accept_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do akceptacji tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
-    Task.objects.filter(id=task.id).update(
-        status=2, approval_date=datetime.datetime.now()
-    )
+    Task.objects.filter(id=task.id).update(status=2, approval_date=timezone.now())
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -311,7 +309,7 @@ def force_accept_task(request, exam_id, task_id):
         Task.objects.filter(id=task.id).update(
             status=2,
             approver=request.user.scout,
-            approval_date=datetime.datetime.now(),
+            approval_date=timezone.now(),
         )
         return HttpResponse("OK", status=200)
     else:
@@ -323,7 +321,7 @@ def force_accept_task(request, exam_id, task_id):
         Task.objects.filter(id=task.id).update(
             status=2,
             approver=request.user.scout,
-            approval_date=datetime.datetime.now(),
+            approval_date=timezone.now(),
         )
         return redirect(reverse("exam:edit_exams"))
 

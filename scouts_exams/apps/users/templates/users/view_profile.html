@@ -81,6 +81,15 @@
     </div>
     <div class="box" style="position:relative; width:100%;">
         <h1 class="subtitle">Powiadomienia</h1>
+        <table class="table">
+            {% for device in user.fcmdevice_set.all %}
+            <tr>
+                <td>
+                    <a class="is-link" onclick="confirm_popup('', 'Czy na pewno chcesz przestać dostawać powiadomienia na tym urządzeniu ({{ device.name }})? \nJeśli w przyszłości zmienisz zdanie, będziesz musiał ponnownie zarejestrować to urządzenie.')"><span class="has-tooltip-right has-tooltip-arrow has-tooltip-primary" data-tooltip="Wyrejestruj urządzenie">{{ device.name }}</span></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
     <div class="box" style="position:relative; width:100%;">
         <a href="{% url 'edit_profile' user.id %}">
