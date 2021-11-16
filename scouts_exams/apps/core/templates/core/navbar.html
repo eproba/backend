@@ -1,4 +1,4 @@
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav class="navbar" role="navigation" aria-label="main navigation" style="padding: 0.5rem 1rem; display: block">
     {% load static %}
     <div class="navbar-brand">
         <a class="navbar-item" href="{% url 'frontpage' %}">
@@ -130,21 +130,6 @@
 
     });
 </script>
-<!--
-  Messages framework installed here will always allow displaying messages below the navbar
-
-  Messages framework is described here: https://docs.djangoproject.com/en/3.1/ref/contrib/messages/
-
-  from django.contrib import messages
-  messages.add_message(request, messages.INFO, 'Hello world.')
-
-  Constant  Purpose
-  DEBUG     Development-related messages that will be ignored (or removed) in a production deployment
-  INFO      Informational messages for the user
-  SUCCESS   An action was successful, e.g. “Your profile was updated successfully”
-  WARNING   A failure did not occur but may be imminent
-  ERROR     An action was not successful or some other failure occurred
--->
 {% if messages %}
     </br>
     <div class="notification is-info" style="position: relative">

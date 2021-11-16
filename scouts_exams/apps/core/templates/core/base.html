@@ -2,9 +2,13 @@
 <html lang="pl">
 {% load static %}
 <script>
-    function confirm_popup(url, message = "") {
+    function confirm_popup(url="", message = "", fun=null) {
         if (confirm(message)) {
-            location.replace(url);
+            if (!url && fun) {
+                fun()
+            } else {
+                location.replace(url);
+            }
         }
     }
 
@@ -160,10 +164,10 @@
         {% endblock %}
     </div>
 </div>
-<div id="notifications" style="z-index: 10; position: fixed; bottom: 10px; right: 10px"></div>
+<div id="notifications" style="z-index: 50; position: fixed; bottom: 10px; right: 10px"></div>
 {% block footer %}
     <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-        <div class="position-relative d-flex flex-row-reverse flex-lg-row flex-wrap flex-lg-nowrap flex-justify-center flex-lg-justify-between pb-2 mt-6 f6 color-text-secondary border-top color-border-secondary "></div>
+        <div style="border-top: 1px solid #dee2e6; padding-bottom: 0.5rem"></div>
         <p class="has-text-centered">
             <strong>e-próba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code
             is available on <a href="https://github.com/Antoni-Czaplicki/scouts_exams">Github</a>.
