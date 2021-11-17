@@ -1,11 +1,14 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block content %}
     <div class="box">
         <h1 class="title">Poproś o zatwierdzenie zadania</h1>
         <h1 class="subtitle">{{ exam }}</h1>
         <form action="{% url 'exam:submit_task' exam.id %}" method="post" id="form">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+            <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
             {% csrf_token %}
             {% for form in forms %}
                 {{ form|crispy }}
