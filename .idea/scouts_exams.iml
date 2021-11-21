@@ -18,6 +18,12 @@
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (scouts_exams)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="js-cookie" level="application" />
+    <orderEntry type="library" name="a00f1140b1" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+    <orderEntry type="library" name="UAParser.js" level="application" />
+    <orderEntry type="library" name="885b512168b0f9e771984917f48c7251" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

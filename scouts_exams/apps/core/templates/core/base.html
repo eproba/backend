@@ -78,6 +78,7 @@
     <link href="{% static 'css/bulma-tooltip.min.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3/dist/js.cookie.min.js"></script>
     <script src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.2/ua-parser.min.js" integrity="sha512-M/6+/Ib+r5t/hijvSPLPO76abBzT8vlMVRSJ16JDA+NV9CGCkAjq8UD4kHN6KpHncDTRRIb0oUU01yhW+yfqng==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -92,6 +93,7 @@
     import {initializeApp} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
     import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-analytics.js";
     import {getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/9.4.1/firebase-messaging.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
         authDomain: "scouts-exams.firebaseapp.com",
@@ -106,50 +108,52 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-
     const messaging = getMessaging();
-    getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
-        if (currentToken) {
-            $.ajax({
-                url: '{% url 'fcm_devices-list' %}',
-                type: 'get',
-                data: {},
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                dataType: 'json',
-                success: function (data) {
-                    if (data.filter(e => e.registration_id === currentToken).length === 0) {
-                        $.ajax({
-                            url: '{% url 'fcm_devices-list' %}',
-                            type: 'post',
-                            data: {
-                                "registration_id": currentToken,
-                                "name": $.ua.browser.name + ': ' + $.ua.os.name + ' ' + $.ua.os.version,
-                                "type": "web"
-                            },
-                            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                            dataType: 'json',
-                            success: function (data) {
-                                console.info("Zarejestrowano urządzenie dla FCM");
-                            }
-                        });
+    if (Cookies.get("disable_notifications") === undefined && Cookies.get("disable_notifications") !== true) {
+        getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
+            if (currentToken) {
+                $.ajax({
+                    url: '{% url 'fcm_devices-list' %}',
+                    type: 'get',
+                    data: {},
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.filter(e => e.registration_id === currentToken).length === 0) {
+                            $.ajax({
+                                url: '{% url 'fcm_devices-list' %}',
+                                type: 'post',
+                                data: {
+                                    "registration_id": currentToken,
+                                    "name": JSON.stringify({"os": $.ua.os, "device": $.ua.device, "browser": $.ua.browser.name}),
+                                    "type": "web"
+                                },
+                                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                                dataType: 'json',
+                                success: function (data) {
+                                    console.info("Zarejestrowano urządzenie dla FCM");
+                                }
+                            });
+                        }
                     }
-                }
-            });
-        } else {
-            console.log('No registration token available. Request permission to generate one.');
-        }
-    }).catch((err) => {
-        console.log('An error occurred while retrieving token. ', err);
-    });
+                });
+                Cookies.set('fcm_token', currentToken, { expires: 365 })
+            } else {
+                console.log('No registration token available. Request permission to generate one.');
+            }
+        }).catch((err) => {
+            console.log('An error occurred while retrieving token. ', err);
+        });
+    }
 
     onMessage(messaging, (payload) => {
-      $( "#notifications" ).append( `\
+        $("#notifications").append(`\
         <div class="notification" style="background-color: rgb(20 62 119 / 75%)">\
             <button class="delete" onclick="this.parentElement.remove()"></button>\
             <strong>${payload.notification.title}</strong><br>\
             ${payload.notification.body}\
         </div>`
-    )
+        )
     });
 </script>
 {% endif %}
