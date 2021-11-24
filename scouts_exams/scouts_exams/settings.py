@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
-    "oauth2_provider",
     "fcm_django",
 ]
 FIREBASE_APP = initialize_app(
@@ -86,10 +85,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-}
-OAUTH2_PROVIDER = {
-    # this is the list of available scopes
-    "SCOPES": {"read": "Read scope", "write": "Write scope"}
 }
 # Accounts
 AUTH_USER_MODEL = "users.User"

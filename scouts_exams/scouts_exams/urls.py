@@ -37,7 +37,6 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
-from oauth2_provider.urls import app_name, base_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
@@ -74,7 +73,6 @@ urlpatterns = [
     path("account/disconect/<provider>", disconect_socials, name="disconect_socials"),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
-    path("api/oauth/", include((base_urlpatterns, app_name), namespace=app_name)),
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path("api/exams/", UserExamList.as_view({"get": "list"})),
     path("api/exams/<pk>/", UserExamDetails.as_view()),
