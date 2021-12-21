@@ -2,7 +2,6 @@ from apps.exam.models import Exam
 from apps.exam.serializers import ExamSerializer
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
-from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 from rest_framework import generics, permissions, viewsets
 
 
