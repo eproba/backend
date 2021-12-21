@@ -12,7 +12,12 @@ STATUS = (
 
 
 class Exam(models.Model):
-    scout = models.ForeignKey(Scout, on_delete=models.RESTRICT, related_name="scout")
+    scout = models.ForeignKey(
+        Scout,
+        on_delete=models.RESTRICT,
+        related_name="scout",
+        verbose_name="Właściciel próby",
+    )
     supervisor = models.ForeignKey(
         Scout,
         on_delete=models.RESTRICT,
@@ -20,8 +25,12 @@ class Exam(models.Model):
         default=None,
         related_name="supervisor",
         blank=True,
+        verbose_name="Opiekun próby",
     )
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Nazwa próby")
+    is_archived = models.BooleanField(
+        default=False, verbose_name="Próba zarchiwizowana?"
+    )
 
     def __str__(self):
         return f"{self.name} - {self.scout}"
@@ -33,8 +42,8 @@ class Exam(models.Model):
 
 class Task(models.Model):
     exam = models.ForeignKey(Exam, related_name="tasks", on_delete=models.CASCADE)
-    task = models.CharField(max_length=250)
-    status = models.IntegerField(choices=STATUS, default=0)
+    task = models.CharField(max_length=250, verbose_name="Zadanie")
+    status = models.IntegerField(choices=STATUS, default=0, verbose_name="Status")
     approver = models.ForeignKey(
         Scout,
         on_delete=models.SET_NULL,
@@ -42,9 +51,12 @@ class Task(models.Model):
         default=None,
         related_name="approver",
         blank=True,
+        verbose_name="Zatwierdzający",
     )
-    approval_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
-    description = models.TextField(default="", blank=True)
+    approval_date = models.DateTimeField(
+        default=timezone.now, blank=True, null=True, verbose_name="Data zatwierdzenia"
+    )
+    description = models.TextField(default="", blank=True, verbose_name="Opis zadania")
 
     def __str__(self):
         return self.task

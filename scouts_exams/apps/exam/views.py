@@ -29,7 +29,7 @@ def prepare_exam(exam):
             exam.show_submit_task_button = True
         elif task.status == 1:
             exam.show_sent_tasks_button = True
-        if task.description is not "":
+        if task.description != "":
             exam.show_description_column = True
     if _all != 0:
         percent = int(round(_done / _all, 2) * 100)
@@ -147,16 +147,24 @@ def manage_exams(request):
         )
         return redirect(reverse("exam:exam"))
     elif request.user.scout.function == 2:
-        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id).exclude(
-            scout=user.scout
-        ):
+        for exam in Exam.objects.filter(
+            scout__team__id=user.scout.team.id,
+            scout__function__lt=user.scout.function,
+            is_archived=False,
+        ).exclude(scout=user.scout):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function == 3 or request.user.scout.function == 4:
-        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
+        for exam in Exam.objects.filter(
+            scout__team__id=user.scout.team.id, is_archived=False
+        ):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function >= 5:
-        for exam in Exam.objects.filter(scout__team__id=user.scout.team.id):
+        for exam in Exam.objects.filter(
+            scout__team__id=user.scout.team.id, is_archived=False
+        ):
             exams.append(prepare_exam(exam))
+    for exam in Exam.objects.filter(supervisor__user_id=user.id, is_archived=False):
+        exams.append(prepare_exam(exam))
     patrols = Patrol.objects.filter(team__id=user.scout.team.id)
     return render(
         request,
@@ -282,14 +290,22 @@ def force_refuse_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
-        if task.exam != exam or request.user.scout.function < 2:
+        if (
+            task.exam != exam
+            or request.user.scout.function < 2
+            or request.user.scout.function < exam.scout.function
+        ):
             return HttpResponse("401 Unauthorized", status=401)
         Task.objects.filter(id=task.id).update(
             status=3, approver=None, approval_date=None
         )
         return HttpResponse("OK", status=200)
     else:
-        if task.exam != exam or request.user.scout.function < 2:
+        if (
+            task.exam != exam
+            or request.user.scout.function < 2
+            or request.user.scout.function < exam.scout.function
+        ):
             messages.add_message(
                 request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
             )
@@ -304,7 +320,11 @@ def force_accept_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
-        if task.exam != exam or request.user.scout.function < 2:
+        if (
+            task.exam != exam
+            or request.user.scout.function < 2
+            or request.user.scout.function < exam.scout.function
+        ):
             return HttpResponse("401 Unauthorized", status=401)
         Task.objects.filter(id=task.id).update(
             status=2,
@@ -313,7 +333,11 @@ def force_accept_task(request, exam_id, task_id):
         )
         return HttpResponse("OK", status=200)
     else:
-        if task.exam != exam or request.user.scout.function < 2:
+        if (
+            task.exam != exam
+            or request.user.scout.function < 2
+            or request.user.scout.function < exam.scout.function
+        ):
             messages.add_message(
                 request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
             )

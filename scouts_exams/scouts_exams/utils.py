@@ -1,8 +1,10 @@
-from apps.exam.models import Exam
+from apps.exam.models import Exam, Task
+from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
 from apps.exam.serializers import ExamSerializer
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
 from rest_framework import generics, permissions, viewsets
+from rest_framework.viewsets import ModelViewSet
 
 
 class UserList(generics.ListCreateAPIView):
@@ -32,8 +34,8 @@ class UserExamList(viewsets.ModelViewSet):
         return Exam.objects.filter(scout__user__id=user.id)
 
 
-class ExamDetails(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAdminUser]
+class ExamViewSet(ModelViewSet):
+    permission_classes = [IsAllowedToManageExamOrReadOnlyForOwner]
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 

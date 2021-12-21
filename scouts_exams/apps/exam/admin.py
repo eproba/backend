@@ -11,7 +11,7 @@ class TaskInline(admin.TabularInline):
 class ExamAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {"fields": ["scout", "supervisor"]}),
-        (None, {"fields": ["name"]}),
+        (None, {"fields": ["name", "is_archived"]}),
     ]
     inlines = [TaskInline]
 

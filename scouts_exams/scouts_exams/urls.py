@@ -41,8 +41,8 @@ from rest_framework import routers
 
 from .sitemaps import Sitemap
 from .utils import (
-    ExamDetails,
     ExamList,
+    ExamViewSet,
     UserDetails,
     UserExamDetails,
     UserExamList,
@@ -56,6 +56,7 @@ handler500 = "apps.core.views.handler500"
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
+api.register(r"exam", ExamViewSet, "api-exam")
 
 sitemaps = {
     "posts": PostSitemap,
@@ -76,8 +77,6 @@ urlpatterns = [
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path("api/exams/", UserExamList.as_view({"get": "list"})),
     path("api/exams/<pk>/", UserExamDetails.as_view()),
-    path("api/all/exams/", ExamList.as_view({"get": "list"})),
-    path("api/all/exams/<pk>/", ExamDetails.as_view()),
     path("api/all/users/", UserList.as_view()),
     path("api/all/users/<pk>/", UserDetails.as_view(), name="user-detail"),
     path("contact/", contactView, name="contact"),
