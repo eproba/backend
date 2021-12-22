@@ -158,12 +158,12 @@
     });
 </script>
 {% endif %}
-<div class="container" id="container">
+<div class="container" id="container" style="display: flex; flex-direction: column;">
     {% include "core/navbar.html" %}
     <br>
     {% block subnavbarcontent %}
     {% endblock %}
-    <div class="container" style="position: relative; margin-bottom: 10vh;">
+    <div class="container" style="position: relative; margin-bottom: 10vh;display: flex; flex-direction: column;width: 100%;">
         {% block content %}
         {% endblock %}
     </div>
