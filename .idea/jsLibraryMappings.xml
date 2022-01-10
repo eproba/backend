@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{885b512168b0f9e771984917f48c7251, UAParser.js, a00f1140b1, bootstrap, jquery-3.6.0, js-cookie}" />
+    <file url="file://$PROJECT_DIR$" libraries="{885b512168b0f9e771984917f48c7251, UAParser.js, a00f1140b1, bootstrap, jquery-3.6.0, js-cookie, qrcode}" />
     <includedPredefinedLibrary name="Node.js Core" />
   </component>
 </project>

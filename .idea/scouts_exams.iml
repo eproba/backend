@@ -24,6 +24,7 @@
     <orderEntry type="library" name="UAParser.js" level="application" />
     <orderEntry type="library" name="885b512168b0f9e771984917f48c7251" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="qrcode" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

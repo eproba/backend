@@ -16,7 +16,7 @@
                                 </div>
                             </div>
 
-                            <div class="content">{{ post.content }}</div>
+                            <div class="content">{{ post.content | safe }}</div>
                         </div>
                     </div>
                 {% endfor %}

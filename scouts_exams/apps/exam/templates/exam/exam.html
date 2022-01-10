@@ -60,6 +60,22 @@
     </tbody>
 </table>
 {% if not is_shared %}
+<div class="modal" id="qr_modal_{{ exam.id }}">
+<div class="modal-background"></div>
+<div class="modal-card">
+    <header class="modal-card-head">
+        <p class="modal-card-title">Kod QR</p>
+        <button class="delete" aria-label="close" onclick="document.getElementById('qr_modal_{{ exam.id }}').classList.remove('is-active'); document.getElementById('qr_modal_div_{{ exam.id }}').innerHTML = '';"></button>
+    </header>
+    <section class="modal-card-body">
+        <div id="qr_modal_div_{{ exam.id }}"/>
+            <!-- Dynamic Content ... -->
+            <div class="loader-wrapper">
+                <div class="loader is-loading"></div>
+            </div>
+    </section>
+    </div>
+</div>
 {% if exam.percent != "100%" %}
 <div class="modal" id="request_task_check_modal_{{ exam.id }}">
 <div class="modal-background"></div>
@@ -109,6 +125,12 @@
         <i class="fas fa-print"></i>
         </span>
         <span>Drukuj próbę</span>
+        </button>
+        <button onclick="document.getElementById('qr_modal_div_{{ exam.id }}').innerHTML = ''; new QRCode(document.getElementById('qr_modal_div_{{ exam.id }}'), 'https://eproba.ga/exam/share/view/437a61706c610x1c900x859'); $('#qr_modal_div_{{ exam.id }}').children('img').css({'margin': 'auto', 'padding': '10px', 'background': '#ffffff', 'border-radius': '10px'}); document.getElementById('qr_modal_{{ exam.id }}').classList.add('is-active');" class="button is-link is-light">
+        <span class="icon">
+        <i class="fas fa-qrcode"></i>
+        </span>
+        <span>Wygeneruj kod QR</span>
         </button>
         <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
             data-tooltip="Naciśnij aby skopiować link">
