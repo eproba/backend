@@ -6,7 +6,7 @@
 {% for exam in exams_list %}
 {% if request.user.id == exam.scout.user.id or is_shared %}
 <div class="box">
-<h1 class="title">{{ exam }}</h1>
+<h1 class="title">{{ exam }}{% if exam.is_archived %} <span class="icon"><i class="fa-solid fa-box-archive"></i></span>{% endif %}</h1>
 {% if exam.supervisor %}
 <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a></h2>
 {% endif %}
@@ -18,7 +18,7 @@
             {% if exam.show_description_column %}
             <th>Opis</th>
             {% endif %}
-            <th>Zaliczone?</th>
+            <th style="width:4rem">Zaliczone?</th>
         </tr>
     </thead>
     <tfoot>
@@ -76,7 +76,7 @@
     </section>
     </div>
 </div>
-{% if exam.percent != "100%" %}
+{% if exam.percent != "100%" and not exam.is_archived %}
 <div class="modal" id="request_task_check_modal_{{ exam.id }}">
 <div class="modal-background"></div>
 <div class="modal-card">

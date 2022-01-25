@@ -24,11 +24,10 @@
     <div class="box">
         <span class="icon-text">
             <span class="title">{{ exam }} </span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')" class="icon"><i class="fa-solid fa-clipboard"></i></span></span>
             <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Zarchiwizuj próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \Zostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-box-archive"></i></span></span>
+            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Przywróć próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-box-open"></i></span></span>
             {% if user.scout.function > 2 %}
-                <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Usuń próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-trash"></i></span></span>
+                <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Usuń próbę na zawsze"><span onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
         </span>
         {% if exam.supervisor %}
@@ -44,7 +43,6 @@
                     <th>Opis</th>
                     {% endif %}
                     <th style="width:4rem">Status</th>
-                    <th style="width:4rem">Akcja</th>
                 </tr>
             </thead>
             <tfoot>
@@ -54,7 +52,6 @@
                     {% if exam.show_description_column %}
                     <th></th>
                     {% endif %}
-                    <th></th>
                     <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
                 </tr>
             </tfoot>
@@ -83,7 +80,6 @@
                         <div id="status-icon_{{ task.id }}"></div>
                     </td>
                     {% endif %}
-                    <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success" data-tooltip="Zatwierdź zadanie" id="{{ task.id }}"><a onclick="send_post('{% url 'exam:force_accept_task' exam.id task.id %}', '{{ task.id }}', '{{ exam.id }}', 'Czy na pewno chcesz zatwierdzić zadanie?')"><i class="far fa-check-circle" style="color:green;"></i></a></span> <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie"><a onclick="send_post('{% url 'exam:force_refuse_task' exam.id task.id %}', '{{ task.id }}', '{{ exam.id }}', 'Czy na pewno chcesz odrzucić zadanie?')"><i class="far fa-times-circle" style="color:red;"></i></a></span></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -93,12 +89,12 @@
 {% endfor %}
 {% else %}
 <div class="box">
-    W systemie nie ma jeszcze żadnej próby którą możesz edytować.
+    W archiwum nie ma żadnej próby.
 </div>
 {% endif %}
 {% else %}
 <div class="box">
-    Aby edytować próby musisz się najpierw zalogować.
+    Aby zobaczyć próby w archiwum musisz się najpierw zalogować.
 </div>
 {% endif %}
 <script>
@@ -140,24 +136,6 @@
             }
         }
         element.className = arr1.join(" ");
-    }
-
-    function send_post(url, task_id = "", exam_id = "", message = "") {
-        if (message) {
-            if (confirm(message)) {
-                $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
-                var posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
-                posting.done(function (data) {
-                    $("#exam_" + exam_id).load(document.URL + " #exam_" + exam_id + " > div");
-                });
-                posting.fail(function (data) {
-                    alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
-                    $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
-                });
-            }
-        } else {
-            console.log("No message");
-        }
     }
 </script>
 <style>
