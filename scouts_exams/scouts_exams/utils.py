@@ -36,8 +36,15 @@ class UserExamList(viewsets.ModelViewSet):
 
 class ExamViewSet(ModelViewSet):
     permission_classes = [IsAllowedToManageExamOrReadOnlyForOwner]
-    queryset = Exam.objects.all()
     serializer_class = ExamSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.scout.function >= 5:
+            return Exam.objects.all()
+        elif user.scout.team and user.scout.function >= 2:
+            return Exam.objects.filter(scout__team__id=user.scout.team.id)
+        return Exam.objects.filter(scout__user__id=user.id)
 
 
 class UserExamDetails(generics.RetrieveAPIView):
