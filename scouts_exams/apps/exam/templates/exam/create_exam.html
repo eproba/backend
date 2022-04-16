@@ -2,7 +2,8 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
     {% if request.user.is_authenticated %}
         <script type="text/javascript">
@@ -12,6 +13,7 @@
                 if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
                 if (el.id) el.id = el.id.replace(id_regex, replacement);
                 if (el.name) el.name = el.name.replace(id_regex, replacement);
+                console.log(el);
             }
 
             function addForm(selector, prefix) {
@@ -31,6 +33,11 @@
                     $(this).attr({'id': id}).val('').removeAttr('checked');
 
                 });
+
+                newElement.find('.field-label').each(function () {
+                    $(this).html((+total + 1) + '. ');
+                });
+
                 newElement.find('label').each(function () {
                     let forValue = $(this).attr('for');
                     if (forValue) {
@@ -60,6 +67,7 @@
                         $(forms.get(i)).find(':input').each(function () {
                             updateElementIndex(this, prefix, i);
                         });
+                        $(forms.get(i)).find('.field-label').html(i + 1 + '.');
                     }
                 }
                 return false;
@@ -75,25 +83,25 @@
                 deleteForm('form', $(this));
                 return false;
             });
-//            $(document).on('keydown', 'input[id^=id_form-][id$=-task]:visible', function(e) {
-//                if (e.keyCode === 13) {
-//                    const button = $(`#id_form-${this.id.replace(/\D/g, '')}-task-button`);
-//                    if(button.hasClass('add-form-row')) {
-//                        button.click()
-//                    } else  {
-//                        console.log(`#id_form-${this.id.replace(/\D/g, '') + 1}-task`)
-//                        $(`#id_form-${parseInt(this.id.replace(/\D/g, '')) + 1}-task`).focus()
-//                    }
-//                    return false;
-//                }
-//            });
-            $(document).ready(function() {
-              $(window).keydown(function(event){
-                if(event.keyCode === 13) {
-                  event.preventDefault();
-                  return false;
-                }
-              });
+            //            $(document).on('keydown', 'input[id^=id_form-][id$=-task]:visible', function(e) {
+            //                if (e.keyCode === 13) {
+            //                    const button = $(`#id_form-${this.id.replace(/\D/g, '')}-task-button`);
+            //                    if(button.hasClass('add-form-row')) {
+            //                        button.click()
+            //                    } else  {
+            //                        console.log(`#id_form-${this.id.replace(/\D/g, '') + 1}-task`)
+            //                        $(`#id_form-${parseInt(this.id.replace(/\D/g, '')) + 1}-task`).focus()
+            //                    }
+            //                    return false;
+            //                }
+            //            });
+            $(document).ready(function () {
+                $(window).keydown(function (event) {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        return false;
+                    }
+                });
             });
 
         </script>
@@ -102,19 +110,31 @@
                 {% csrf_token %}
                 {{ exam|crispy }}
                 {{ tasks.management_form }}
-                {% for form in tasks %}
-                    <h1>Zadania:</h1>
-                    <div class="box">
+                <h1>Zadania:</h1>
+                <div class="box">
+                    {% for form in tasks %}
                         <div class="block form-row field has-addons">
-                          <div class="control" style="width: 100%">
-                                {{ form.task }}
-                          </div>
-                          <div class="control">
-                                <button class="button add-form-row" id="id_form-0-task-button" type="button"><i class="fas fa-plus"></i></button>
-                          </div>
+                            <div class="field-label" style="display: flex; align-items: center">{{ forloop.counter }}.
+                            </div>
+                            <div class="field-body" style="flex-grow: 30">
+                                <div class="control" style="width: 100%">
+                                    {{ form.task }}
+                                </div>
+                                <div class="control">
+                                    {% if form.task.initial == None %}
+                                        <button class="button add-form-row"
+                                                id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
+                                                class="fas fa-plus"></i></button>
+                                    {% else %}
+                                        <button class="button remove-form-row"
+                                                id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
+                                                class="fas fa-minus"></i></button>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
                 <div class="block">
                     <div class="container has-text-centered">
                         <button type="submit" class="button is-outlined">

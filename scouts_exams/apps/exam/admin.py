@@ -9,9 +9,16 @@ class TaskInline(admin.TabularInline):
 
 
 class ExamAdmin(admin.ModelAdmin):
+    list_filter = (
+        "is_template",
+        "is_archived",
+        "scout__team",
+    )
+
     fieldsets = [
         (None, {"fields": ["scout", "supervisor"]}),
         (None, {"fields": ["name", "is_archived"]}),
+        (None, {"fields": ["is_template"]}),
     ]
     inlines = [TaskInline]
 

@@ -11,6 +11,7 @@ urlpatterns = [
     path("print/<str:hex>", views.print_exam, name="print_exam"),
     path("share/view/<str:hex>", views.view_shared_exams, name="view_shared_exams"),
     path("tasks/check", views.check_tasks, name="check_tasks"),
+    path("templates", views.templates, name="templates"),
     path(
         "<int:exam_id>/<int:task_id>/task/accept",
         views.accept_task,

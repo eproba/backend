@@ -1,7 +1,4 @@
-import datetime
-
 from django.contrib import messages
-from django.forms.formsets import formset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -10,42 +7,17 @@ from django.utils import timezone
 from unidecode import unidecode
 from weasyprint import HTML
 
-from ..teams.models import Patrol
-from .forms import ExamCreateForm, ExtendedExamCreateForm, SubmitTaskForm, TaskForm
-from .models import Exam, Task
-
-
-def prepare_exam(exam):
-    _all = 0
-    _done = 0
-    exam.show_submit_task_button = False
-    exam.show_sent_tasks_button = False
-    exam.show_description_column = False
-    for task in exam.tasks.all():
-        _all += 1
-        if task.status == 2:
-            _done += 1
-        elif task.status == 0 or task.status == 3:
-            exam.show_submit_task_button = True
-        elif task.status == 1:
-            exam.show_sent_tasks_button = True
-        if task.description != "":
-            exam.show_description_column = True
-    if _all != 0:
-        percent = int(round(_done / _all, 2) * 100)
-        exam.percent = f"{str(percent)}%"
-    else:
-        exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
-    exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
-
-    return exam
+from ...teams.models import Patrol
+from ..forms import SubmitTaskForm
+from ..models import Exam, Task
+from .utils import prepare_exam
 
 
 def view_exams(request):
     if request.user.is_authenticated:
         user = request.user
         exams = []
-        for exam in Exam.objects.filter(scout__user=user):
+        for exam in Exam.objects.filter(scout__user=user, is_template=False):
             exams.append(prepare_exam(exam))
         return render(
             request,
@@ -151,19 +123,22 @@ def manage_exams(request):
             scout__team__id=user.scout.team.id,
             scout__function__lt=user.scout.function,
             is_archived=False,
+            is_template=False,
         ).exclude(scout=user.scout):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function == 3 or request.user.scout.function == 4:
         for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=False
+            scout__team__id=user.scout.team.id, is_archived=False, is_template=False
         ):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function >= 5:
         for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=False
+            scout__team__id=user.scout.team.id, is_archived=False, is_template=False
         ):
             exams.append(prepare_exam(exam))
-    for exam in Exam.objects.filter(supervisor__user_id=user.id, is_archived=False):
+    for exam in Exam.objects.filter(
+        supervisor__user_id=user.id, is_archived=False, is_template=False
+    ):
         exams.append(prepare_exam(exam))
     patrols = Patrol.objects.filter(team__id=user.scout.team.id)
     return render(
@@ -171,80 +146,6 @@ def manage_exams(request):
         "exam/manage_exams.html",
         {"user": user, "exams_list": exams, "patrols": patrols},
     )
-
-
-def archive(request):
-    if not request.user.is_authenticated:
-        return render(request, "exam/archive.html")
-    user = request.user
-    exams = []
-    if request.user.scout.function == 0 or request.user.scout.function == 1:
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do edycji prób."
-        )
-        return redirect(reverse("exam:exam"))
-    elif request.user.scout.function == 2:
-        for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id,
-            scout__function__lt=user.scout.function,
-            is_archived=True,
-        ).exclude(scout=user.scout):
-            exams.append(prepare_exam(exam))
-    elif request.user.scout.function == 3 or request.user.scout.function == 4:
-        for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=True
-        ):
-            exams.append(prepare_exam(exam))
-    elif request.user.scout.function >= 5:
-        for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=True
-        ):
-            exams.append(prepare_exam(exam))
-    for exam in Exam.objects.filter(supervisor__user_id=user.id, is_archived=True):
-        exams.append(prepare_exam(exam))
-    patrols = Patrol.objects.filter(team__id=user.scout.team.id)
-    return render(
-        request,
-        "exam/archive.html",
-        {"user": user, "exams_list": exams, "patrols": patrols},
-    )
-
-
-def create_exam(request):
-    TaskFormSet = formset_factory(TaskForm, extra=1)
-    if request.method == "POST":
-        if request.user.scout.function >= 2:
-            exam = ExtendedExamCreateForm(request.user, request.POST)
-        else:
-            exam = ExamCreateForm(request.POST)
-        tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
-        if exam.is_valid():
-            if request.user.scout.function >= 2:
-                exam_obj = exam.save()
-            else:
-                exam_obj = exam.save(commit=False)
-                exam_obj.scout = request.user.scout
-                exam_obj.save()
-            if tasks.is_valid():
-                tasks_data = tasks.cleaned_data
-                for task in tasks_data:
-                    if "task" in task:
-                        Task.objects.create(exam=exam_obj, task=task["task"])
-
-            messages.add_message(request, messages.INFO, "Próba została utworzona.")
-            if request.GET.get("next", False):
-                return redirect(request.GET.get("next"))
-            else:
-                return redirect(reverse("exam:exam"))
-
-    else:
-        if request.user.scout.function >= 2:
-            exam = ExtendedExamCreateForm(request.user)
-        else:
-            exam = ExamCreateForm()
-        tasks = TaskFormSet()
-
-    return render(request, "exam/create_exam.html", {"exam": exam, "tasks": tasks})
 
 
 def check_tasks(request):
@@ -257,7 +158,7 @@ def check_tasks(request):
             tasks = []
             for task in exam.tasks.filter(status=1, approver=user.scout):
                 tasks.append(task)
-            if tasks != []:
+            if tasks:
                 exam.task_list = tasks
                 exams.append(exam)
         return render(

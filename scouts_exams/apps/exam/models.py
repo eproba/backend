@@ -31,6 +31,7 @@ class Exam(models.Model):
     is_archived = models.BooleanField(
         default=False, verbose_name="Próba zarchiwizowana?"
     )
+    is_template = models.BooleanField(default=False, verbose_name="Szablon?")
 
     def __str__(self):
         return f"{self.name} - {self.scout}"

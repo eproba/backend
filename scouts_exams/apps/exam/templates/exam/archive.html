@@ -1,149 +1,171 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% if request.user.is_authenticated %}
-{% if exams_list %}
-<div class="level">
-    <div class="level-left">
-    </div>
-    <div class="level-right">
-        <div class="level-item">
-            <div class="select">
-                <select name="patrol_select" class="select is-colored" onchange="filter_by_patrol(this.value)">
-                    <option value="all">Wszystkie zastępy</option>
-                    {% for patrol in patrols %}
-                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
-                    {% endfor %}
-                </select>
+    {% if request.user.is_authenticated %}
+        {% if exams_list %}
+            <div class="level">
+                <div class="level-left">
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <div class="select">
+                            <select name="patrol_select" class="select is-colored"
+                                    onchange="filter_by_patrol(this.value)">
+                                <option value="all">Wszystkie zastępy</option>
+                                {% for patrol in patrols %}
+                                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-{% for exam in exams_list %}
-<div class="block exam" id="exam_{{ exam.id }}" scout_patrol="{{ exam.scout.patrol.id }}">
-    <div class="box">
+            {% for exam in exams_list %}
+                <div class="block exam" id="exam_{{ exam.id }}" scout_patrol="{{ exam.scout.patrol.id }}">
+                    <div class="box">
         <span class="icon-text">
             <span class="title">{{ exam }} </span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'" class="icon"><i class="fas fa-print"></i></span></span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Przywróć próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-box-open"></i></span></span>
+            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+                  data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"
+                                                    class="icon"><i class="fas fa-print"></i></span></span>
+            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+                  data-tooltip="Przywróć próbę"><span
+                    onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '
+                            {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })"
+                    class="icon"><i class="fa-solid fa-box-open"></i></span></span>
             {% if user.scout.function > 2 %}
-                <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Usuń próbę na zawsze"><span onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })" class="icon"><i class="fa-solid fa-trash"></i></span></span>
+                <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+                      data-tooltip="Usuń próbę na zawsze"><span
+                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '
+                                {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"
+                        class="icon"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
         </span>
-        {% if exam.supervisor %}
-            <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a></h2>
+                        {% if exam.supervisor %}
+                            <h2 class="subtitle">Opiekun próby: <a
+                                    href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a>
+                            </h2>
+                        {% endif %}
+                        <p><br/></p>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="is-narrow">Lp.</th>
+                                <th>Zadanie</th>
+                                {% if exam.show_description_column %}
+                                    <th>Opis</th>
+                                {% endif %}
+                                <th style="width:4rem">Status</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                {% if exam.show_description_column %}
+                                    <th></th>
+                                {% endif %}
+                                <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary"
+                                          data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
+                            </tr>
+                            </tfoot>
+                            <tbody>
+                            {% for task in exam.tasks.all %}
+                                <tr>
+                                    <th>{{ forloop.counter }}</th>
+                                    <td>{{ task.task }}</td>
+                                    {% if exam.show_description_column %}
+                                        {% if task.description != "" %}
+                                            <td>{{ task.description }}</td>
+                                        {% else %}
+                                            <td></td>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if task.status == 2 %}
+                                        <td>
+                                            <div id="status-icon_{{ task.id }}"><span
+                                                    class="has-tooltip-arrow has-tooltip-right"
+                                                    data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                    class="far fa-check-circle"></i></span></div>
+                                        </td>
+                                    {% elif task.status == 1 %}
+                                        <td>
+                                            <div id="status-icon_{{ task.id }}"><span
+                                                    class="has-tooltip-arrow has-tooltip-right"
+                                                    data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                    class="far fa-clock"></i></span></div>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <div id="status-icon_{{ task.id }}"></div>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="box">
+                W archiwum nie ma żadnej próby.
+            </div>
         {% endif %}
-        <p><br/></p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="is-narrow">Lp.</th>
-                    <th>Zadanie</th>
-                    {% if exam.show_description_column %}
-                    <th>Opis</th>
-                    {% endif %}
-                    <th style="width:4rem">Status</th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    {% if exam.show_description_column %}
-                    <th></th>
-                    {% endif %}
-                    <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary" data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
-                </tr>
-            </tfoot>
-            <tbody>
-                {% for task in exam.tasks.all %}
-                <tr>
-                    <th>{{ forloop.counter }}</th>
-                    <td>{{ task.task }}</td>
-                    {% if exam.show_description_column %}
-                    {% if task.description != "" %}
-                    <td>{{ task.description }}</td>
-                    {% else %}
-                    <td></td>
-                    {% endif %}
-                    {% endif %}
-                    {% if task.status == 2 %}
-                    <td>
-                        <div id="status-icon_{{ task.id }}"><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i class="far fa-check-circle"></i></span></div>
-                    </td>
-                    {% elif task.status == 1 %}
-                    <td>
-                        <div id="status-icon_{{ task.id }}"><span class="has-tooltip-arrow has-tooltip-right" data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i class="far fa-clock"></i></span></div>
-                    </td>
-                    {% else %}
-                    <td>
-                        <div id="status-icon_{{ task.id }}"></div>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endfor %}
-{% else %}
-<div class="box">
-    W archiwum nie ma żadnej próby.
-</div>
-{% endif %}
-{% else %}
-<div class="box">
-    Aby zobaczyć próby w archiwum musisz się najpierw zalogować.
-</div>
-{% endif %}
-<script>
-    filter_by_patrol("all")
+    {% else %}
+        <div class="box">
+            Aby zobaczyć próby w archiwum musisz się najpierw zalogować.
+        </div>
+    {% endif %}
+    <script>
+        filter_by_patrol("all")
 
-    function filter_by_patrol(c) {
-        var x, i;
-        x = document.getElementsByClassName("exam");
-        if (c === "all") {
-            $('.exam').addClass('show')
-            return;
-        }
-        // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
-        for (i = 0; i < x.length; i++) {
-            RemoveClass(x[i], "show");
-            if ($(x[i]).attr('scout_patrol') === c) AddClass(x[i], "show");
-        }
-    }
-    // Show filtered elements
-    function AddClass(element, name) {
-        var i, arr1, arr2;
-        arr1 = element.className.split(" ");
-        arr2 = name.split(" ");
-        for (i = 0; i < arr2.length; i++) {
-            if (arr1.indexOf(arr2[i]) === -1) {
-                element.className += " " + arr2[i];
+        function filter_by_patrol(c) {
+            var x, i;
+            x = document.getElementsByClassName("exam");
+            if (c === "all") {
+                $('.exam').addClass('show')
+                return;
+            }
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+            for (i = 0; i < x.length; i++) {
+                RemoveClass(x[i], "show");
+                if ($(x[i]).attr('scout_patrol') === c) AddClass(x[i], "show");
             }
         }
-    }
 
-    // Hide elements that are not selected
-    function RemoveClass(element, name) {
-        var i, arr1, arr2;
-        arr1 = element.className.split(" ");
-        arr2 = name.split(" ");
-        for (i = 0; i < arr2.length; i++) {
-            while (arr1.indexOf(arr2[i]) > -1) {
-                arr1.splice(arr1.indexOf(arr2[i]), 1);
+        // Show filtered elements
+        function AddClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                if (arr1.indexOf(arr2[i]) === -1) {
+                    element.className += " " + arr2[i];
+                }
             }
         }
-        element.className = arr1.join(" ");
-    }
-</script>
-<style>
-    .exam {
-    display: none; /* Hidden by default */
-    }
-    .show {
-    display: block;
-    }
-</style>
+
+        // Hide elements that are not selected
+        function RemoveClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                while (arr1.indexOf(arr2[i]) > -1) {
+                    arr1.splice(arr1.indexOf(arr2[i]), 1);
+                }
+            }
+            element.className = arr1.join(" ");
+        }
+    </script>
+    <style>
+        .exam {
+            display: none; /* Hidden by default */
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
 {% endblock %}

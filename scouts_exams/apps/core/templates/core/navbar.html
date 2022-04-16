@@ -39,8 +39,12 @@
                         <a class="navbar-item" href="{% url 'exam:archive' %}">
                             Archiwum
                         </a>
-                        <a class="navbar-item" onclick="location.href='{% url 'exam:create_exam' %}?next={% url 'exam:manage_exams' %}'">
+                        <a class="navbar-item"
+                           onclick="location.href='{% url 'exam:create_exam' %}?next={% url 'exam:manage_exams' %}'">
                             Utwórz nową próbę
+                        </a>
+                        <a class="navbar-item" onclick="location.href='{% url 'exam:templates' %}'">
+                            Szablony
                         </a>
                     </div>
                 </div>
