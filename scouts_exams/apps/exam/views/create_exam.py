@@ -46,8 +46,11 @@ def create_exam(request):
             exam = ExtendedExamCreateForm(request.user)
         else:
             exam = ExamCreateForm()
-        tasks = TaskFormSet(
-            initial=[{"task": task.task} for task in template.tasks.all()]
-        )
+        if template:
+            tasks = TaskFormSet(
+                initial=[{"task": task.task} for task in template.tasks.all()]
+            )
+        else:
+            tasks = TaskFormSet()
 
     return render(request, "exam/create_exam.html", {"exam": exam, "tasks": tasks})
