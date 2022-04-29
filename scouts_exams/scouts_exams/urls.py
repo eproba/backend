@@ -14,7 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import IssueContactView, contactView, fcm_sw, frontpage
+from apps.core.views import (
+    IssueContactView,
+    contactView,
+    fcm_sw,
+    frontpage,
+    reload_web_app,
+)
 from apps.users.views import (
     change_password,
     disconect_socials,
@@ -79,6 +85,7 @@ urlpatterns = [
     path("api/exams/<pk>/", UserExamDetails.as_view()),
     path("api/all/users/", UserList.as_view()),
     path("api/all/users/<pk>/", UserDetails.as_view(), name="user-detail"),
+    path("api/admin/reload/", reload_web_app, name="restart"),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("exam/", include("apps.exam.urls")),

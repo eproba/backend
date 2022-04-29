@@ -1,7 +1,13 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
+
+try:
+    import uwsgi
+except ImportError:
+    uwsgi = None
 
 from .forms import ContactForm, IssueContactForm
 
@@ -72,3 +78,21 @@ def fcm_sw(request):
     return render(
         request, "firebase-messaging-sw.js", content_type="application/javascript"
     )
+
+
+@login_required
+def reload_web_app(request):
+    if request.user.is_superuser:
+        if uwsgi:
+            uwsgi.reload()
+            messages.add_message(
+                request, messages.INFO, "Aplikacja została ponownie uruchomiona."
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "Restart aplikacji nie jest dostępny na tej platformie.",
+            )
+        return redirect(reverse("frontpage"))
+    return HttpResponse("Unathorized", status=401)
