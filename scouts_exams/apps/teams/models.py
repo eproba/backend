@@ -23,4 +23,4 @@ class Patrol(models.Model):
     team = models.ForeignKey(Team, on_delete=models.RESTRICT, null=True, default=None)
 
     def __str__(self):
-        return self.name
+        return f"{self.team.short_name} - {self.name}"
