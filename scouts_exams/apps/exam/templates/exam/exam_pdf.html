@@ -11,8 +11,8 @@
 {% elif exam.supervisor.user.nickname %}
     <p><strong>Opiekun próby:</strong> {{ exam.scout.supervisor.nickname }}</p>
 {% endif %}
-{% if exam.scout.team %}
-    <p><strong>Drużyna:</strong> {{ exam.scout.team }}</p>
+{% if exam.scout.patrol.team %}
+    <p><strong>Drużyna:</strong> {{ exam.scout.patrol.team }}</p>
 {% else %}
     <p><strong>Drużyna:</strong></p>
 {% endif %}

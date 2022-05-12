@@ -20,8 +20,8 @@ class ExtendedExamCreateForm(ModelForm):
         super(ExtendedExamCreateForm, self).__init__(*args, **kwargs)
         self.fields["scout"].required = True
         self.initial["scout"] = user.scout
-        if user.scout.team and not user.scout.function >= 5:
-            self.fields["scout"].queryset = Scout.objects.filter(team=user.scout.team)
+        if user.scout.patrol.team and not user.scout.function >= 5:
+            self.fields["scout"].queryset = Scout.objects.filter(patrol__team=user.scout.patrol.team)
 
     class Meta:
         model = Exam
@@ -49,10 +49,10 @@ class SubmitTaskForm(forms.ModelForm):
     def __init__(self, request, user, exam, *args, **kwargs):
         super(SubmitTaskForm, self).__init__(*args, **kwargs)
         self.fields["approver"].widget.attrs["required"] = "required"
-        if request.user.scout.team:
+        if request.user.scout.patrol.team:
             query = Q(function__gte=2)
             query.add(Q(function__gt=request.user.scout.function), Q.AND)
-            query.add(Q(team=request.user.scout.team), Q.AND)
+            query.add(Q(patrol__team=request.user.scout.patrol.team), Q.AND)
             self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
                 user=request.user
             )

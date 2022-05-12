@@ -51,7 +51,7 @@ def signup(request):
             user = user_form.save()
             user.refresh_from_db()
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
-            user.scout.team = user.scout.patrol.team
+            user.scout.patrol.team = user.scout.patrol.team
             user.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("frontpage")
@@ -93,9 +93,9 @@ class UserChangeForm(UserChangeForm):
 class ScoutChangeForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(ScoutChangeForm, self).__init__(*args, **kwargs)
-        if request.user.scout.team:
+        if request.user.scout.patrol.team:
             self.fields["patrol"].queryset = Patrol.objects.filter(
-                team=request.user.scout.team
+                patrol__team=request.user.scout.patrol.team
             )
         else:
             self.fields["patrol"].queryset = Patrol.objects

@@ -6,7 +6,7 @@ from .models import Scout, User
 class ScoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scout
-        fields = ["patrol", "team", "rank", "function"]
+        fields = ["patrol", "rank", "function"]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

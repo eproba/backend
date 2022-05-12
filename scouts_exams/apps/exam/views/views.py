@@ -120,7 +120,7 @@ def manage_exams(request):
         return redirect(reverse("exam:exam"))
     elif request.user.scout.function == 2:
         for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id,
+            scout__patrol__team__id=user.scout.patrol.team.id,
             scout__function__lt=user.scout.function,
             is_archived=False,
             is_template=False,
@@ -128,19 +128,19 @@ def manage_exams(request):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function == 3 or request.user.scout.function == 4:
         for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=False, is_template=False
+            scout__patrol__team__id=user.scout.patrol.team.id, is_archived=False, is_template=False
         ):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function >= 5:
         for exam in Exam.objects.filter(
-            scout__team__id=user.scout.team.id, is_archived=False, is_template=False
+            scout__patrol__team__id=user.scout.patrol.team.id, is_archived=False, is_template=False
         ):
             exams.append(prepare_exam(exam))
     for exam in Exam.objects.filter(
         supervisor__user_id=user.id, is_archived=False, is_template=False
     ):
         exams.append(prepare_exam(exam))
-    patrols = Patrol.objects.filter(team__id=user.scout.team.id)
+    patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id)
     return render(
         request,
         "exam/manage_exams.html",

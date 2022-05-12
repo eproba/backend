@@ -12,7 +12,7 @@ class ExamAdmin(admin.ModelAdmin):
     list_filter = (
         "is_template",
         "is_archived",
-        "scout__team",
+        "scout__patrol__team",
     )
 
     fieldsets = [
@@ -25,7 +25,7 @@ class ExamAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(ExamAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
-            return qs.filter(scout__team=request.user.scout.team)
+            return qs.filter(scout__patrol__team=request.user.scout.patrol.team)
         else:
             return qs
 

@@ -81,16 +81,16 @@ class Scout(models.Model):
         default=None,
         related_name="scouts",
     )
-    team = models.ForeignKey(
-        Team, on_delete=models.RESTRICT, null=True, default=None, related_name="scouts"
-    )
     rank = models.CharField(max_length=20, choices=RANK_CHOICES, default=" ")
     function = models.IntegerField(choices=FUNCTION_CHOICES, default=0)
 
-    REQUIRED_FIELDS = ["initials", "patrol", "team", "rank"]
+    REQUIRED_FIELDS = ["initials", "patrol", "rank"]
 
     def __str__(self):
         return f"{self.rank} {self.user.nickname}"
+
+    def team_short_name(self):
+        return self.patrol.team.short_name if self.patrol is not None else None
 
 
 @receiver(models.signals.post_save, sender=User)

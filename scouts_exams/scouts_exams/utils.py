@@ -42,8 +42,8 @@ class ExamViewSet(ModelViewSet):
         user = self.request.user
         if user.scout.function >= 5:
             return Exam.objects.all()
-        elif user.scout.team and user.scout.function >= 2:
-            return Exam.objects.filter(scout__team__id=user.scout.team.id)
+        elif user.scout.patrol.team and user.scout.function >= 2:
+            return Exam.objects.filter(scout__patrol__team__id=user.scout.patrol.team.id)
         return Exam.objects.filter(scout__user__id=user.id)
 
 

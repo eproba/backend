@@ -63,7 +63,7 @@ class CustomUserAdmin(UserAdmin):
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
-            return qs.filter(scout__team=request.user.scout.team)
+            return qs.filter(scout__patrol__team=request.user.scout.patrol.team)
         else:
             return qs
 
@@ -74,8 +74,8 @@ admin.site.register(User, CustomUserAdmin)
 @admin.register(Scout)
 class EventAdmin(admin.ModelAdmin):
     fields = (
-        ("user"),
-        ("team", "patrol"),
+        "user",
+        "patrol",
         (
             "rank",
             "function",
@@ -84,13 +84,13 @@ class EventAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "user_nickname",
-        "team",
+        "team_short_name",
         "patrol",
         "rank",
         "function",
     )
     list_filter = (
-        "team",
+        "patrol__team",
         "patrol",
         "rank",
         "function",
