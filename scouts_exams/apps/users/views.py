@@ -51,7 +51,6 @@ def signup(request):
             user = user_form.save()
             user.refresh_from_db()
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
-            user.scout.patrol.team = user.scout.patrol.team
             user.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("frontpage")
@@ -144,7 +143,6 @@ def edit_profile(request, user_id):
         if user_form.is_valid() and scout_form.is_valid():
             user = user_form.save()
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
-            user.scout.team = user.scout.patrol.team
             user.save()
             return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
 
