@@ -2,8 +2,8 @@ from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Select, TextInput
 
-from ..users.models import Scout
 from .models import Exam, Task
+from ..users.models import Scout
 
 
 class ExamCreateForm(ModelForm):
@@ -12,6 +12,9 @@ class ExamCreateForm(ModelForm):
         fields = ["name"]
         labels = {
             "name": "Nazwa próby",
+        }
+        widgets = {
+            "name": TextInput(attrs={"class": "textinput textInput form-control is-colored"}),
         }
 
 
@@ -30,7 +33,10 @@ class ExtendedExamCreateForm(ModelForm):
             "scout": "Dla kogo chcesz stworzyć próbę?",
             "name": "Nazwa próby",
         }
-        widgets = {"scout": Select()}
+        widgets = {
+            "scout": Select(attrs={"class": "select form-control is-colored"}),
+            "name": TextInput(attrs={"class": "input textInput form-control is-colored"}),
+        }
 
 
 class TaskForm(ModelForm):
@@ -41,7 +47,7 @@ class TaskForm(ModelForm):
             "task": "Zadanie",
         }
         widgets = {
-            "task": TextInput(attrs={"class": "input"}),
+            "task": TextInput(attrs={"class": "input is-colored"}),
         }
 
 

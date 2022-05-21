@@ -94,7 +94,7 @@ class ScoutChangeForm(forms.ModelForm):
         super(ScoutChangeForm, self).__init__(*args, **kwargs)
         if request.user.scout.patrol.team:
             self.fields["patrol"].queryset = Patrol.objects.filter(
-                patrol__team=request.user.scout.patrol.team
+                team=request.user.scout.patrol.team
             )
         else:
             self.fields["patrol"].queryset = Patrol.objects
