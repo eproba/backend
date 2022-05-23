@@ -50,6 +50,7 @@
             .html('<i class="fas fa-minus"></i>').attr('tabindex', '-1');
         $(newElement).children('div').children('input').focus()
         $(newElement).children('div.field-body').children('div#move-button').children('button')[0].addEventListener('mousedown', mouseDownHandler);
+        $(newElement).children('div.field-body').children('div#move-button').children('button')[0].addEventListener('touchstart', touchStartHandler);
         return false;
     }
 
@@ -103,9 +104,7 @@
     // Swap two nodes
     const swap = function (nodeA, nodeB) {
         const parentA = nodeA.parentNode;
-        //console.log(parentA);
         const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
-        //console.log(siblingA);
 
         // Move `nodeA` to before the `nodeB`
         nodeB.parentNode.insertBefore(nodeA, nodeB);
@@ -134,8 +133,19 @@
         // Attach the listeners to `document`
         document.addEventListener('mousemove', mouseMoveHandler);
         document.addEventListener('mouseup', mouseUpHandler);
-        document.addEventListener('ontouchmove', mouseMoveHandler);
-        document.addEventListener('ontouchend', mouseUpHandler);
+    };
+
+    const touchStartHandler = function (e) {
+        draggingEle = e.target.closest('div.form-row');
+
+        // Calculate the finger position
+        const rect = draggingEle.getBoundingClientRect();
+        x = e.touches[0].pageX - rect.left;
+        y = e.touches[0].pageY - rect.top;
+        console.log(e);
+        // Attach the listeners to `document`
+        document.addEventListener('touchmove', touchMoveHandler);
+        document.addEventListener('touchend', mouseUpHandler);
     };
 
     const mouseMoveHandler = function (e) {
@@ -144,11 +154,9 @@
         if (!isDraggingStarted) {
             isDraggingStarted = true;
 
-            // Let the placeholder take the height of dragging element
-            // So the next element won't move up
             placeholder = document.createElement('div');
             placeholder.classList.add('placeholder', 'form-row', 'field', 'has-addons');
-            placeholder.innerHTML = `<div class="field-label" style="display: flex; align-items: center">${$(draggingEle).children("div.field-label").text()}</div> <div class="field-body" style="flex-grow: 30"> <div class="control" style="width: 100%"> <input type="text" class="input" disabled> </div> <div class="control" id="action-button"> <button class="button" type="button" disabled> <i id="action-icon" class="${$(draggingEle).find("#action-button").find("i").attr("class")}"></i> </button> </div> <div class="control"> <button class="button" disabled> <i class="fa-solid fa-grip-vertical"></i> </button> </div> </div>`.trim();
+            placeholder.innerHTML = `<div class="field-label" style="display: flex; align-items: center; flex-grow: 0">${$(draggingEle).children("div.field-label").text()}</div> <div class="field-body is-flex"> <div class="control" style="width: 100%"> <input type="text" class="input" disabled> </div> <div class="control" id="action-button"> <button class="button" type="button" disabled> <i id="action-icon" class="${$(draggingEle).find("#action-button").find("i").attr("class")}"></i> </button> </div> <div class="control"> <button class="button" disabled> <i class="fa-solid fa-grip-vertical"></i> </button> </div> </div>`.trim();
             draggingEle.parentNode.insertBefore(placeholder, draggingEle.nextElementSibling);
             draggingEle.style.width = `${draggingRect.width}px`;
         }
@@ -159,27 +167,12 @@
         draggingEle.style.top = `${e.pageY - y}px`;
         draggingEle.style.left = `${e.pageX - x}px`;
 
-        // The current order
-        // prevEle
-        // draggingEle
-        // placeholder
-        // nextEle
-        {#console.log("draggingEle");#}
-        {#console.log(draggingEle);#}
         const prevEle = draggingEle.previousElementSibling;
-        {#console.log("prevEle");#}
-        {#console.log(prevEle);#}
         const nextEle = placeholder.nextElementSibling;
-        {#console.log("nextEle");#}
-        {#console.log(nextEle);#}
 
         // The dragging element is above the previous element
         // User moves the dragging element to the top
         if (prevEle && isAbove(draggingEle, prevEle)) {
-            // The current order    -> The new order
-            // prevEle              -> placeholder
-            // draggingEle          -> draggingEle
-            // placeholder          -> prevEle
             swap(placeholder, draggingEle);
             swap(placeholder, prevEle);
             const tasks = $('#tasks').children().not('.placeholder');
@@ -199,10 +192,65 @@
         // The dragging element is below the next element
         // User moves the dragging element to the bottom
         if (nextEle && isAbove(nextEle, draggingEle)) {
-            // The current order    -> The new order
-            // draggingEle          -> nextEle
-            // placeholder          -> placeholder
-            // nextEle              -> draggingEle
+            swap(nextEle, placeholder);
+            swap(nextEle, draggingEle);
+            const tasks = $('#tasks').children().not('.placeholder');
+            tasks.each(function(index, element) {
+                $(element).children("div.field-label").text(`${index + 1}.`);
+                if (index === tasks.length - 1) {
+                    $(element).find("#action-button").html(`<button class="button add-form-row" id="id_form-${index}-task-button" type="button"><i class="fas fa-plus"></i></button>`);
+                } else {
+                    $(element).find("#action-button").html(`<button class="button remove-form-row" id="id_form-${index}-task-button" type="button" tabindex="-1"><i class="fas fa-minus"></i></button>`);
+                }
+            });
+            $(placeholder).children("div.field-label").text($(draggingEle).children("div.field-label").text());
+            $(placeholder).find("#action-icon").attr("class", $(draggingEle).find("#action-button").find("i").attr("class"));
+        }
+    };
+
+    const touchMoveHandler = function (e) {
+        const draggingRect = draggingEle.getBoundingClientRect();
+        if (!isDraggingStarted) {
+            isDraggingStarted = true;
+
+            placeholder = document.createElement('div');
+            placeholder.classList.add('placeholder', 'form-row', 'field', 'has-addons');
+            placeholder.innerHTML = `<div class="field-label" style="display: flex; align-items: center; flex-grow: 0">${$(draggingEle).children("div.field-label").text()}</div> <div class="field-body is-flex"> <div class="control" style="width: 100%"> <input type="text" class="input" disabled> </div> <div class="control" id="action-button"> <button class="button" type="button" disabled> <i id="action-icon" class="${$(draggingEle).find("#action-button").find("i").attr("class")}"></i> </button> </div> <div class="control"> <button class="button" disabled> <i class="fa-solid fa-grip-vertical"></i> </button> </div> </div>`.trim();
+            draggingEle.parentNode.insertBefore(placeholder, draggingEle.nextElementSibling);
+            draggingEle.style.width = `${draggingRect.width}px`;
+        }
+        // Set position for dragging element
+        draggingEle.style.zIndex = '100';
+        draggingEle.style.position = 'fixed';
+        draggingEle.style.width = draggingEle.offsetWidth;
+        draggingEle.style.top = `${e.touches[0].pageY - y}px`;
+        draggingEle.style.left = `${e.touches[0].pageX - x}px`;
+
+        const prevEle = draggingEle.previousElementSibling;
+        const nextEle = placeholder.nextElementSibling;
+
+        // The dragging element is above the previous element
+        // User moves the dragging element to the top
+        if (prevEle && isAbove(draggingEle, prevEle)) {
+            swap(placeholder, draggingEle);
+            swap(placeholder, prevEle);
+            const tasks = $('#tasks').children().not('.placeholder');
+            tasks.each(function(index, element) {
+                $(element).children("div.field-label").text(`${index + 1}.`);
+                if (index === tasks.length - 1) {
+                    $(element).find("#action-button").html(`<button class="button add-form-row" id="id_form-${index}-task-button" type="button"><i class="fas fa-plus"></i></button>`);
+                } else {
+                    $(element).find("#action-button").html(`<button class="button remove-form-row" id="id_form-${index}-task-button" type="button" tabindex="-1"><i class="fas fa-minus"></i></button>`);
+                }
+            });
+            $(placeholder).children("div.field-label").text($(draggingEle).children("div.field-label").text());
+            $(placeholder).find("#action-icon").attr("class", $(draggingEle).find("#action-button").find("i").attr("class"));
+            return;
+        }
+
+        // The dragging element is below the next element
+        // User moves the dragging element to the bottom
+        if (nextEle && isAbove(nextEle, draggingEle)) {
             swap(nextEle, placeholder);
             swap(nextEle, draggingEle);
             const tasks = $('#tasks').children().not('.placeholder');
@@ -252,12 +300,10 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Query the list element
         const list = document.getElementById('tasks');
-        // Query all items
         [].slice.call(list.querySelectorAll('.draggable')).forEach(function (item) {
             item.addEventListener('mousedown', mouseDownHandler);
-            item.addEventListener('ontouchstart', mouseDownHandler);
+            item.addEventListener('touchstart', touchStartHandler);
         });
     });
 </script>
