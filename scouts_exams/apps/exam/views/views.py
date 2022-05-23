@@ -128,12 +128,16 @@ def manage_exams(request):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function == 3 or request.user.scout.function == 4:
         for exam in Exam.objects.filter(
-            scout__patrol__team__id=user.scout.patrol.team.id, is_archived=False, is_template=False
+            scout__patrol__team__id=user.scout.patrol.team.id,
+            is_archived=False,
+            is_template=False,
         ):
             exams.append(prepare_exam(exam))
     elif request.user.scout.function >= 5:
         for exam in Exam.objects.filter(
-            scout__patrol__team__id=user.scout.patrol.team.id, is_archived=False, is_template=False
+            scout__patrol__team__id=user.scout.patrol.team.id,
+            is_archived=False,
+            is_template=False,
         ):
             exams.append(prepare_exam(exam))
     for exam in Exam.objects.filter(

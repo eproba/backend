@@ -2,134 +2,296 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
-    {% if request.user.is_authenticated %}
-        <script type="text/javascript">
-            function updateElementIndex(el, prefix, ndx) {
-                const id_regex = new RegExp('(' + prefix + '-\\d+)');
-                const replacement = prefix + '-' + ndx;
-                if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
-                if (el.id) el.id = el.id.replace(id_regex, replacement);
-                if (el.name) el.name = el.name.replace(id_regex, replacement);
-                console.log(el);
+{% if request.user.is_authenticated %}
+<script type="text/javascript">
+    function updateElementIndex(el, prefix, ndx) {
+        const id_regex = new RegExp('(' + prefix + '-\\d+)');
+        const replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    function addForm(selector, prefix) {
+        const newElement = $(selector).clone(true);
+        let total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        newElement.find(':input:not([type=submit]):not([type=reset])').each(function () {
+            let name = $(this).attr('name');
+            if (name) {
+                name = name.replace('-' + (total - 1) + '-', '-' + total + '-');
+                const id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
             }
+        });
+        newElement.find(':button:not([type=submit]):not([type=reset])').each(function () {
 
-            function addForm(selector, prefix) {
-                const newElement = $(selector).clone(true);
-                let total = $('#id_' + prefix + '-TOTAL_FORMS').val();
-                newElement.find(':input:not([type=submit]):not([type=reset])').each(function () {
-                    let name = $(this).attr('name');
-                    if (name) {
-                        name = name.replace('-' + (total - 1) + '-', '-' + total + '-');
-                        const id = 'id_' + name;
-                        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-                    }
+            const id = this.id.replace('-' + (total - 1) + '-', '-' + total + '-');
+            $(this).attr({'id': id}).val('').removeAttr('checked');
+
+        });
+
+        newElement.find('.field-label').each(function () {
+            $(this).html((+total + 1) + '. ');
+        });
+
+        newElement.find('label').each(function () {
+            let forValue = $(this).attr('for');
+            if (forValue) {
+                forValue = forValue.replace('-' + (total - 1) + '-', '-' + total + '-');
+                $(this).attr({'for': forValue});
+            }
+        });
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $(selector).after(newElement);
+        const conditionRow = $('.form-row:not(:last)');
+        conditionRow.find('.button.add-form-row')
+            .removeClass('add-form-row').addClass('remove-form-row')
+            .html('<i class="fas fa-minus"></i>').attr('tabindex', '-1');
+        $(newElement).children('div').children('input').focus()
+        $(newElement).children('div.field-body').children('div#move-button').children('button')[0].addEventListener('mousedown', mouseDownHandler);
+        return false;
+    }
+
+    function deleteForm(prefix, button) {
+        const total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1) {
+            button.closest('.form-row').remove();
+            const forms = $('.form-row');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            let i = 0, formCount = forms.length;
+            for (; i < formCount; i++) {
+                $(forms.get(i)).find(':input').each(function () {
+                    updateElementIndex(this, prefix, i);
                 });
-                newElement.find(':button:not([type=submit]):not([type=reset])').each(function () {
+                $(forms.get(i)).find('.field-label').html(i + 1 + '.');
+            }
+        }
+        return false;
+    }
 
-                    const id = this.id.replace('-' + (total - 1) + '-', '-' + total + '-');
-                    $(this).attr({'id': id}).val('').removeAttr('checked');
+    $(document).on('click', '.add-form-row', function (e) {
+        e.preventDefault();
+        addForm('.form-row:last', 'form');
+        return false;
+    });
+    $(document).on('click', '.remove-form-row', function (e) {
+        e.preventDefault();
+        deleteForm('form', $(this));
+        return false;
+    });
 
-                });
-
-                newElement.find('.field-label').each(function () {
-                    $(this).html((+total + 1) + '. ');
-                });
-
-                newElement.find('label').each(function () {
-                    let forValue = $(this).attr('for');
-                    if (forValue) {
-                        forValue = forValue.replace('-' + (total - 1) + '-', '-' + total + '-');
-                        $(this).attr({'for': forValue});
-                    }
-                });
-                total++;
-                $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-                $(selector).after(newElement);
-                const conditionRow = $('.form-row:not(:last)');
-                conditionRow.find('.button.add-form-row')
-                    .removeClass('add-form-row').addClass('remove-form-row')
-                    .html('<i class="fas fa-minus"></i>');
-                $(newElement).children('div').children('input').focus()
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
                 return false;
             }
+        });
+    });
 
-            function deleteForm(prefix, button) {
-                const total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-                if (total > 1) {
-                    button.closest('.form-row').remove();
-                    const forms = $('.form-row');
-                    $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-                    let i = 0, formCount = forms.length;
-                    for (; i < formCount; i++) {
-                        $(forms.get(i)).find(':input').each(function () {
-                            updateElementIndex(this, prefix, i);
-                        });
-                        $(forms.get(i)).find('.field-label').html(i + 1 + '.');
-                    }
+
+
+    let draggingEle;
+    let placeholder;
+    let isDraggingStarted = false;
+
+    // The current position of mouse relative to the dragging element
+    let x = 0;
+    let y = 0;
+
+    // Swap two nodes
+    const swap = function (nodeA, nodeB) {
+        const parentA = nodeA.parentNode;
+        //console.log(parentA);
+        const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+        //console.log(siblingA);
+
+        // Move `nodeA` to before the `nodeB`
+        nodeB.parentNode.insertBefore(nodeA, nodeB);
+
+        // Move `nodeB` to before the sibling of `nodeA`
+        parentA.insertBefore(nodeB, siblingA);
+    };
+
+    // Check if `nodeA` is above `nodeB`
+    const isAbove = function (nodeA, nodeB) {
+        // Get the bounding rectangle of nodes
+        const rectA = nodeA.getBoundingClientRect();
+        const rectB = nodeB.getBoundingClientRect();
+
+        return rectA.top + rectA.height / 2 < rectB.top + rectB.height / 2;
+    };
+
+    const mouseDownHandler = function (e) {
+        draggingEle = e.target.closest('div.form-row');
+
+        // Calculate the mouse position
+        const rect = draggingEle.getBoundingClientRect();
+        x = e.pageX - rect.left;
+        y = e.pageY - rect.top;
+
+        // Attach the listeners to `document`
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+        document.addEventListener('ontouchmove', mouseMoveHandler);
+        document.addEventListener('ontouchend', mouseUpHandler);
+    };
+
+    const mouseMoveHandler = function (e) {
+        const draggingRect = draggingEle.getBoundingClientRect();
+
+        if (!isDraggingStarted) {
+            isDraggingStarted = true;
+
+            // Let the placeholder take the height of dragging element
+            // So the next element won't move up
+            placeholder = document.createElement('div');
+            placeholder.classList.add('placeholder', 'form-row', 'field', 'has-addons');
+            placeholder.innerHTML = `<div class="field-label" style="display: flex; align-items: center">${$(draggingEle).children("div.field-label").text()}</div> <div class="field-body" style="flex-grow: 30"> <div class="control" style="width: 100%"> <input type="text" class="input" disabled> </div> <div class="control" id="action-button"> <button class="button" type="button" disabled> <i id="action-icon" class="${$(draggingEle).find("#action-button").find("i").attr("class")}"></i> </button> </div> <div class="control"> <button class="button" disabled> <i class="fa-solid fa-grip-vertical"></i> </button> </div> </div>`.trim();
+            draggingEle.parentNode.insertBefore(placeholder, draggingEle.nextElementSibling);
+            draggingEle.style.width = `${draggingRect.width}px`;
+        }
+        // Set position for dragging element
+        draggingEle.style.zIndex = '100';
+        draggingEle.style.position = 'fixed';
+        draggingEle.style.width = draggingEle.offsetWidth;
+        draggingEle.style.top = `${e.pageY - y}px`;
+        draggingEle.style.left = `${e.pageX - x}px`;
+
+        // The current order
+        // prevEle
+        // draggingEle
+        // placeholder
+        // nextEle
+        {#console.log("draggingEle");#}
+        {#console.log(draggingEle);#}
+        const prevEle = draggingEle.previousElementSibling;
+        {#console.log("prevEle");#}
+        {#console.log(prevEle);#}
+        const nextEle = placeholder.nextElementSibling;
+        {#console.log("nextEle");#}
+        {#console.log(nextEle);#}
+
+        // The dragging element is above the previous element
+        // User moves the dragging element to the top
+        if (prevEle && isAbove(draggingEle, prevEle)) {
+            // The current order    -> The new order
+            // prevEle              -> placeholder
+            // draggingEle          -> draggingEle
+            // placeholder          -> prevEle
+            swap(placeholder, draggingEle);
+            swap(placeholder, prevEle);
+            const tasks = $('#tasks').children().not('.placeholder');
+            tasks.each(function(index, element) {
+                $(element).children("div.field-label").text(`${index + 1}.`);
+                if (index === tasks.length - 1) {
+                    $(element).find("#action-button").html(`<button class="button add-form-row" id="id_form-${index}-task-button" type="button"><i class="fas fa-plus"></i></button>`);
+                } else {
+                    $(element).find("#action-button").html(`<button class="button remove-form-row" id="id_form-${index}-task-button" type="button" tabindex="-1"><i class="fas fa-minus"></i></button>`);
                 }
-                return false;
+            });
+            $(placeholder).children("div.field-label").text($(draggingEle).children("div.field-label").text());
+            $(placeholder).find("#action-icon").attr("class", $(draggingEle).find("#action-button").find("i").attr("class"));
+            return;
+        }
+
+        // The dragging element is below the next element
+        // User moves the dragging element to the bottom
+        if (nextEle && isAbove(nextEle, draggingEle)) {
+            // The current order    -> The new order
+            // draggingEle          -> nextEle
+            // placeholder          -> placeholder
+            // nextEle              -> draggingEle
+            swap(nextEle, placeholder);
+            swap(nextEle, draggingEle);
+            const tasks = $('#tasks').children().not('.placeholder');
+            tasks.each(function(index, element) {
+                $(element).children("div.field-label").text(`${index + 1}.`);
+                if (index === tasks.length - 1) {
+                    $(element).find("#action-button").html(`<button class="button add-form-row" id="id_form-${index}-task-button" type="button"><i class="fas fa-plus"></i></button>`);
+                } else {
+                    $(element).find("#action-button").html(`<button class="button remove-form-row" id="id_form-${index}-task-button" type="button" tabindex="-1"><i class="fas fa-minus"></i></button>`);
+                }
+            });
+            $(placeholder).children("div.field-label").text($(draggingEle).children("div.field-label").text());
+            $(placeholder).find("#action-icon").attr("class", $(draggingEle).find("#action-button").find("i").attr("class"));
+        }
+    };
+
+    const mouseUpHandler = function () {
+        // Remove the placeholder
+        if (placeholder) {
+            placeholder.remove();
+            placeholder = null;
+        }
+
+        $(draggingEle).removeAttr('style');
+
+        x = null;
+        y = null;
+        draggingEle = null;
+        isDraggingStarted = false;
+
+        // Remove the handlers of `mousemove` and `mouseup`
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+
+        // Update the order of tasks
+        const tasks = $('#tasks').children();
+        tasks.each(function(index, element) {
+            $(element).children("div.field-label").text(`${index + 1}.`);
+            $(element).children("div.field-body").prop('id', `field-body-${index}`);
+            $(element).children("div.field-body").children("#input").children("input").prop('id', `id_form-${index}-task`).prop('name', `form-${index}-task`);
+            if (index === tasks.length - 1) {
+                $(element).find("#action-button").html(`<button class="button add-form-row" id="id_form-${index}-task-button" type="button"><i class="fas fa-plus"></i></button>`);
+            } else {
+                $(element).find("#action-button").html(`<button class="button remove-form-row" id="id_form-${index}-task-button" type="button" tabindex="-1"><i class="fas fa-minus"></i></button>`);
             }
+        });
+    };
 
-            $(document).on('click', '.add-form-row', function (e) {
-                e.preventDefault();
-                addForm('.form-row:last', 'form');
-                return false;
-            });
-            $(document).on('click', '.remove-form-row', function (e) {
-                e.preventDefault();
-                deleteForm('form', $(this));
-                return false;
-            });
-            //            $(document).on('keydown', 'input[id^=id_form-][id$=-task]:visible', function(e) {
-            //                if (e.keyCode === 13) {
-            //                    const button = $(`#id_form-${this.id.replace(/\D/g, '')}-task-button`);
-            //                    if(button.hasClass('add-form-row')) {
-            //                        button.click()
-            //                    } else  {
-            //                        console.log(`#id_form-${this.id.replace(/\D/g, '') + 1}-task`)
-            //                        $(`#id_form-${parseInt(this.id.replace(/\D/g, '')) + 1}-task`).focus()
-            //                    }
-            //                    return false;
-            //                }
-            //            });
-            $(document).ready(function () {
-                $(window).keydown(function (event) {
-                    if (event.keyCode === 13) {
-                        event.preventDefault();
-                        return false;
-                    }
-                });
-            });
-
-        </script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Query the list element
+        const list = document.getElementById('tasks');
+        // Query all items
+        [].slice.call(list.querySelectorAll('.draggable')).forEach(function (item) {
+            item.addEventListener('mousedown', mouseDownHandler);
+            item.addEventListener('ontouchstart', mouseDownHandler);
+        });
+    });
+</script>
         <div class="box">
             <form method="POST">
                 {% csrf_token %}
                 {{ exam|crispy }}
                 {{ tasks.management_form }}
                 <h1>Zadania:</h1>
-                <div class="box">
+                <div class="box" id="tasks">
                     {% for form in tasks %}
-                        <div class="block form-row field has-addons">
-                            <div class="field-label" style="display: flex; align-items: center">{{ forloop.counter }}.
+                        <div class="form-row field has-addons">
+                            <div class="field-label" style="display: flex; align-items: center; flex-grow: 0">{{ forloop.counter }}.
                             </div>
-                            <div class="field-body" style="flex-grow: 30">
-                                <div class="control" style="width: 100%">
+                            <div class="field-body is-flex" id="field-body-{{ forloop.counter|add:"-1" }}">
+                                <div class="control" id="input" style="width: 100%">
                                     {{ form.task }}
                                 </div>
-                                <div class="control">
-                                    {% if form.task.initial == None %}
+                                <div class="control" id="action-button">
+                                    {% if forloop.counter == tasks|length %}
                                         <button class="button add-form-row"
                                                 id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
-                                                class="fas fa-plus"></i></button>
+                                                class="fas fa-plus"></i>
                                     {% else %}
                                         <button class="button remove-form-row"
-                                                id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
-                                                class="fas fa-minus"></i></button>
+                                                id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button" tabindex="-1"><i
+                                                class="fas fa-minus"></i>
                                     {% endif %}
+                                    </button>
+                                </div>
+                                <div class="control" id="move-button">
+                                    <button class="button draggable" style="cursor: move; user-select: none; background-color: transparent" onclick="this.blur();" type="button" tabindex="-1">
+                                        <i class="fa-solid fa-grip-vertical"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>

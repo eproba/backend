@@ -2,8 +2,8 @@ from django import forms
 from django.db.models import Q
 from django.forms import ModelForm, Select, TextInput
 
-from .models import Exam, Task
 from ..users.models import Scout
+from .models import Exam, Task
 
 
 class ExamCreateForm(ModelForm):
@@ -14,7 +14,9 @@ class ExamCreateForm(ModelForm):
             "name": "Nazwa próby",
         }
         widgets = {
-            "name": TextInput(attrs={"class": "textinput textInput form-control is-colored"}),
+            "name": TextInput(
+                attrs={"class": "textinput textInput form-control is-colored"}
+            ),
         }
 
 
@@ -24,7 +26,9 @@ class ExtendedExamCreateForm(ModelForm):
         self.fields["scout"].required = True
         self.initial["scout"] = user.scout
         if user.scout.patrol.team and not user.scout.function >= 5:
-            self.fields["scout"].queryset = Scout.objects.filter(patrol__team=user.scout.patrol.team)
+            self.fields["scout"].queryset = Scout.objects.filter(
+                patrol__team=user.scout.patrol.team
+            )
 
     class Meta:
         model = Exam
@@ -35,7 +39,9 @@ class ExtendedExamCreateForm(ModelForm):
         }
         widgets = {
             "scout": Select(attrs={"class": "select form-control is-colored"}),
-            "name": TextInput(attrs={"class": "input textInput form-control is-colored"}),
+            "name": TextInput(
+                attrs={"class": "input textInput form-control is-colored"}
+            ),
         }
 
 
