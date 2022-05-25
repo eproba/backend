@@ -92,9 +92,9 @@ class UserChangeForm(UserChangeForm):
 class ScoutChangeForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(ScoutChangeForm, self).__init__(*args, **kwargs)
-        if request.user.scout.patrol.team:
+        if request.user.scout.patrol:
             self.fields["patrol"].queryset = Patrol.objects.filter(
-                team=request.user.scout.patrol.team
+                patrol__team=request.user.scout.patrol.team
             )
         else:
             self.fields["patrol"].queryset = Patrol.objects
@@ -219,7 +219,6 @@ def finish_signup(request):
         if user_form.is_valid() and scout_form.is_valid():
             user = user_form.save()
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
-            user.scout.team = user.scout.patrol.team
             user.save()
             return redirect(reverse("frontpage"))
 

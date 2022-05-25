@@ -61,7 +61,7 @@ class SubmitTaskForm(forms.ModelForm):
     def __init__(self, request, user, exam, *args, **kwargs):
         super(SubmitTaskForm, self).__init__(*args, **kwargs)
         self.fields["approver"].widget.attrs["required"] = "required"
-        if request.user.scout.patrol.team:
+        if request.user.scout.patrol:
             query = Q(function__gte=2)
             query.add(Q(function__gt=request.user.scout.function), Q.AND)
             query.add(Q(patrol__team=request.user.scout.patrol.team), Q.AND)
