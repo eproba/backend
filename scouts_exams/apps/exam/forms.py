@@ -15,7 +15,7 @@ class ExamCreateForm(ModelForm):
         }
         widgets = {
             "name": TextInput(
-                attrs={"class": "textinput textInput form-control is-colored"}
+                attrs={"class": "input textInput form-control is-colored"}
             ),
         }
 

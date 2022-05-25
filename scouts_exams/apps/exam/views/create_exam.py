@@ -21,7 +21,13 @@ def create_exam(request):
             exam = ExtendedExamCreateForm(request.user, request.POST)
         else:
             exam = ExamCreateForm(request.POST)
-        tasks = TaskFormSet(request.POST, initial=[{"task": " "}])
+        if template:
+            tasks = TaskFormSet(
+                request.POST,
+                initial=[{"task": task.task} for task in template.tasks.all()],
+            )
+        else:
+            tasks = TaskFormSet(request.POST)
         if exam.is_valid():
             if request.user.scout.function >= 2:
                 exam_obj = exam.save()

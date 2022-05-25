@@ -113,7 +113,7 @@ def manage_exams(request):
         return render(request, "exam/manage_exams.html")
     user = request.user
     exams = []
-    if request.user.scout.function == 0 or request.user.scout.function == 1:
+    if request.user.scout.function < 2:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
