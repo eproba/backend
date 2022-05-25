@@ -58,6 +58,7 @@ class Task(models.Model):
         default=timezone.now, blank=True, null=True, verbose_name="Data zatwierdzenia"
     )
     description = models.TextField(default="", blank=True, verbose_name="Opis zadania")
+    order = models.IntegerField(null=True, blank=True, verbose_name="Kolejność")
 
     def __str__(self):
         return self.task

@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+{% if request.user.is_authenticated %}
+        <div class="box">
+            <form method="POST">
+                {% csrf_token %}
+                {{ exam|crispy }}
+                <h1>Zadania:</h1>
+                <div class="box" id="tasks">
+                    {{ tasks }}
+                </div>
+                <div class="block">
+                    <div class="container has-text-centered">
+                        <button type="submit" class="button is-outlined">
+                            <span class="icon">
+                                <i class="fas fa-pen"></i>
+                            </span>
+                            <span>Zapisz</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <div class="box">
+            Nie powinno cię tu być, zaloguj się i wtedy do nas zajrzyj.
+        </div>
+        <meta http-equiv="refresh" content="3;url={% url 'frontpage' %}"/>
+    {% endif %}
+{% endblock %}
