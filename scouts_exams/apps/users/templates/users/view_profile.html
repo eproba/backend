@@ -110,7 +110,7 @@
                     </button>
                 </a>
             {% else %}
-                <a onclick="confirm_popup('{% url 'disconect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
+                <a onclick="confirm_popup('{% url 'disconnect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
                     <button class="button is-danger is-light">
                         <span class="icon"><i class="fab fa-google"></i></span><span>Połączono z Google</span>
                     </button>
@@ -125,7 +125,7 @@
                     </button>
                 </a>
             {% else %}
-                <a onclick="confirm_popup('{% url 'disconect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
+                <a onclick="confirm_popup('{% url 'disconnect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
                     <button class="button is-info is-light">
                         <span class="icon"><i class="fab fa-facebook"></i></span><span>Połączono z Facebook</span>
                     </button>

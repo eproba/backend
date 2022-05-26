@@ -13,7 +13,7 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.db import transaction
-from django.forms import Select
+from django.forms import EmailInput, Select, TextInput
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
 
@@ -28,6 +28,12 @@ class SiteUserCreationForm(UserCreationForm):
             "first_name": "Imię",
             "last_name": "Nazwisko",
         }
+        widgets = {
+            "nickname": TextInput(attrs={"class": "input is-colored"}),
+            "email": EmailInput(attrs={"class": "input is-colored"}),
+            "first_name": TextInput(attrs={"class": "input is-colored"}),
+            "last_name": TextInput(attrs={"class": "input is-colored"}),
+        }
 
 
 class ScoutCreationForm(forms.ModelForm):
@@ -37,7 +43,7 @@ class ScoutCreationForm(forms.ModelForm):
 
         labels = {"patrol": "Zastęp"}
         widgets = {
-            "patrol": Select(),
+            "patrol": Select(attrs={"class": "is-colored"}),
         }
 
 
@@ -58,6 +64,8 @@ def signup(request):
     else:
         user_form = SiteUserCreationForm()
         scout_form = ScoutCreationForm()
+        user_form.fields["password1"].widget.attrs["class"] = "input is-colored"
+        user_form.fields["password2"].widget.attrs["class"] = "input is-colored"
 
     return render(
         request,
@@ -87,6 +95,11 @@ class UserChangeForm(UserChangeForm):
             "first_name": "Imię",
             "last_name": "Nazwisko",
         }
+        widgets = {
+            "nickname": TextInput(attrs={"class": "input is-colored"}),
+            "first_name": TextInput(attrs={"class": "input is-colored"}),
+            "last_name": TextInput(attrs={"class": "input is-colored"}),
+        }
 
 
 class ScoutChangeForm(forms.ModelForm):
@@ -94,7 +107,7 @@ class ScoutChangeForm(forms.ModelForm):
         super(ScoutChangeForm, self).__init__(*args, **kwargs)
         if request.user.scout.patrol:
             self.fields["patrol"].queryset = Patrol.objects.filter(
-                patrol__team=request.user.scout.patrol.team
+                team=request.user.scout.patrol.team
             )
         else:
             self.fields["patrol"].queryset = Patrol.objects
@@ -107,7 +120,7 @@ class ScoutChangeForm(forms.ModelForm):
             "patrol": "Zastęp",
         }
         widgets = {
-            "patrol": Select(),
+            "patrol": Select(attrs={"class": "is-colored"}),
         }
 
 
@@ -169,10 +182,14 @@ def change_password(request, user_id):
         if password_form.is_valid():
             user = password_form.save()
             update_session_auth_hash(request, user)
+            messages.add_message(request, messages.SUCCESS, "Hasło zostało zmienione.")
             return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
 
     else:
         password_form = PasswordChangeForm(request.user)
+        password_form.fields["old_password"].widget.attrs["class"] = "input is-colored"
+        password_form.fields["new_password1"].widget.attrs["class"] = "input is-colored"
+        password_form.fields["new_password2"].widget.attrs["class"] = "input is-colored"
 
     return render(
         request, "users/common.html", {"forms": [password_form], "info": "Zmień hasło"}
@@ -194,10 +211,13 @@ def set_password(request, user_id):
         if password_form.is_valid():
             user = password_form.save()
             update_session_auth_hash(request, user)
+            messages.add_message(request, messages.SUCCESS, "Hasło zostało zmienione.")
             return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
 
     else:
         password_form = SetPasswordForm(request.user)
+        password_form.fields["new_password1"].widget.attrs["class"] = "input is-colored"
+        password_form.fields["new_password2"].widget.attrs["class"] = "input is-colored"
 
     return render(
         request, "users/common.html", {"forms": [password_form], "info": "Utwórz hasło"}
@@ -235,7 +255,7 @@ def finish_signup(request):
 
 @login_required
 @transaction.atomic
-def disconect_socials(request, provider):
+def disconnect_socials(request, provider):
     user_id = request.user.id
     user = get_object_or_404(User, id=user_id)
     accounts = SocialAccount.objects.filter(user=user)
