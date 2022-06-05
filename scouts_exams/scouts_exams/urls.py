@@ -77,7 +77,9 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
     path("accounts/", include("allauth.urls")),
-    path("account/disconnect/<provider>", disconnect_socials, name="disconnect_socials"),
+    path(
+        "account/disconnect/<provider>", disconnect_socials, name="disconnect_socials"
+    ),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/user/", UserInfo.as_view({"get": "list"})),
