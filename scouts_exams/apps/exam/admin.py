@@ -26,8 +26,7 @@ class ExamAdmin(admin.ModelAdmin):
         qs = super(ExamAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
             return qs.filter(scout__patrol__team=request.user.scout.patrol.team)
-        else:
-            return qs
+        return qs
 
 
 admin.site.register(Exam, ExamAdmin)

@@ -44,8 +44,7 @@ def create_exam(request):
             messages.add_message(request, messages.INFO, "Próba została utworzona.")
             if request.GET.get("next", False):
                 return redirect(request.GET.get("next"))
-            else:
-                return redirect(reverse("exam:exam"))
+            return redirect(reverse("exam:exam"))
 
     else:
         if request.user.scout.function >= 2:

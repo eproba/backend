@@ -18,5 +18,4 @@ class EventAdmin(admin.ModelAdmin):
         qs = super(EventAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
             return qs.filter(team=request.user.scout.patrol.team)
-        else:
-            return qs
+        return qs

@@ -24,12 +24,11 @@ def view_exams(request):
             "exam/exam.html",
             {"user": user, "exams_list": exams},
         )
-    else:
-        return render(
-            request,
-            "exam/exam.html",
-            {"user": request.user, "exams_list": []},
-        )
+    return render(
+        request,
+        "exam/exam.html",
+        {"user": request.user, "exams_list": []}     ,
+    )
 
 
 def print_exam(request, hex):
@@ -118,7 +117,7 @@ def manage_exams(request):
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    elif request.user.scout.function == 2:
+    if request.user.scout.function == 2:
         for exam in Exam.objects.filter(
             scout__patrol__team__id=user.scout.patrol.team.id,
             scout__function__lt=user.scout.function,
@@ -242,20 +241,17 @@ def force_refuse_task(request, exam_id, task_id):
             status=3, approver=None, approval_date=None
         )
         return HttpResponse("OK", status=200)
-    else:
-        if (
-            task.exam != exam
-            or request.user.scout.function < 2
-            or request.user.scout.function < exam.scout.function
-        ):
-            messages.add_message(
-                request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
-            )
-            return redirect(reverse("exam:edit_exams"))
-        Task.objects.filter(id=task.id).update(
-            status=3, approver=None, approval_date=None
+    if (
+        task.exam != exam
+        or request.user.scout.function < 2
+        or request.user.scout.function < exam.scout.function
+    ):
+        messages.add_message(
+            request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
+    Task.objects.filter(id=task.id).update(status=3, approver=None, approval_date=None)
+    return redirect(reverse("exam:edit_exams"))
 
 
 def force_accept_task(request, exam_id, task_id):
@@ -274,22 +270,21 @@ def force_accept_task(request, exam_id, task_id):
             approval_date=timezone.now(),
         )
         return HttpResponse("OK", status=200)
-    else:
-        if (
-            task.exam != exam
-            or request.user.scout.function < 2
-            or request.user.scout.function < exam.scout.function
-        ):
-            messages.add_message(
-                request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
-            )
-            return redirect(reverse("exam:edit_exams"))
-        Task.objects.filter(id=task.id).update(
-            status=2,
-            approver=request.user.scout,
-            approval_date=timezone.now(),
+    if (
+        task.exam != exam
+        or request.user.scout.function < 2
+        or request.user.scout.function < exam.scout.function
+    ):
+        messages.add_message(
+            request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
+    Task.objects.filter(id=task.id).update(
+        status=2,
+        approver=request.user.scout,
+        approval_date=timezone.now(),
+    )
+    return redirect(reverse("exam:edit_exams"))
 
 
 def submit_task(request, exam_id):

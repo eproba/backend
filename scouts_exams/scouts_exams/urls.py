@@ -47,7 +47,6 @@ from rest_framework import routers
 
 from .sitemaps import Sitemap
 from .utils import (
-    ExamList,
     ExamViewSet,
     UserDetails,
     UserExamDetails,

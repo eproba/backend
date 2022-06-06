@@ -1,4 +1,4 @@
-from apps.teams.models import Patrol, Team
+from apps.teams.models import Patrol
 from apps.users.managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
