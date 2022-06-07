@@ -27,7 +27,7 @@ def view_exams(request):
     return render(
         request,
         "exam/exam.html",
-        {"user": request.user, "exams_list": []}     ,
+        {"user": request.user, "exams_list": []},
     )
 
 
