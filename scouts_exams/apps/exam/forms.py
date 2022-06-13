@@ -65,9 +65,7 @@ class SubmitTaskForm(forms.ModelForm):
             query = Q(function__gte=2)
             query.add(Q(function__gt=request.user.scout.function), Q.AND)
             query.add(Q(patrol__team=request.user.scout.patrol.team), Q.AND)
-            self.fields["approver"].queryset = Scout.objects.filter(query).exclude(
-                user=request.user
-            )
+            self.fields["approver"].queryset = Scout.objects.all()
         else:
             self.fields["approver"].queryset = Scout.objects.filter(
                 Q(function__gte=2)

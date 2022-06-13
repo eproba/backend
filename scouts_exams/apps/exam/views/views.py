@@ -4,6 +4,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from fcm_django.models import FCMDevice
+from firebase_admin.messaging import (
+    Message,
+    WebpushConfig,
+    WebpushFCMOptions,
+    WebpushNotification,
+)
 from unidecode import unidecode
 from weasyprint import HTML
 
@@ -308,6 +315,24 @@ def submit_task(request, exam_id):
             submited_task.status = 1
             submited_task.save()
 
+            FCMDevice.objects.filter(user=submited_task.approver.user).send_message(
+                Message(
+                    webpush=WebpushConfig(
+                        notification=WebpushNotification(
+                            title="Nowe zadanie do sprawdzenia",
+                            body=f"Pojawił się nowy punkt do sprawdzenia dla {submited_task.user.scout}.",
+                        ),
+                        fcm_options=WebpushFCMOptions(
+                            link="https://"
+                            + request.get_host()
+                            + reverse("exam:check_tasks")
+                        ),
+                    ),
+                )
+            )
+            messages.success(
+                request, "Prośba o zaakceptowanie zadania została wysłana."
+            )
             return redirect(reverse("exam:exam"))
 
     else:

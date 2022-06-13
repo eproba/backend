@@ -59,7 +59,7 @@
         {% endfor %}
     </tbody>
 </table>
-{% if not is_shared %}
+{% if not is_shared or user == exam.scout.user %}
 <div class="modal" id="qr_modal_{{ exam.id }}">
 <div class="modal-background"></div>
 <div class="modal-card">
