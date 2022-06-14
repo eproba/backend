@@ -133,7 +133,7 @@
             {% endif %}
         {% endif %}
     </div>
-    <div class="box" id="notifications" style="position:relative; width:100%;">
+    <div class="box" id="notifications_devices" style="position:relative; width:100%;">
         <div>
             <h1 class="subtitle">Powiadomienia</h1>
                 <div style="display: flex; flex-wrap: wrap;">
@@ -160,9 +160,9 @@
 
                             <div class="content" id="content">
                                 <p class="subtitle is-7">Status:</p>
-                                <span class="has-tooltip-right has-tooltip-arrow" data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button class="button is-primary" style="margin-bottom: 1rem" id="active-button-{{ device.id }}" onclick="confirm_popup(null, 'Czy na pewno chcesz dezaktywować powiadomienia na tym urządzeniu? \nJeśli w przyszłości zmienisz zdanie, wystarczy ponownie aktywować to urządzenie.', fun=function(){ $('#active-button-{{ device.id }}').addClass('is-loading');$.ajax({'url': '{% url 'fcm_devices-list' %}{{ device.registration_id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'active': '{{ device.active|invert }}'}, 'success': function () {alert('Urządzenie zostało wyrejestrowane.'); $('#notifications').load(document.URL + ' #notifications > div', function() {update_device_list()});}}) })">{% if device.active %}Włączone{% else %}Wyłączone{% endif %}</button></span><br>
+                                <span class="has-tooltip-right has-tooltip-arrow" data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button class="button is-primary" style="margin-bottom: 1rem" id="active-button-{{ device.id }}" onclick="confirm_popup(null, 'Czy na pewno chcesz dezaktywować powiadomienia na tym urządzeniu? \nJeśli w przyszłości zmienisz zdanie, wystarczy ponownie aktywować to urządzenie.', fun=function(){ $('#active-button-{{ device.id }}').addClass('is-loading');$.ajax({'url': '{% url 'fcm_devices-list' %}{{ device.registration_id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'active': '{{ device.active|invert }}'}, 'success': function () {alert('Urządzenie zostało wyrejestrowane.'); $('#notifications_devices').load(document.URL + ' #notifications_devices > div', function() {update_device_list()});}}) })">{% if device.active %}Włączone{% else %}Wyłączone{% endif %}</button></span><br>
                                 <p class="subtitle is-7">Akcje:</p>
-                                <span class="has-tooltip-right has-tooltip-arrow has-tooltip-danger" data-tooltip="Usuń to urządzenie"><button class="button is-danger" id="delete-button-{{ device.id }}" onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć to urządzenie? \nJeśli w przyszłości zmienisz zdanie, będziesz musiał ponownie aktywować to urządzenie.', fun=function(){ $('#delete-button-{{ device.id }}').addClass('is-loading');$.ajax({'url': '{% url 'fcm_devices-list' %}{{ device.registration_id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Urządzenie zostało usunięte.'); if (Cookies.get('fcm_token') === '{{ device.registration_id }}'){Cookies.set('disable_notifications', true, { expires: 365 })} $('#notifications').load(document.URL + ' #notifications > div', function() {update_device_list()});}}) })">Usuń</button></span><br>
+                                <span class="has-tooltip-right has-tooltip-arrow has-tooltip-danger" data-tooltip="Usuń to urządzenie"><button class="button is-danger" id="delete-button-{{ device.id }}" onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć to urządzenie? \nJeśli w przyszłości zmienisz zdanie, będziesz musiał ponownie aktywować to urządzenie.', fun=function(){ $('#delete-button-{{ device.id }}').addClass('is-loading');$.ajax({'url': '{% url 'fcm_devices-list' %}{{ device.registration_id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Urządzenie zostało usunięte.'); if (Cookies.get('fcm_token') === '{{ device.registration_id }}'){Cookies.set('disable_notifications', true, { expires: 365 })} $('#notifications_devices').load(document.URL + ' #notifications_devices > div', function() {update_device_list()});}}) })">Usuń</button></span><br>
                             </div>
                           </div>
                         </div>
@@ -177,7 +177,7 @@ import {getToken, getMessaging} from "https://www.gstatic.com/firebasejs/9.8.3/f
 window.update_device_list = function() {
     const messaging = getMessaging();
     getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
-        $('#notifications').children('div').children('div').children('div').each(function () {
+        $('#notifications_devices').children('div').children('div').children('div').each(function () {
             const device_token = $(this).attr("registration_id");
             const device_info = JSON.parse($(this).attr("data"));
             const os_version = (device_info['os'].version !== '10') ? device_info['os'].version : '10/11';
