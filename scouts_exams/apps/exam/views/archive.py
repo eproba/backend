@@ -17,7 +17,7 @@ def archive(request):
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    elif request.user.scout.function == 2:
+    if request.user.scout.function == 2:
         for exam in Exam.objects.filter(
             scout__patrol__team__id=user.scout.patrol.team.id,
             scout__function__lt=user.scout.function,

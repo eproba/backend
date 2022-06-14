@@ -1,4 +1,4 @@
-from apps.exam.models import Exam, Task
+from apps.exam.models import Exam
 from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
 from apps.exam.serializers import ExamSerializer
 from apps.users.models import User
@@ -42,7 +42,7 @@ class ExamViewSet(ModelViewSet):
         user = self.request.user
         if user.scout.function >= 5:
             return Exam.objects.all()
-        elif user.scout.patrol.team and user.scout.function >= 2:
+        if user.scout.patrol.team and user.scout.function >= 2:
             return Exam.objects.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id
             )

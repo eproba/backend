@@ -1,5 +1,4 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from django.conf import settings
 from django.urls import reverse
 
 

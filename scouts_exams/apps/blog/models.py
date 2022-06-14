@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from ..users.models import User
 
@@ -19,10 +20,8 @@ class Post(models.Model):
     class Meta:
         ordering = ["-created_on"]
 
-    def __str__(self):
-        return self.title
+    def __str__(self) -> str:
+        return str(self.title)
 
     def get_absolute_url(self):
-        from django.urls import reverse
-
         return reverse("blog:post_detail", kwargs={"slug": str(self.slug)})

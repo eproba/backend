@@ -142,7 +142,6 @@
         const rect = draggingEle.getBoundingClientRect();
         x = e.touches[0].pageX - rect.left;
         y = e.touches[0].pageY - rect.top;
-        console.log(e);
         // Attach the listeners to `document`
         document.addEventListener('touchmove', touchMoveHandler);
         document.addEventListener('touchend', mouseUpHandler);
@@ -209,6 +208,9 @@
     };
 
     const touchMoveHandler = function (e) {
+        if (draggingEle === null) {
+            return;
+        }
         const draggingRect = draggingEle.getBoundingClientRect();
         if (!isDraggingStarted) {
             isDraggingStarted = true;
@@ -302,8 +304,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         const list = document.getElementById('tasks');
         [].slice.call(list.querySelectorAll('.draggable')).forEach(function (item) {
-            item.addEventListener('mousedown', mouseDownHandler);
-            item.addEventListener('touchstart', touchStartHandler);
+            item.addEventListener('mousedown', mouseDownHandler, { passive: true });
+            item.addEventListener('touchstart', touchStartHandler, { passive: true });
         });
     });
 </script>
@@ -335,7 +337,7 @@
                                     </button>
                                 </div>
                                 <div class="control" id="move-button">
-                                    <button class="button draggable" style="cursor: move; user-select: none; background-color: transparent" onclick="this.blur();" type="button" tabindex="-1">
+                                    <button class="button draggable" style="cursor: move; user-select: none; background-color: transparent; touch-action: none" onclick="this.blur();" type="button" tabindex="-1">
                                         <i class="fa-solid fa-grip-vertical"></i>
                                     </button>
                                 </div>

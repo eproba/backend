@@ -64,8 +64,7 @@ class CustomUserAdmin(UserAdmin):
         qs = super(CustomUserAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
             return qs.filter(scout__patrol__team=request.user.scout.patrol.team)
-        else:
-            return qs
+        return qs
 
 
 admin.site.register(User, CustomUserAdmin)
@@ -102,9 +101,8 @@ class EventAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(EventAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
-            return qs.filter(team=request.user.scout.team)
-        else:
-            return qs
+            return qs.filter(patrol__team=request.user.scout.patrol.team)
+        return qs
 
     def save_model(self, request, obj, form, change):
         if obj.user.is_superuser:

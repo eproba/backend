@@ -30,14 +30,12 @@
                                                     class="icon"><i class="fas fa-print"></i></span></span>
             <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
                   data-tooltip="Przywróć próbę"><span
-                    onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '
-                            {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })"
+                    onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })"
                     class="icon"><i class="fa-solid fa-box-open"></i></span></span>
             {% if user.scout.function > 2 %}
                 <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
                       data-tooltip="Usuń próbę na zawsze"><span
-                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '
-                                {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"
+                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"
                         class="icon"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
         </span>

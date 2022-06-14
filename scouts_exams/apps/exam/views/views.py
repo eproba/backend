@@ -4,6 +4,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from fcm_django.models import FCMDevice
+from firebase_admin.messaging import (
+    Message,
+    WebpushConfig,
+    WebpushFCMOptions,
+    WebpushNotification,
+)
 from unidecode import unidecode
 from weasyprint import HTML
 
@@ -24,12 +31,11 @@ def view_exams(request):
             "exam/exam.html",
             {"user": user, "exams_list": exams},
         )
-    else:
-        return render(
-            request,
-            "exam/exam.html",
-            {"user": request.user, "exams_list": []},
-        )
+    return render(
+        request,
+        "exam/exam.html",
+        {"user": request.user, "exams_list": []},
+    )
 
 
 def print_exam(request, hex):
@@ -118,7 +124,7 @@ def manage_exams(request):
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    elif request.user.scout.function == 2:
+    if request.user.scout.function == 2:
         for exam in Exam.objects.filter(
             scout__patrol__team__id=user.scout.patrol.team.id,
             scout__function__lt=user.scout.function,
@@ -242,20 +248,17 @@ def force_refuse_task(request, exam_id, task_id):
             status=3, approver=None, approval_date=None
         )
         return HttpResponse("OK", status=200)
-    else:
-        if (
-            task.exam != exam
-            or request.user.scout.function < 2
-            or request.user.scout.function < exam.scout.function
-        ):
-            messages.add_message(
-                request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
-            )
-            return redirect(reverse("exam:edit_exams"))
-        Task.objects.filter(id=task.id).update(
-            status=3, approver=None, approval_date=None
+    if (
+        task.exam != exam
+        or request.user.scout.function < 2
+        or request.user.scout.function < exam.scout.function
+    ):
+        messages.add_message(
+            request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
+    Task.objects.filter(id=task.id).update(status=3, approver=None, approval_date=None)
+    return redirect(reverse("exam:edit_exams"))
 
 
 def force_accept_task(request, exam_id, task_id):
@@ -274,22 +277,21 @@ def force_accept_task(request, exam_id, task_id):
             approval_date=timezone.now(),
         )
         return HttpResponse("OK", status=200)
-    else:
-        if (
-            task.exam != exam
-            or request.user.scout.function < 2
-            or request.user.scout.function < exam.scout.function
-        ):
-            messages.add_message(
-                request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
-            )
-            return redirect(reverse("exam:edit_exams"))
-        Task.objects.filter(id=task.id).update(
-            status=2,
-            approver=request.user.scout,
-            approval_date=timezone.now(),
+    if (
+        task.exam != exam
+        or request.user.scout.function < 2
+        or request.user.scout.function < exam.scout.function
+    ):
+        messages.add_message(
+            request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
+    Task.objects.filter(id=task.id).update(
+        status=2,
+        approver=request.user.scout,
+        approval_date=timezone.now(),
+    )
+    return redirect(reverse("exam:edit_exams"))
 
 
 def submit_task(request, exam_id):
@@ -313,6 +315,24 @@ def submit_task(request, exam_id):
             submited_task.status = 1
             submited_task.save()
 
+            FCMDevice.objects.filter(user=submited_task.approver.user).send_message(
+                Message(
+                    webpush=WebpushConfig(
+                        notification=WebpushNotification(
+                            title="Nowe zadanie do sprawdzenia",
+                            body=f"Pojawił się nowy punkt do sprawdzenia dla {submited_task.user.scout}.",
+                        ),
+                        fcm_options=WebpushFCMOptions(
+                            link="https://"
+                            + request.get_host()
+                            + reverse("exam:check_tasks")
+                        ),
+                    ),
+                )
+            )
+            messages.success(
+                request, "Prośba o zaakceptowanie zadania została wysłana."
+            )
             return redirect(reverse("exam:exam"))
 
     else:

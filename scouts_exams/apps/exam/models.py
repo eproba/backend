@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from ..users.models import Scout, User
+from ..users.models import Scout
 
 STATUS = (
     (0, "Do zrobienia"),
@@ -61,7 +61,7 @@ class Task(models.Model):
     order = models.IntegerField(null=True, blank=True, verbose_name="Kolejność")
 
     def __str__(self):
-        return self.task
+        return str(self.task)
 
     REQUIRED_FIELDS = ["exam", "task"]
 
