@@ -8,6 +8,7 @@ urlpatterns = [
     path("s/<str:hex>/", views.view_shared_exams, name="exam_detail"),
     path("archive", views.archive, name="archive"),
     path("create", views.create_exam, name="create_exam"),
+    path("edit/<int:exam_id>/", views.edit_exam, name="edit_exam"),
     path("manage", views.manage_exams, name="manage_exams"),
     path("print/<str:hex>", views.print_exam, name="print_exam"),
     path("share/view/<str:hex>", views.view_shared_exams, name="view_shared_exams"),
