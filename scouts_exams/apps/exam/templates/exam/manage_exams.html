@@ -45,7 +45,7 @@
                         class="icon"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
             <span class="has-tooltip-bottom has-tooltip-arrow"
-                  data-tooltip="Edytuj próbę"><span onclick="location.href='{% url 'exam:edit_exam' exam.id %}'"
+                  data-tooltip="Edytuj próbę"><span onclick="confirm_popup('{% url 'exam:edit_exam' exam.id %}', 'Funkcja edycji prób ciągle jest jeszcze testowana i na razie zanjduje się w fazie βeta i mogą wystąpić błędy podczas jej używania. \n\nCzy chcesz kontynuować?')"
                                                     class="icon"><i class="fas fa-edit"></i></span></span>
             </span>
                         {% if exam.supervisor %}
@@ -59,7 +59,6 @@
                             <tr>
                                 <th class="is-narrow">Lp.</th>
                                 <th>Zadanie</th>
-                                <th>id</th>
                                 {% if exam.show_description_column %}
                                     <th>Opis</th>
                                 {% endif %}
@@ -69,7 +68,6 @@
                             </thead>
                             <tfoot>
                             <tr>
-                                <th></th>
                                 <th></th>
                                 <th></th>
                                 {% if exam.show_description_column %}
@@ -85,7 +83,6 @@
                                 <tr>
                                     <th>{{ forloop.counter }}</th>
                                     <td>{{ task.task }}</td>
-                                    <td>{{ task.id }}</td>
                                     {% if exam.show_description_column %}
                                         {% if task.description != "" %}
                                             <td>{{ task.description }}</td>
