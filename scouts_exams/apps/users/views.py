@@ -274,7 +274,6 @@ def disconnect_socials(request, provider):
             social_signals.social_account_removed.send(
                 sender=SocialAccount, request=request, socialaccount=account
             )
-            print(account.provider)
 
     messages.add_message(
         request,
