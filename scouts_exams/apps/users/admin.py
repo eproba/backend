@@ -107,8 +107,6 @@ class EventAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if obj.user.is_superuser:
             obj.user.is_staff = True
-            obj.user.save()
-            obj.save()
         elif obj.function == 4:
             obj.user.is_staff = True
             obj.user.user_permissions.clear()
@@ -133,8 +131,6 @@ class EventAdmin(admin.ModelAdmin):
                 "change_patrol",
             ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
-            obj.user.save()
-            obj.save()
         elif obj.function >= 5:
             obj.user.is_staff = True
             obj.user.user_permissions.clear()
@@ -160,10 +156,9 @@ class EventAdmin(admin.ModelAdmin):
                 "change_patrol",
             ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
-            obj.user.save()
-            obj.save()
         else:
             obj.user.is_staff = False
             obj.user.user_permissions.clear()
-            obj.user.save()
-            obj.save()
+
+        obj.user.save()
+        obj.save()

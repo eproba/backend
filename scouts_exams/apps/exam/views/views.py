@@ -23,9 +23,11 @@ from .utils import prepare_exam
 def view_exams(request):
     if request.user.is_authenticated:
         user = request.user
-        exams = []
-        for exam in Exam.objects.filter(scout__user=user, is_template=False):
-            exams.append(prepare_exam(exam))
+        exams = [
+            prepare_exam(exam)
+            for exam in Exam.objects.filter(scout__user=user, is_template=False)
+        ]
+
         return render(
             request,
             "exam/exam.html",
@@ -41,9 +43,9 @@ def view_exams(request):
 def print_exam(request, hex):
     try:
         exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
-        exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
-        exam_id = int(int(f"0x{hex.split('0x')[2]}", 0) / 2137)
-    except:
+        exam_user_id = int(f"0x{hex.split('0x')[1]}", 0) // 7312
+        exam_id = int(f"0x{hex.split('0x')[2]}", 0) // 2137
+    except Exception:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
@@ -81,9 +83,9 @@ def view_shared_exams(request, hex):
     user = request.user
     try:
         exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
-        exam_user_id = int(int(f"0x{hex.split('0x')[1]}", 0) / 7312)
-        exam_id = int(int(f"0x{hex.split('0x')[2]}", 0) / 2137)
-    except:
+        exam_user_id = int(f"0x{hex.split('0x')[1]}", 0) // 7312
+        exam_id = int(f"0x{hex.split('0x')[2]}", 0) // 2137
+    except Exception:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
@@ -125,32 +127,44 @@ def manage_exams(request):
         )
         return redirect(reverse("exam:exam"))
     if request.user.scout.function == 2:
-        for exam in Exam.objects.filter(
-            scout__patrol__team__id=user.scout.patrol.team.id,
-            scout__function__lt=user.scout.function,
-            is_archived=False,
-            is_template=False,
-        ).exclude(scout=user.scout):
-            exams.append(prepare_exam(exam))
-    elif request.user.scout.function == 3 or request.user.scout.function == 4:
-        for exam in Exam.objects.filter(
-            scout__patrol__team__id=user.scout.patrol.team.id,
-            is_archived=False,
-            is_template=False,
-        ):
-            exams.append(prepare_exam(exam))
+        exams.extend(
+            prepare_exam(exam)
+            for exam in Exam.objects.filter(
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                scout__function__lt=user.scout.function,
+                is_archived=False,
+                is_template=False,
+            ).exclude(scout=user.scout)
+        )
+
+    elif request.user.scout.function in [3, 4]:
+        exams.extend(
+            prepare_exam(exam)
+            for exam in Exam.objects.filter(
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_archived=False,
+                is_template=False,
+            )
+        )
+
     elif request.user.scout.function >= 5:
+        exams.extend(
+            prepare_exam(exam)
+            for exam in Exam.objects.filter(
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_archived=False,
+                is_template=False,
+            )
+        )
+
+    exams.extend(
+        prepare_exam(exam)
         for exam in Exam.objects.filter(
-            scout__patrol__team__id=user.scout.patrol.team.id,
-            is_archived=False,
-            is_template=False,
-        ):
-            exams.append(prepare_exam(exam))
-    for exam in Exam.objects.filter(
-        supervisor__user_id=user.id, is_archived=False, is_template=False
-    ):
-        exams.append(prepare_exam(exam))
-    patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id)
+            supervisor__user_id=user.id, is_archived=False, is_template=False
+        )
+    )
+
+    patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id).order_by("name")
     return render(
         request,
         "exam/manage_exams.html",
@@ -165,10 +179,7 @@ def check_tasks(request):
     exams = []
     if user.scout.function >= 2:
         for exam in Exam.objects.all():
-            tasks = []
-            for task in exam.tasks.filter(status=1, approver=user.scout):
-                tasks.append(task)
-            if tasks:
+            if tasks := list(exam.tasks.filter(status=1, approver=user.scout)):
                 exam.task_list = tasks
                 exams.append(exam)
         return render(

@@ -11,7 +11,7 @@ def prepare_exam(exam):
         _all += 1
         if task.status == 2:
             _done += 1
-        elif task.status == 0 or task.status == 3:
+        elif task.status in [0, 3]:
             exam.show_submit_task_button = True
         elif task.status == 1:
             exam.show_sent_tasks_button = True
@@ -19,7 +19,7 @@ def prepare_exam(exam):
             exam.show_description_column = True
     if _all != 0:
         percent = int(round(_done / _all, 2) * 100)
-        exam.percent = f"{str(percent)}%"
+        exam.percent = f"{percent}%"
     else:
         exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
     exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"

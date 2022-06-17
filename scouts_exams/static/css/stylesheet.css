@@ -133,3 +133,9 @@ body {
     -moz-appearance: none;
     appearance: none;
 }
+
+@media (prefers-color-scheme: dark) {
+    input.is-colored.has-colored-placeholder::placeholder {
+        color: #a2aeb0 !important;
+    }
+}

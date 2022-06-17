@@ -25,7 +25,7 @@ class ExtendedExamCreateForm(ModelForm):
         super(ExtendedExamCreateForm, self).__init__(*args, **kwargs)
         self.fields["scout"].required = True
         self.initial["scout"] = user.scout
-        if user.scout.patrol.team and not user.scout.function >= 5:
+        if user.scout.patrol.team and user.scout.function < 5:
             self.fields["scout"].queryset = Scout.objects.filter(
                 patrol__team=user.scout.patrol.team
             )

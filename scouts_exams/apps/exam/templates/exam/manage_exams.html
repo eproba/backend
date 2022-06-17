@@ -5,12 +5,22 @@
         {% if exams_list %}
             <div class="level">
                 <div class="level-left">
+                    <div class="level-item">
+                        <p class="control has-icons-left">
+                            <label>
+                                <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="exam_searchbar" onkeyup="filter_by_name(this.value)">
+                            </label>
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                        </p>
+                    </div>
                 </div>
                 <div class="level-right">
                     <div class="level-item">
                         <div class="select">
                             <label>
-                                <select name="patrol_select" class="select is-colored"
+                                <select name="patrol_select" id= "patrol_selector" class="select is-colored"
                                         onchange="filter_by_patrol(this.value)">
                                     <option value="all">Wszystkie zastępy</option>
                                     {% for patrol in patrols %}
@@ -135,16 +145,29 @@
         filter_by_patrol("all")
 
         function filter_by_patrol(c) {
-            var x, i;
+            let x, i;
             x = document.getElementsByClassName("exam");
-            if (c === "all") {
-                $('.exam').addClass('show')
-                return;
-            }
             // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
             for (i = 0; i < x.length; i++) {
-                RemoveClass(x[i], "show");
-                if ($(x[i]).attr('scout_patrol') === c) AddClass(x[i], "show");
+                if (($(x[i]).attr('scout_patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#exam_searchbar").val().toLowerCase()) > -1) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        function filter_by_name(c) {
+            let x, i;
+            x = document.getElementsByClassName("exam");
+            const selected_patrol = $('#patrol_selector').val();
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
+            for (i = 0; i < x.length; i++) {
+                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('scout_patrol') === selected_patrol)) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
             }
         }
 

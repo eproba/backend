@@ -79,7 +79,7 @@ def view_profile(request, user_id):
     return render(
         request,
         "users/view_profile.html",
-        {"user": user, "allow_edit": bool(user == request.user)},
+        {"user": user, "allow_edit": user == request.user},
     )
 
 
@@ -261,19 +261,15 @@ def disconnect_socials(request, provider):
     accounts = SocialAccount.objects.filter(user=user)
     for account in accounts:
         if account.provider == provider:
-            if len(accounts) == 1:
-                # No usable password would render the local account unusable
-                if not account.user.has_usable_password():
-                    messages.add_message(
-                        request,
-                        messages.INFO,
-                        mark_safe(
-                            f"Aby odłączyć konto społecznościowe musisz najpierw <a href='{reverse(set_password, kwargs={'user_id': user_id})}' >utworzyć hasło</a>."
-                        ),
-                    )
-                    return redirect(
-                        reverse("view_profile", kwargs={"user_id": user_id})
-                    )
+            if len(accounts) == 1 and not account.user.has_usable_password():
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    mark_safe(
+                        f"Aby odłączyć konto społecznościowe musisz najpierw <a href='{reverse(set_password, kwargs={'user_id': user_id})}' >utworzyć hasło</a>."
+                    ),
+                )
+                return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
             account.delete()
             social_signals.social_account_removed.send(
                 sender=SocialAccount, request=request, socialaccount=account
