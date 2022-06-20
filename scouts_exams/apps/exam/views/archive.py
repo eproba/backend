@@ -48,7 +48,7 @@ def archive(request):
         for exam in Exam.objects.filter(supervisor__user_id=user.id, is_archived=True)
     )
 
-    patrols = Patrol.objects.filter(team__patrol__id=user.scout.patrol.team.id)
+    patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id).order_by("name")
     return render(
         request,
         "exam/archive.html",

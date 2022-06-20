@@ -5,17 +5,29 @@
         {% if exams_list %}
             <div class="level">
                 <div class="level-left">
+                    <div class="level-item">
+                        <p class="control has-icons-left">
+                            <label>
+                                <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="exam_searchbar" onkeyup="filter_by_name(this.value)">
+                            </label>
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                        </p>
+                    </div>
                 </div>
                 <div class="level-right">
                     <div class="level-item">
                         <div class="select">
-                            <select name="patrol_select" class="select is-colored"
-                                    onchange="filter_by_patrol(this.value)">
-                                <option value="all">Wszystkie zastępy</option>
-                                {% for patrol in patrols %}
-                                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
-                                {% endfor %}
-                            </select>
+                            <label>
+                                <select name="patrol_select" id= "patrol_selector" class="select is-colored"
+                                        onchange="filter_by_patrol(this.value)">
+                                    <option value="all">Wszystkie zastępy</option>
+                                    {% for patrol in patrols %}
+                                        <option value={{ patrol.id }}>{{ patrol.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -23,20 +35,17 @@
             {% for exam in exams_list %}
                 <div class="block exam" id="exam_{{ exam.id }}" scout_patrol="{{ exam.scout.patrol.id }}">
                     <div class="box">
-        <span class="icon-text">
-            <span class="title">{{ exam }} </span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
-                  data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"
-                                                    class="icon"><i class="fas fa-print"></i></span></span>
-            <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+        <span class="icon-text is-align-items-center">
+            <span class="title" style="margin-bottom: 0">{{ exam }} </span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+                  data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"><i class="fas fa-print"></i></span></span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
                   data-tooltip="Przywróć próbę"><span
-                    onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })"
-                    class="icon"><i class="fa-solid fa-box-open"></i></span></span>
+                    onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-box-open"></i></span></span>
             {% if user.scout.function > 2 %}
-                <span class="has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
+                <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
                       data-tooltip="Usuń próbę na zawsze"><span
-                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"
-                        class="icon"><i class="fa-solid fa-trash"></i></span></span>
+                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
         </span>
                         {% if exam.supervisor %}
@@ -119,16 +128,29 @@
         filter_by_patrol("all")
 
         function filter_by_patrol(c) {
-            var x, i;
+            let x, i;
             x = document.getElementsByClassName("exam");
-            if (c === "all") {
-                $('.exam').addClass('show')
-                return;
-            }
             // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
             for (i = 0; i < x.length; i++) {
-                RemoveClass(x[i], "show");
-                if ($(x[i]).attr('scout_patrol') === c) AddClass(x[i], "show");
+                if (($(x[i]).attr('scout_patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#exam_searchbar").val().toLowerCase()) > -1) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        function filter_by_name(c) {
+            let x, i;
+            x = document.getElementsByClassName("exam");
+            const selected_patrol = $('#patrol_selector').val();
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
+            for (i = 0; i < x.length; i++) {
+                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('scout_patrol') === selected_patrol)) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
             }
         }
 
