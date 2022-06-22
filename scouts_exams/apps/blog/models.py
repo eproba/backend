@@ -1,3 +1,4 @@
+from apps.users.models import Scout
 from django.db import models
 from django.urls import reverse
 
@@ -16,6 +17,7 @@ class Post(models.Model):
     content = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=0)
+    minimum_function = models.IntegerField(choices=Scout.FUNCTION_CHOICES, default=0)
 
     class Meta:
         ordering = ["-created_on"]

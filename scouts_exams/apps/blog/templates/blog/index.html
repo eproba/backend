@@ -1,11 +1,12 @@
 {% extends "core/base.html" %}
 {% block content %}
-
     <div class="container">
         <div class="row">
+            {% if request.user.is_authenticated %}
             <!-- Blog Entries Column -->
             <div>
                 {% for post in post_list %}
+                    {% if post.minimum_function <= request.user.scout.function %}
                     <div class="block card" onclick="location.href='{% url 'blog:post_detail' post.slug %}'"
                          style="cursor: pointer;">
                         <div class="card-content">
@@ -19,8 +20,14 @@
                             <div class="content">{{ post.content | safe }}</div>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
             </div>
+            {% else %}
+            <div class="box">
+                Aby wyświetlić posty, musisz się zalogować.
+            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
