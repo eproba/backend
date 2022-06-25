@@ -74,6 +74,8 @@ class SubmitTaskForm(forms.ModelForm):
         self.fields["task"].queryset = (
             Task.objects.filter(exam=exam).exclude(status=1).exclude(status=2)
         )
+        self.fields["task"].label = "Wybierz zadanie do przesłania"
+        self.fields["task"].widget.attrs["class"] = "select form-control is-colored"
 
     task = forms.ModelChoiceField(queryset=None)
 
@@ -82,10 +84,13 @@ class SubmitTaskForm(forms.ModelForm):
         fields = ["task", "approver"]
 
         labels = {
-            "task": "Wybierz zadanie do przesłania",
             "approver": "Do kogo chcesz wysłać prośbę o zatwierdzenie?*",
         }
         widgets = {
-            "task": Select(attrs={"class": "select form-control is-colored"}),
-            "approver": Select(attrs={"class": "select form-control is-colored", "required": "required"}),
+            "approver": Select(
+                attrs={
+                    "class": "select form-control is-colored",
+                    "required": "required",
+                }
+            ),
         }
