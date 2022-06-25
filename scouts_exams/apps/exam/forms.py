@@ -60,7 +60,6 @@ class TaskForm(ModelForm):
 class SubmitTaskForm(forms.ModelForm):
     def __init__(self, request, user, exam, *args, **kwargs):
         super(SubmitTaskForm, self).__init__(*args, **kwargs)
-        self.fields["approver"].widget.attrs["required"] = "required"
         if request.user.scout.patrol:
             query = Q(function__gte=2)
             query.add(Q(function__gt=request.user.scout.function), Q.AND)
@@ -75,7 +74,6 @@ class SubmitTaskForm(forms.ModelForm):
         self.fields["task"].queryset = (
             Task.objects.filter(exam=exam).exclude(status=1).exclude(status=2)
         )
-        self.fields["task"].label = "Wybierz zadanie do przesłania"
 
     task = forms.ModelChoiceField(queryset=None)
 
@@ -84,8 +82,10 @@ class SubmitTaskForm(forms.ModelForm):
         fields = ["task", "approver"]
 
         labels = {
-            "approver": "Do kogo chcesz wysłać prośbę o zatwierddzenie?*",
+            "task": "Wybierz zadanie do przesłania",
+            "approver": "Do kogo chcesz wysłać prośbę o zatwierdzenie?*",
         }
         widgets = {
-            "approver": Select(),
+            "task": Select(attrs={"class": "select form-control is-colored"}),
+            "approver": Select(attrs={"class": "select form-control is-colored", "required": "required"}),
         }
