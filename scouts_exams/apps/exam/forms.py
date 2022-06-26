@@ -57,8 +57,8 @@ class TaskForm(ModelForm):
         }
 
 
-class SubmitTaskForm(forms.ModelForm):
-    def __init__(self, request, user, exam, *args, **kwargs):
+class SubmitTaskForm(ModelForm):
+    def __init__(self, request, exam, *args, **kwargs):
         super(SubmitTaskForm, self).__init__(*args, **kwargs)
         if request.user.scout.patrol:
             query = Q(function__gte=2)
@@ -74,10 +74,9 @@ class SubmitTaskForm(forms.ModelForm):
         self.fields["task"].queryset = (
             Task.objects.filter(exam=exam).exclude(status=1).exclude(status=2)
         )
-        self.fields["task"].label = "Wybierz zadanie do przesłania"
         self.fields["task"].widget.attrs["class"] = "select form-control is-colored"
 
-    task = forms.ModelChoiceField(queryset=None)
+    task = forms.ModelChoiceField(queryset=None, label="Wybierz zadanie do przesłania")
 
     class Meta:
         model = Task

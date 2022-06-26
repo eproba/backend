@@ -313,7 +313,6 @@ def submit_task(request, exam_id):
     if request.method == "POST":
         submit_task_form = SubmitTaskForm(
             request,
-            request.user,
             exam,
             request.POST,
             instance=Task.objects.get(id=request.POST.__getitem__("task")),
@@ -347,7 +346,7 @@ def submit_task(request, exam_id):
             return redirect(reverse("exam:exam"))
 
     else:
-        submit_task_form = SubmitTaskForm(request=request, user=request.user, exam=exam)
+        submit_task_form = SubmitTaskForm(request=request, exam=exam)
     return render(
         request,
         "exam/request_task_check.html",

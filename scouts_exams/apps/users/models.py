@@ -87,7 +87,15 @@ class Scout(models.Model):
     REQUIRED_FIELDS = ["initials", "patrol", "rank"]
 
     def __str__(self):
-        return f"{self.rank} {self.user.nickname}"
+        return (
+            (
+                f"{self.rank} {self.user.nickname}"
+                if self.rank
+                else f"{self.user.nickname}"
+            )
+            if self.user.nickname
+            else self.user.full_name()
+        )
 
     def team_short_name(self):
         return self.patrol.team.short_name if self.patrol is not None else None
