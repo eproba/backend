@@ -1,1 +1,1 @@
-web: gunicorn scouts_exams.scouts_exams.wsgi
+web: cd scouts_exams && gunicorn scouts_exams.wsgi
