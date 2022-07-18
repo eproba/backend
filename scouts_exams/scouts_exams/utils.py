@@ -3,7 +3,9 @@ from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
 from apps.exam.serializers import ExamSerializer
 from apps.users.models import User
 from apps.users.serializers import UserSerializer
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, serializers, viewsets
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -35,18 +37,29 @@ class UserExamList(viewsets.ModelViewSet):
 
 
 class ExamViewSet(ModelViewSet):
-    permission_classes = [IsAllowedToManageExamOrReadOnlyForOwner]
+    permission_classes = [IsAllowedToManageExamOrReadOnlyForOwner, IsAuthenticated]
     serializer_class = ExamSerializer
 
     def get_queryset(self):
         user = self.request.user
         if user.scout.function >= 5:
             return Exam.objects.all()
-        if user.scout.patrol.team and user.scout.function >= 2:
+        if user.scout.patrol and user.scout.function >= 2:
             return Exam.objects.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id
             )
         return Exam.objects.filter(scout__user__id=user.id)
+
+    def perform_create(self, serializer):
+        if serializer.validated_data.get("scout") is None:
+            serializer.save(scout=self.request.user.scout)
+            return
+        if (
+            serializer.validated_data.get("scout").user != self.request.user
+            and self.request.user.scout.function < 2
+        ):
+            raise PermissionDenied("You can't create exam for other scout")
+        serializer.save()
 
 
 class UserExamDetails(generics.RetrieveAPIView):
