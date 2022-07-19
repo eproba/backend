@@ -43,6 +43,8 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
+from oauth2_provider.urls import app_name as oauth2_app_name
+from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
@@ -130,4 +132,10 @@ urlpatterns = [
     ),
     path("signup/", signup, name="signup"),
     path("signup/finish", finish_signup, name="finish_signup"),
+    path(
+        "oauth2/",
+        include(
+            (oauth2_base_urlpatterns, oauth2_app_name), namespace="oauth2_provider"
+        ),
+    ),
 ]

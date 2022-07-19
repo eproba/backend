@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
     "fcm_django",
+    "oauth2_provider",
 ]
 FIREBASE_APP = initialize_app(
     credentials.Certificate(
@@ -85,7 +86,17 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+    ),
 }
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    "SCOPES": {"read": "Odczytywanie zawartości", "write": "Modyfikacja twoich danych"}
+}
+
 # Accounts
 AUTH_USER_MODEL = "users.User"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
