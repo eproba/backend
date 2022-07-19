@@ -94,9 +94,9 @@ REST_FRAMEWORK = {
 
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
-    "SCOPES": {"read": "Odczytywanie zawartości", "write": "Modyfikacja twoich danych"}
+    "SCOPES": {"read": "Odczytywanie zawartości", "write": "Modyfikacja twoich danych"},
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
 }
-
 # Accounts
 AUTH_USER_MODEL = "users.User"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
