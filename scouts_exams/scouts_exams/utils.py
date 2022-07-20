@@ -6,6 +6,7 @@ from apps.users.serializers import UserSerializer
 from rest_framework import generics, permissions, serializers, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -76,6 +77,5 @@ class UserInfo(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return User.objects.filter(id=user.id)
+    def list(self, request, *args, **kwargs):
+        return Response(self.get_serializer(request.user).data)
