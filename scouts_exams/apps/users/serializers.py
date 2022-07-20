@@ -4,9 +4,13 @@ from .models import Scout, User
 
 
 class ScoutSerializer(serializers.ModelSerializer):
+    team = serializers.IntegerField(source="patrol.team.id")
+    patrol_name = serializers.CharField(source="patrol.name")
+    team_name = serializers.CharField(source="patrol.team.name")
+
     class Meta:
         model = Scout
-        fields = ["patrol", "rank", "function"]
+        fields = ["patrol", "patrol_name", "team", "team_name", "rank", "function"]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -16,6 +20,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = [
             "url",
+            "id",
             "nickname",
             "first_name",
             "last_name",
