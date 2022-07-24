@@ -43,6 +43,8 @@ class ExamViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if self.request.query_params.get("user") is not None:
+            return Exam.objects.filter(scout__user__id=user.id)
         if user.scout.function >= 5:
             return Exam.objects.all()
         if user.scout.patrol and user.scout.function >= 2:
