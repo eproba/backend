@@ -48,14 +48,7 @@ from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
-from .utils import (
-    ExamViewSet,
-    UserDetails,
-    UserExamDetails,
-    UserExamList,
-    UserInfo,
-    UserList,
-)
+from .utils import ExamViewSet, UserDetails, UserInfo
 
 handler404 = "apps.core.views.handler404"
 handler500 = "apps.core.views.handler500"

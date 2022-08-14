@@ -44,14 +44,19 @@ class ExamViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if self.request.query_params.get("user") is not None:
-            return Exam.objects.filter(scout__user__id=user.id)
+            return Exam.objects.filter(scout__user__id=user.id, is_template=False)
+        if self.request.query_params.get("templates") is not None:
+            return Exam.objects.filter(
+                scout__patrol__team__id=user.scout.patrol.team.id, is_template=True
+            )
         if user.scout.function >= 5:
-            return Exam.objects.all()
+            return Exam.objects.filter(is_template=False)
         if user.scout.patrol and user.scout.function >= 2:
             return Exam.objects.filter(
-                scout__patrol__team__id=user.scout.patrol.team.id
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_template=False,
             )
-        return Exam.objects.filter(scout__user__id=user.id)
+        return Exam.objects.filter(scout__user__id=user.id, is_template=False)
 
     def perform_create(self, serializer):
         if serializer.validated_data.get("scout") is None:
