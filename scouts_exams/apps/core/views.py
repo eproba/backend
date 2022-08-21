@@ -1,8 +1,10 @@
+from apps.blog.models import Post
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
+from django.views import generic
 
 try:
     import uwsgi
@@ -20,8 +22,18 @@ def handler500(request):
     return render(request, "errors/500.html", status=500)
 
 
-def frontpage(request):
-    return render(request, "core/frontpage.html")
+class FrontPageView(generic.ListView):
+    template_name = "core/frontpage.html"
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Post.objects.filter(status=1, minimum_function=0).order_by(
+                "-created_on"
+            )
+
+        return Post.objects.filter(
+            status=1, minimum_function__lte=self.request.user.scout.function
+        ).order_by("-created_on")
 
 
 def contactView(request):

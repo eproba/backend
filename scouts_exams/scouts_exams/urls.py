@@ -15,10 +15,10 @@ Including another URLconf
 """
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import (
+    FrontPageView,
     IssueContactView,
     contactView,
     fcm_sw,
-    frontpage,
     reload_web_app,
 )
 from apps.users.views import (
@@ -65,7 +65,7 @@ sitemaps = {
 admin.site.site_title = "EPRÓBA"
 admin.site.site_header = "Panel administratora"
 urlpatterns = [
-    path("", frontpage, name="frontpage"),
+    path("", FrontPageView.as_view(), name="frontpage"),
     path("firebase-messaging-sw.js", fcm_sw, name="fcm_sw"),
     path(
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
