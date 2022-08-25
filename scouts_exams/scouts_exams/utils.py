@@ -12,14 +12,22 @@ from rest_framework.viewsets import ModelViewSet
 
 class UserList(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
     serializer_class = PublicUserSerializer
+
+    def get_queryset(self):
+        if self.request.query_params.get("team") is not None:
+            return User.objects.filter(
+                scout__patrol__team_id=self.request.query_params.get("team")
+            )
+        return User.objects.filter(
+            scout__patrol__team_id=self.request.user.scout.patrol.team.id
+        )
 
 
 class UserDetails(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = PublicUserSerializer
 
 
 class ExamList(viewsets.ModelViewSet):
@@ -44,10 +52,14 @@ class ExamViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if self.request.query_params.get("user") is not None:
-            return Exam.objects.filter(scout__user__id=user.id, is_template=False)
+            return Exam.objects.filter(
+                scout__user__id=user.id, is_template=False, is_archived=False
+            )
         if self.request.query_params.get("templates") is not None:
             return Exam.objects.filter(
-                scout__patrol__team__id=user.scout.patrol.team.id, is_template=True
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_template=True,
+                is_archived=False,
             )
         if user.scout.function >= 5:
             return Exam.objects.filter(is_template=False)
@@ -55,8 +67,11 @@ class ExamViewSet(ModelViewSet):
             return Exam.objects.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_template=False,
+                is_archived=False,
             )
-        return Exam.objects.filter(scout__user__id=user.id, is_template=False)
+        return Exam.objects.filter(
+            scout__user__id=user.id, is_template=False, is_archived=False
+        )
 
     def perform_create(self, serializer):
         if serializer.validated_data.get("scout") is None:
