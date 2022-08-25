@@ -2,8 +2,8 @@ from apps.exam.models import Exam
 from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
 from apps.exam.serializers import ExamSerializer
 from apps.users.models import User
-from apps.users.serializers import UserSerializer
-from rest_framework import generics, permissions, serializers, viewsets
+from apps.users.serializers import PublicUserSerializer, UserSerializer
+from rest_framework import generics, permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,9 +11,9 @@ from rest_framework.viewsets import ModelViewSet
 
 
 class UserList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = PublicUserSerializer
 
 
 class UserDetails(generics.RetrieveAPIView):

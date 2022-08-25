@@ -48,7 +48,7 @@ from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
-from .utils import ExamViewSet, UserDetails, UserInfo
+from .utils import ExamViewSet, UserDetails, UserInfo, UserList
 
 handler404 = "apps.core.views.handler404"
 handler500 = "apps.core.views.handler500"
@@ -77,6 +77,7 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/user/", UserInfo.as_view({"get": "list"})),
+    path("api/users/", UserList.as_view()),
     path("api/user/<pk>/", UserDetails.as_view(), name="user-detail"),
     path("api/admin/reload/", reload_web_app, name="restart"),
     path("contact/", contactView, name="contact"),
