@@ -77,7 +77,7 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/user/", UserInfo.as_view({"get": "list"})),
-    path("api/users/", UserList.as_view()),
+    path("api/users/", UserList.as_view({"get": "list"})),
     path("api/user/<pk>/", UserDetails.as_view(), name="user-detail"),
     path("api/admin/reload/", reload_web_app, name="restart"),
     path("contact/", contactView, name="contact"),

@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
-class UserList(generics.ListCreateAPIView):
+class UserList(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = PublicUserSerializer
