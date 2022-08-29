@@ -13,6 +13,23 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ["id", "task", "description", "status", "approver", "approval_date"]
 
+    def update(self, instance, validated_data):
+        task = validated_data
+        Task.objects.filter(id=instance.id).update(
+            task=task["task"] if "task" in task else instance.task,
+            description=task["description"]
+            if "description" in task
+            else instance.description,
+            approver=task["approver"]["user"]
+            if "approver" in task
+            else instance.approver,
+            status=task["status"] if "status" in task else instance.status,
+            approval_date=task["approval_date"]
+            if "approval_date" in task
+            else instance.approval_date,
+        )
+        return Task.objects.get(id=instance.id)
+
 
 class ExamSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, required=False)

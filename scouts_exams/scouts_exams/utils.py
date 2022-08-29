@@ -1,10 +1,11 @@
-from apps.exam.models import Exam
+from apps.exam.models import Exam, Task
 from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
-from apps.exam.serializers import ExamSerializer
-from apps.users.models import User
+from apps.exam.serializers import ExamSerializer, TaskSerializer
+from apps.users.models import Scout, User
 from apps.users.serializers import PublicUserSerializer, UserSerializer
 from rest_framework import generics, permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -28,6 +29,22 @@ class UserDetails(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = PublicUserSerializer
+
+
+class TaskDetails(ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TaskSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = Task.objects.filter(exam__id=kwargs["exam_id"])
+        task = get_object_or_404(queryset, id=kwargs["pk"])
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        return Task.objects.filter(exam__id=self.kwargs["exam_id"]).filter(
+            id=self.kwargs["pk"]
+        )
 
 
 class ExamList(viewsets.ModelViewSet):
