@@ -36,15 +36,24 @@ class TaskDetails(ModelViewSet):
     serializer_class = TaskSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        queryset = Task.objects.filter(exam__id=kwargs["exam_id"])
-        task = get_object_or_404(queryset, id=kwargs["pk"])
+        task = get_object_or_404(self.get_queryset(), id=kwargs["pk"])
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
     def get_queryset(self):
-        return Task.objects.filter(exam__id=self.kwargs["exam_id"]).filter(
-            id=self.kwargs["pk"]
-        )
+        if self.request.user.scout.function >= 5:
+            return Task.objects.filter(exam__id=self.kwargs["exam_id"]).filter(
+                id=self.kwargs["pk"]
+            )
+        if self.request.user.scout.patrol and self.request.user.scout.function >= 2:
+            return Task.objects.filter(
+                exam__id=self.kwargs["exam_id"],
+                exam__scout__patrol__team__id=self.request.user.scout.patrol.team.id,
+            ).filter(id=self.kwargs["pk"])
+
+        return Task.objects.filter(
+            exam__id=self.kwargs["exam_id"], exam__scout__user__id=self.request.user.id
+        ).filter(id=self.kwargs["pk"])
 
 
 class ExamList(viewsets.ModelViewSet):
