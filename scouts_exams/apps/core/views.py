@@ -50,7 +50,7 @@ def contactView(request):
                     f"{from_email}: {subject}",
                     message,
                     None,
-                    ["antekczaplicki@gmail.com"],
+                    ["eproba.zhr@gmail.com"],
                 )
             except BadHeaderError:
                 return HttpResponse("Invalid header found.")
@@ -73,7 +73,7 @@ def IssueContactView(request):
                     f"{from_email}: {subject}",
                     message,
                     None,
-                    ["antekczaplicki@gmail.com"],
+                    ["eproba.zhr@gmail.com"],
                 )
             except BadHeaderError:
                 return HttpResponse("Invalid header found.")

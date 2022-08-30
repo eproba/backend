@@ -195,10 +195,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Emails
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-DEFAULT_FROM_EMAIL = "eproba.zhr@gmail.com"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_USER = "eproba.zhr@gmail.com"
-EMAIL_HOST_PASSWORD = "wigierczycy"
+DEFAULT_FROM_EMAIL = "Epróba <noreply@eproba.pl>"
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
