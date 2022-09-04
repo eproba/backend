@@ -52,6 +52,10 @@
             <td><span class="has-tooltip-arrow has-tooltip-right"
                 data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
                 class="far fa-clock"></i></span></td>
+            {% elif task.status == 3 %}
+            <td><span class="has-tooltip-arrow has-tooltip-right"
+                data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                class="far fa-circle-xmark"></i></span></td>
             {% else %}
             <td></td>
             {% endif %}

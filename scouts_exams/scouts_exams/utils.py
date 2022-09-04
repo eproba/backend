@@ -97,6 +97,12 @@ class ExamViewSet(ModelViewSet):
                 is_template=True,
                 is_archived=False,
             )
+        if self.request.query_params.get("archived") is not None:
+            return Exam.objects.filter(
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_template=False,
+                is_archived=True,
+            )
         if user.scout.function >= 5:
             return Exam.objects.filter(is_template=False)
         if user.scout.patrol and user.scout.function >= 2:

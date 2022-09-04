@@ -229,7 +229,7 @@ def refuse_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:check_tasks"))
-    Task.objects.filter(id=task.id).update(status=3, approver=None)
+    Task.objects.filter(id=task.id).update(status=3)
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -256,7 +256,7 @@ def force_refuse_task(request, exam_id, task_id):
         ):
             return HttpResponse("401 Unauthorized", status=401)
         Task.objects.filter(id=task.id).update(
-            status=3, approver=None, approval_date=None
+            status=3, approver=request.user.scout, approval_date=None
         )
         return HttpResponse("OK", status=200)
     if (

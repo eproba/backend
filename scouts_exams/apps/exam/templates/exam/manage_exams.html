@@ -110,6 +110,10 @@
                                                     data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
                                                     class="far fa-clock"></i></span></div>
                                         </td>
+                                    {% elif task.status == 3 %}
+                                    <td><span class="has-tooltip-arrow has-tooltip-right"
+                                        data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                        class="far fa-circle-xmark"></i></span></td>
                                     {% else %}
                                         <td>
                                             <div id="status-icon_{{ task.id }}"></div>
