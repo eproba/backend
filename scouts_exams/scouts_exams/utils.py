@@ -31,6 +31,16 @@ class UserDetails(generics.RetrieveAPIView):
     serializer_class = PublicUserSerializer
 
 
+class TasksToBeChecked(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ExamSerializer
+
+    def get_queryset(self):
+        return Exam.objects.filter(
+            tasks__approver=self.request.user.scout, tasks__status=1
+        )
+
+
 class TaskDetails(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TaskSerializer
