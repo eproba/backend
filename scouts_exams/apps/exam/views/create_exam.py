@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -15,6 +16,7 @@ from ..forms import ExamCreateForm, ExtendedExamCreateForm, TaskForm
 from ..models import Exam, Task
 
 
+@login_required
 def create_exam(request):
     if request.GET.get("source", False) == "templates" and request.GET.get(
         "template", False
