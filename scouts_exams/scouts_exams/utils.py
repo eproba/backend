@@ -38,7 +38,7 @@ class TasksToBeChecked(generics.ListAPIView):
     def get_queryset(self):
         return Exam.objects.filter(
             tasks__approver=self.request.user.scout, tasks__status=1
-        )
+        ).distinct()
 
 
 class TaskDetails(ModelViewSet):
