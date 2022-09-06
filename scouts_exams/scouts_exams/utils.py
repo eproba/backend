@@ -118,21 +118,31 @@ class ExamViewSet(ModelViewSet):
     def perform_create(self, serializer):
         print(serializer.validated_data)
         print(serializer.validated_data.get("scout"))
+        if (
+            serializer.validated_data.get("scout") is None
+            and serializer.validated_data.get("supervisor") is not None
+        ):
+            serializer.save(
+                scout=self.request.user.scout,
+                supervisor=serializer.validated_data.get("supervisor")["user"],
+            )
+            return
         if serializer.validated_data.get("scout") is None:
             serializer.save(scout=self.request.user.scout)
             return
         if (
-            serializer.validated_data.get("scout")["user"].user != self.request.user
+            serializer.validated_data.get("scout")["user"] != self.request.user
             and self.request.user.scout.function < 2
         ):
             raise PermissionDenied("You can't create exam for other scout")
         if serializer.validated_data.get("supervisor") is None:
             serializer.save(
-                scout=serializer.validated_data.get("scout")["user"], supervisor=None
+                scout=serializer.validated_data.get("scout")["user"].scout,
+                supervisor=None,
             )
             return
         serializer.save(
-            scout=serializer.validated_data.get("scout")["user"],
+            scout=serializer.validated_data.get("scout")["user"].scout,
             supervisor=serializer.validated_data.get("supervisor")["user"],
         )
 
