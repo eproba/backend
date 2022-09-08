@@ -77,6 +77,11 @@ urlpatterns = [
     path(
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
+    path(
+        "privacy_policy/",
+        TemplateView.as_view(template_name="sites/privacy_policy.html"),
+        name="privacy_policy",
+    ),
     path("accounts/", include("allauth.urls")),
     path(
         "account/disconnect/<provider>", disconnect_socials, name="disconnect_socials"
