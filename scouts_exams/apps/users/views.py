@@ -47,6 +47,15 @@ class ScoutCreationForm(forms.ModelForm):
         }
 
 
+class TermsOfServiceForm(forms.Form):
+    terms_of_service = forms.BooleanField(
+        label=mark_safe(
+            "Publikujemy Warunki korzystania z serwisu oraz Politykę prywatności, aby poinformować Cię, czego możesz się spodziewać, korzystając z naszych usług. Zaznaczając to polę, wyrażasz zgodę na te warunki."
+        ),
+        required=True,
+    )
+
+
 @transaction.atomic
 def signup(request):
     if request.method == "POST":
@@ -64,6 +73,7 @@ def signup(request):
     else:
         user_form = SiteUserCreationForm()
         scout_form = ScoutCreationForm()
+        # terms_of_service_form = TermsOfServiceForm()
         user_form.fields["password1"].widget.attrs["class"] = "input is-colored"
         user_form.fields["password2"].widget.attrs["class"] = "input is-colored"
 

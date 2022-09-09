@@ -78,9 +78,19 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
     ),
     path(
-        "privacy_policy/",
+        "gdpr/",
+        TemplateView.as_view(template_name="sites/gdpr.html"),
+        name="gdpr",
+    ),
+    path(
+        "privacy-policy/",
         TemplateView.as_view(template_name="sites/privacy_policy.html"),
-        name="privacy_policy",
+        name="privacy-policy",
+    ),
+    path(
+        "terms-of-service/",
+        TemplateView.as_view(template_name="sites/terms_of_service.html"),
+        name="terms",
     ),
     path("accounts/", include("allauth.urls")),
     path(
