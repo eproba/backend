@@ -3,6 +3,7 @@ from apps.users.views import UserCreationForm
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission
+from django.forms import ChoiceField, ModelForm, Select
 
 
 class CustomUserAdmin(UserAdmin):
@@ -62,12 +63,33 @@ class CustomUserAdmin(UserAdmin):
 
     def get_queryset(self, request):
         qs = super(CustomUserAdmin, self).get_queryset(request)
-        if not request.user.is_superuser:
-            return qs.filter(scout__patrol__team=request.user.scout.patrol.team)
-        return qs
+        return (
+            qs
+            if request.user.is_superuser
+            else qs.filter(scout__patrol__team=request.user.scout.patrol.team)
+        )
 
 
 admin.site.register(User, CustomUserAdmin)
+
+FUNCTION_CHOICES = [
+    (0, "Druh"),
+    (1, "Podzastępowy"),
+    (2, "Zastępowy"),
+    (3, "Przyboczny"),
+    (4, "Drużynowy"),
+]
+
+
+class ScoutAdminForm(ModelForm):
+    class Meta:
+        model = Scout
+        fields = "__all__"
+        widgets = {
+            "user": Select(attrs={"style": "pointer-events: none;"}),
+        }
+
+    function = ChoiceField(choices=FUNCTION_CHOICES)
 
 
 @admin.register(Scout)
@@ -100,19 +122,28 @@ class EventAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(EventAdmin, self).get_queryset(request)
+        return (
+            qs
+            if request.user.is_superuser
+            else qs.filter(patrol__team=request.user.scout.patrol.team)
+        )
+
+    def get_form(self, request, obj=None, **kwargs):
         if not request.user.is_superuser:
-            return qs.filter(patrol__team=request.user.scout.patrol.team)
-        return qs
+            self.form = ScoutAdminForm
+
+        return super(EventAdmin, self).get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if obj.user.is_superuser:
             obj.user.is_staff = True
-        elif obj.function == 4:
+        if obj.function == 4:
             obj.user.is_staff = True
             obj.user.user_permissions.clear()
             for perm in [
                 "delete_task",
                 "change_user",
+                "delete_user",
                 "view_task",
                 "change_scout",
                 "view_exam",
@@ -123,7 +154,6 @@ class EventAdmin(admin.ModelAdmin):
                 "change_exam",
                 "change_task",
                 "delete_patrol",
-                "change_team",
                 "delete_exam",
                 "add_exam",
                 "view_patrol",
@@ -137,6 +167,7 @@ class EventAdmin(admin.ModelAdmin):
             for perm in [
                 "delete_task",
                 "change_user",
+                "delete_user",
                 "view_task",
                 "change_scout",
                 "view_exam",
@@ -148,7 +179,6 @@ class EventAdmin(admin.ModelAdmin):
                 "change_task",
                 "delete_patrol",
                 "add_team",
-                "change_team",
                 "delete_exam",
                 "add_exam",
                 "view_patrol",
@@ -156,7 +186,7 @@ class EventAdmin(admin.ModelAdmin):
                 "change_patrol",
             ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
-        else:
+        elif not obj.is_superuser:
             obj.user.is_staff = False
             obj.user.user_permissions.clear()
 
