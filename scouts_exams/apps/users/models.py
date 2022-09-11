@@ -53,17 +53,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Scout(models.Model):
-    RANK_CHOICES = [
-        (" ", "bez stopnia"),
-        ("mł.", "mł."),
-        ("wyw.", "wyw."),
-        ("ćwik", "ćwik"),
-        ("HO", "HO"),
-        ("pwd. HO", "pwd. HO"),
-        ("HR", "HR"),
-        ("pwd. HR", "pwd. HR"),
-        ("phm. HR", "phm. HR"),
-        ("hm. HR", "hm. HR"),
+    SCOUT_RANK_CHOICES = [
+        (0, "brak stopnia"),
+        (1, '"biszkopt"'),
+        (2, "mł."),
+        (3, "wyw."),
+        (4, "ćwik"),
+        (5, "HO"),
+        (6, "HR"),
+    ]
+    INSTRUCTOR_RANK_CHOICES = [
+        (0, "brak stopnia"),
+        (1, "pwd."),
+        (2, "phm."),
+        (3, "hm."),
     ]
     FUNCTION_CHOICES = [
         (0, "Druh"),
@@ -81,24 +84,28 @@ class Scout(models.Model):
         default=None,
         related_name="scouts",
     )
-    rank = models.CharField(max_length=20, choices=RANK_CHOICES, default=" ")
+    scout_rank = models.IntegerField(choices=SCOUT_RANK_CHOICES, default=0)
+    instructor_rank = models.IntegerField(choices=INSTRUCTOR_RANK_CHOICES, default=0)
     function = models.IntegerField(choices=FUNCTION_CHOICES, default=0)
 
-    REQUIRED_FIELDS = ["initials", "patrol", "rank"]
+    REQUIRED_FIELDS = ["initials", "patrol", "scout_rank", "instructor_rank"]
 
     def __str__(self):
         return (
-            (
-                f"{self.rank} {self.user.nickname}"
-                if self.rank
-                else f"{self.user.nickname}"
-            )
+            f"{self.rank()} {self.user.nickname}"
             if self.user.nickname
-            else self.user.full_name()
+            else f"{self.rank()} {self.user.full_name()}"
         )
 
     def team_short_name(self):
         return self.patrol.team.short_name if self.patrol is not None else None
+
+    def rank(self):
+        return (
+            f"{self.get_instructor_rank_display()} {self.get_scout_rank_display()}"
+            if self.instructor_rank != 0
+            else self.get_scout_rank_display()
+        )
 
 
 @receiver(models.signals.post_save, sender=User)

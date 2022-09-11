@@ -62,8 +62,6 @@ class Task(models.Model):
     def __str__(self):
         return str(self.task)
 
-    REQUIRED_FIELDS = ["exam", "task"]
-
     class Meta:
         verbose_name = "Zadanie"
         verbose_name_plural = "Zadania"

@@ -68,7 +68,11 @@ def signup(request):
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
             user.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return redirect("frontpage")
+            return redirect(
+                "frontpage"
+                if request.GET.get("next") is None
+                else request.GET.get("next")
+            )
 
     else:
         user_form = SiteUserCreationForm()
@@ -250,7 +254,11 @@ def finish_signup(request):
             user = user_form.save()
             user.scout.patrol = scout_form.cleaned_data.get("patrol")
             user.save()
-            return redirect(reverse("frontpage"))
+            return redirect(
+                reverse("frontpage")
+                if request.GET.get("next") is None
+                else request.GET.get("next")
+            )
 
     else:
         user_form = UserChangeForm(instance=user)

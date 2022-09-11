@@ -98,7 +98,8 @@ class EventAdmin(admin.ModelAdmin):
         "user",
         "patrol",
         (
-            "rank",
+            "scout_rank",
+            "instructor_rank",
             "function",
         ),
     )
@@ -113,7 +114,8 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = (
         "patrol__team",
         "patrol",
-        "rank",
+        "scout_rank",
+        "instructor_rank",
         "function",
     )
 
