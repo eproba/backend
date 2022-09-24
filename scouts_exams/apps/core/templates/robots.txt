@@ -1,4 +1,4 @@
-Sitemap: https://eproba.duckdns.org/sitemap.xml
+Sitemap: https://eproba.pl/sitemap.xml
 
 User-agent: *
 Disallow: /admin/
