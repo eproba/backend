@@ -188,7 +188,7 @@ class EventAdmin(admin.ModelAdmin):
                 "change_patrol",
             ]:
                 obj.user.user_permissions.add(Permission.objects.get(codename=perm))
-        elif not obj.is_superuser:
+        elif not obj.user.is_superuser:
             obj.user.is_staff = False
             obj.user.user_permissions.clear()
 
