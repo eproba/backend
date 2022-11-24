@@ -87,14 +87,17 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
 }
 
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
-    "SCOPES": {"read": "Odczytywanie zawartości", "write": "Modyfikacja twoich danych"},
+    "SCOPES": {
+        "read": "Odczytywanie zawartości i danych na twoim koncie",
+        "write": "Modyfikacja zawartoci i danych na twoim koncie",
+    },
     "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
 }
 # Accounts
