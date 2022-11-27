@@ -1,141 +1,141 @@
 {% extends 'core/base.html' %}
 {% block content %}
-{% load socialaccount %}
-<div class="box" style="position:relative; width:100%;">
-    <h1 class="subtitle">Informacje publiczne</h1>
-    <table class="table">
-        <tr>
-            <td>Imię</td>
-            {%  if user.first_name != null %}
-            <td>
-                <p>{{ user.first_name }}</p>
-            </td>
-            {% else %}
-            <td>
-                <p><i>Nie podano</i></p>
-            </td>
-            {% endif %}
-        </tr>
-        <tr>
-            <td>Nazwisko</td>
-            {%  if user.last_name != null %}
-            <td>
-                <p>{{ user.last_name }}</p>
-            </td>
-            {% else %}
-            <td>
-                <p><i>Nie podano</i></p>
-            </td>
-            {% endif %}
-        </tr>
-        <tr>
-            <td>Pseudonim</td>
-            <td>
-                <p>
-                    {{ user.nickname }}
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td>Stopień</td>
-            <td>
-                <p>
-                    {{ user.scout.rank }}
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td>Drużyna</td>
-            <td>
-                <p>
-                    {{ user.scout.patrol.team }}
-                    {% if user.scout.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
-                    {% if user.scout.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td>Zastęp</td>
-            <td>
-                <p>
-                    {{ user.scout.patrol }}
-                    {% if user.scout.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
-                    {% if user.scout.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
-                </p>
-            </td>
-        </tr>
-    </table>
-</div>
-{% if allow_edit %}
-{% load provider_ids %}
-{% load invert %}
+    {% load socialaccount %}
     <div class="box" style="position:relative; width:100%;">
-        <h1 class="subtitle">Informacje prywatne</h1>
+        <h1 class="subtitle">Informacje publiczne</h1>
         <table class="table">
             <tr>
-                <td>Email</td>
+                <td>Imię</td>
+                {% if user.first_name != null %}
+                    <td>
+                        <p>{{ user.first_name }}</p>
+                    </td>
+                {% else %}
+                    <td>
+                        <p><i>Nie podano</i></p>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Nazwisko</td>
+                {% if user.last_name != null %}
+                    <td>
+                        <p>{{ user.last_name }}</p>
+                    </td>
+                {% else %}
+                    <td>
+                        <p><i>Nie podano</i></p>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Pseudonim</td>
                 <td>
-                    <p>{{ user.email }}</p>
+                    <p>
+                        {{ user.nickname }}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Stopień</td>
+                <td>
+                    <p>
+                        {{ user.scout.rank }}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Drużyna</td>
+                <td>
+                    <p>
+                        {{ user.scout.patrol.team }}
+                        {% if user.scout.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
+                        {% if user.scout.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Zastęp</td>
+                <td>
+                    <p>
+                        {{ user.scout.patrol }}
+                        {% if user.scout.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
+                        {% if user.scout.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
+                    </p>
                 </td>
             </tr>
         </table>
     </div>
+    {% if allow_edit %}
+        {% load provider_ids %}
+        {% load invert %}
+        <div class="box" style="position:relative; width:100%;">
+            <h1 class="subtitle">Informacje prywatne</h1>
+            <table class="table">
+                <tr>
+                    <td>Email</td>
+                    <td>
+                        <p>{{ user.email }}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <div class="box" style="position:relative; width:100%;">
-        <a href="{% url 'edit_profile' user.id %}">
-            <button class="button is-primary is-light">
-                <span class="icon"><i class="fas fa-user-edit"></i></span><span>Edytuj profil</span>
-            </button>
-        </a>
-        {% if user.has_usable_password %}
-            <a href="{% url 'change_password' user.id %}">
-                <button class="button is-success is-light">
-                    <span class="icon"><i class="fas fa-key"></i></span><span>Zmień hasło</span>
+        <div class="box" style="position:relative; width:100%;">
+            <a href="{% url 'edit_profile' user.id %}">
+                <button class="button is-primary is-light">
+                    <span class="icon"><i class="fas fa-user-edit"></i></span><span>Edytuj profil</span>
                 </button>
             </a>
-        {% else %}
-            <a href="{% url 'set_password' user.id %}">
-                <button class="button is-success is-light">
-                    <span class="icon"><i class="fas fa-key"></i></span><span>Ustaw hasło</span>
-                </button>
-            </a>
-        {% endif %}
-        {% get_social_accounts user as accounts %}
-        {% get_providers as socialaccount_providers %}
-        {% if "google" in socialaccount_providers|ids %}
-            {% if not accounts.google %}
-                <a href="/accounts/google/login/?process=connect">
-                    <button class="button is-danger is-outlined">
-                        <span class="icon"><i class="fab fa-google"></i></span><span>Połącz z Google</span>
+            {% if user.has_usable_password %}
+                <a href="{% url 'change_password' user.id %}">
+                    <button class="button is-success is-light">
+                        <span class="icon"><i class="fas fa-key"></i></span><span>Zmień hasło</span>
                     </button>
                 </a>
             {% else %}
-                <a onclick="confirm_popup('{% url 'disconnect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
-                    <button class="button is-danger is-light">
-                        <span class="icon"><i class="fab fa-google"></i></span><span>Połączono z Google</span>
+                <a href="{% url 'set_password' user.id %}">
+                    <button class="button is-success is-light">
+                        <span class="icon"><i class="fas fa-key"></i></span><span>Ustaw hasło</span>
                     </button>
                 </a>
             {% endif %}
-        {% endif %}
-        {% if "facebook" in socialaccount_providers|ids %}
-            {% if not accounts.facebook %}
-                <a href="/accounts/facebook/login/?process=connect">
-                    <button class="button is-info is-outlined">
-                        <span class="icon"><i class="fab fa-facebook"></i></span><span>Połącz z Facebook</span>
-                    </button>
-                </a>
-            {% else %}
-                <a onclick="confirm_popup('{% url 'disconnect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
-                    <button class="button is-info is-light">
-                        <span class="icon"><i class="fab fa-facebook"></i></span><span>Połączono z Facebook</span>
-                    </button>
-                </a>
+            {% get_social_accounts user as accounts %}
+            {% get_providers as socialaccount_providers %}
+            {% if "google" in socialaccount_providers|ids %}
+                {% if not accounts.google %}
+                    <a href="/accounts/google/login/?process=connect">
+                        <button class="button is-danger is-outlined">
+                            <span class="icon"><i class="fab fa-google"></i></span><span>Połącz z Google</span>
+                        </button>
+                    </a>
+                {% else %}
+                    <a onclick="confirm_popup('{% url 'disconnect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
+                        <button class="button is-danger is-light">
+                            <span class="icon"><i class="fab fa-google"></i></span><span>Połączono z Google</span>
+                        </button>
+                    </a>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </div>
-    <div class="box" id="notifications_devices" style="position:relative; width:100%;">
-        <div>
-            <h1 class="subtitle">Powiadomienia</h1>
+            {% if "facebook" in socialaccount_providers|ids %}
+                {% if not accounts.facebook %}
+                    <a href="/accounts/facebook/login/?process=connect">
+                        <button class="button is-info is-outlined">
+                            <span class="icon"><i class="fab fa-facebook"></i></span><span>Połącz z Facebook</span>
+                        </button>
+                    </a>
+                {% else %}
+                    <a onclick="confirm_popup('{% url 'disconnect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
+                        <button class="button is-info is-light">
+                            <span class="icon"><i class="fab fa-facebook"></i></span><span>Połączono z Facebook</span>
+                        </button>
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="box" id="notifications_devices" style="position:relative; width:100%;">
+            <div>
+                <h1 class="subtitle">Powiadomienia</h1>
                 <div style="display: flex; flex-wrap: wrap;">
                     {% for device in user.fcmdevice_set.all %}
                         <div class="card" style="max-width: 220px; margin-right: 1rem" registration_id="{{ device.registration_id }}" data="{{ device.name }}">
@@ -168,48 +168,48 @@
                         </div>
                     {% endfor %}
                 </div>
+            </div>
         </div>
-    </div>
-{% endif %}
-<script async type="module">
-import {getToken, getMessaging} from "https://www.gstatic.com/firebasejs/9.8.3/firebase-messaging.js";
+    {% endif %}
+    <script async type="module">
+        import {getToken, getMessaging} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-messaging.js";
 
-window.update_device_list = function() {
-    const messaging = getMessaging();
-    getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
-        $('#notifications_devices').children('div').children('div').children('div').each(function () {
-            const device_token = $(this).attr("registration_id");
-            const device_info = JSON.parse($(this).attr("data"));
-            const os_version = (device_info['os'].version !== '10') ? device_info['os'].version : '10/11';
-            if (device_info['browser'].toLowerCase() === 'chrome') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/chrome.png")
-            } else if (device_info['browser'].toLowerCase() === 'edge') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/edge.png")
-            } else if (device_info['browser'].toLowerCase() === 'safari') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/safari.png")
-            } else if (device_info['browser'].toLowerCase() === 'mobile safari') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/mobile%20safari.png")
-            } else if (device_info['browser'].toLowerCase() === 'opera') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/opera.png")
-            } else if (device_info['browser'].toLowerCase() === 'firefox') {
-                $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/firefox.png")
-            }
-            if (device_info['device'].vendor !== undefined) {
-                $(this).children('.card-content').children('.media').children('.media-content').children('.title').append(device_info['device'].vendor + '<br>')
-            }
-            $(this).children('.card-content').children('.media').children('.media-content').children('.title').append(`${device_info['os'].name} ${os_version}`)
-            $(this).children('.card-content').children('.media').children('.media-content').children('.subtitle').text(device_info['browser'])
+        window.update_device_list = function () {
+            const messaging = getMessaging();
+            $('#notifications_devices').children('div').children('div').children('div').each(function () {
+                const device_info = JSON.parse($(this).attr("data"));
+                const os_version = (device_info['os'].version !== '10') ? device_info['os'].version : '10/11';
+                if (device_info['browser'].toLowerCase() === 'chrome') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/chrome.png")
+                } else if (device_info['browser'].toLowerCase() === 'edge') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/edge.png")
+                } else if (device_info['browser'].toLowerCase() === 'safari') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/safari.png")
+                } else if (device_info['browser'].toLowerCase() === 'mobile safari') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/mobile%20safari.png")
+                } else if (device_info['browser'].toLowerCase() === 'opera') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/opera.png")
+                } else if (device_info['browser'].toLowerCase() === 'firefox') {
+                    $(this).children('.card-content').children('div').children('div').children('figure').children('img').attr("src", "https://faisalman.github.io/ua-parser-js/images/browsers/firefox.png")
+                }
+                if (device_info['device'].vendor !== undefined) {
+                    $(this).children('.card-content').children('.media').children('.media-content').children('.title').append(device_info['device'].vendor + '<br>')
+                }
+                $(this).children('.card-content').children('.media').children('.media-content').children('.title').append(`${device_info['os'].name} ${os_version}`)
+                $(this).children('.card-content').children('.media').children('.media-content').children('.subtitle').text(device_info['browser'])
 
-            if (device_info['device'].type !== undefined) {
-                $(this).children('.card-image').children('figure').children('img').attr("src", `https://faisalman.github.io/ua-parser-js/images/types/${device_info['device'].type}.png`)
-            }
-
-            if (device_token === currentToken) {
-                $(this).children('.card-content').children('.media').children('.media-content').children('#that-device').append('<span class="tag is-primary">To urządzenie</span>')
-            }
-        });
-    })
-}
-update_device_list()
-</script>
+                if (device_info['device'].type !== undefined) {
+                    $(this).children('.card-image').children('figure').children('img').attr("src", `https://faisalman.github.io/ua-parser-js/images/types/${device_info['device'].type}.png`)
+                }
+            });
+            getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
+                $('#notifications_devices').children('div').children('div').children('div').each(function () {
+                    if (device_token === currentToken) {
+                        $(this).children('.card-content').children('.media').children('.media-content').children('#that-device').append('<span class="tag is-primary">To urządzenie</span>')
+                    }
+                });
+            })
+        }
+        update_device_list()
+    </script>
 {% endblock %}

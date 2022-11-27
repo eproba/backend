@@ -17,6 +17,7 @@ from firebase_admin import credentials, initialize_app
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+CSRF_TRUSTED_ORIGINS = ["https://eproba.pl"]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/

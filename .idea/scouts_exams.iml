@@ -26,6 +26,12 @@
     <orderEntry type="library" name="885b512168b0f9e771984917f48c7251" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
     <orderEntry type="library" name="qrcode" level="application" />
+    <orderEntry type="library" name="js-cookie" level="application" />
+    <orderEntry type="library" name="a00f1140b1" level="application" />
+    <orderEntry type="library" name="qrcode" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+    <orderEntry type="library" name="UAParser.js" level="application" />
+    <orderEntry type="library" name="9d1ff57ca68556c805b491b102e1d460" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />
