@@ -1,6 +1,23 @@
+import re
 from datetime import datetime
 
 from scouts_exams.scouts_exams import __version__ as old_version_str
+
+
+def update_version_strings(file_path, _new_version):
+    version_regex = re.compile(r"(^_*?version_*?\s*=\s*['\"])(\d+\.\d+\.\d+)")
+    with open(file_path, "r+") as f:
+        content = f.read()
+        f.seek(0)
+        f.write(
+            re.sub(
+                version_regex,
+                lambda match: "{}{}".format(match.group(1), _new_version),
+                content,
+            )
+        )
+        f.truncate()
+
 
 old_version = {
     "year": int(old_version_str.split(".")[0]),
@@ -22,11 +39,11 @@ new_version = {
     else old_version["patch"] + 1,
 }
 
-with open("scouts_exams/scouts_exams/__init__.py", "w") as f:
-    f.write(
-        f"__version__ = \"{new_version['year']}.{new_version['month']}.{new_version['day']}{'.'+ str(new_version['patch']) if new_version['patch'] != 0 else ''}\"\n"
-    )
+update_version_strings(
+    "scouts_exams/scouts_exams/__init__.py",
+    f"{new_version['year']}.{new_version['month']}.{new_version['day']}{'.' + str(new_version['patch']) if new_version['patch'] != 0 else ''}",
+)
 
 print(
-    f"Updated version to {new_version['year']}.{new_version['month']}.{new_version['day']}{'.'+ str(new_version['patch']) if new_version['patch'] != 0 else ''}"
+    f"Updated version to {new_version['year']}.{new_version['month']}.{new_version['day']}{'.' + str(new_version['patch']) if new_version['patch'] != 0 else ''}"
 )
