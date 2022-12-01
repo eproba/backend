@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import (
@@ -22,7 +22,7 @@ def create_exam(request):
         "template", False
     ):
         template_id = request.GET.get("template", False)
-        template = Exam.objects.get(pk=template_id)
+        template = get_object_or_404(Exam, id=template_id, deleted=False)
     else:
         template = None
     TaskFormSet = formset_factory(TaskForm, extra=1)

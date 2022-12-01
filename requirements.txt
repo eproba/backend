@@ -8,3 +8,5 @@ weasyprint==57.1
 fcm-django==1.0.12
 gunicorn==20.1.0
 django-oauth-toolkit==2.2.0
+django-celery-beat==2.4.0
+pwned-passwords-django==1.6.0

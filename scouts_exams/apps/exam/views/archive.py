@@ -24,6 +24,7 @@ def archive(request):
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 scout__function__lt=user.scout.function,
                 is_archived=True,
+                deleted=False,
             ).exclude(scout=user.scout)
         )
 
@@ -31,7 +32,9 @@ def archive(request):
         exams.extend(
             prepare_exam(exam)
             for exam in Exam.objects.filter(
-                scout__patrol__team__id=user.scout.patrol.team.id, is_archived=True
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_archived=True,
+                deleted=False,
             )
         )
 
@@ -39,13 +42,17 @@ def archive(request):
         exams.extend(
             prepare_exam(exam)
             for exam in Exam.objects.filter(
-                scout__patrol__team__id=user.scout.patrol.team.id, is_archived=True
+                scout__patrol__team__id=user.scout.patrol.team.id,
+                is_archived=True,
+                deleted=False,
             )
         )
 
     exams.extend(
         prepare_exam(exam)
-        for exam in Exam.objects.filter(supervisor__user_id=user.id, is_archived=True)
+        for exam in Exam.objects.filter(
+            supervisor__user_id=user.id, is_archived=True, deleted=False
+        )
     )
 
     patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id).order_by("name")

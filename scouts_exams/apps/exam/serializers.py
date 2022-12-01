@@ -33,7 +33,17 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ["id", "name", "user", "supervisor", "is_archived", "tasks"]
+        fields = ["id", "name", "user", "supervisor", "deleted", "is_archived", "tasks"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.deleted:
+            data["tasks"] = []
+            data["supervisor"] = None
+            data["name"] = "Deleted"
+            data["user"] = None
+            data["is_archived"] = False
+        return data
 
     def create(self, validated_data):
         tasks = validated_data.pop("tasks") if "tasks" in validated_data else []

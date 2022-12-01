@@ -25,7 +25,9 @@ def view_exams(request):
         user = request.user
         exams = [
             prepare_exam(exam)
-            for exam in Exam.objects.filter(scout__user=user, is_template=False)
+            for exam in Exam.objects.filter(
+                scout__user=user, is_template=False, deleted=False
+            )
         ]
 
         return render(
@@ -51,7 +53,7 @@ def print_exam(request, hex):
         )
         return redirect(reverse("frontpage"))
     exams = []
-    for exam in Exam.objects.filter(id=exam_id):
+    for exam in Exam.objects.filter(id=exam_id, deleted=False):
         if (
             unidecode(exam.scout.user.nickname) != exam_user_nickname
             or exam.scout.user.id != exam_user_id
@@ -91,7 +93,7 @@ def view_shared_exams(request, hex):
         )
         return redirect(reverse("frontpage"))
     exams = []
-    for exam in Exam.objects.filter(id=exam_id):
+    for exam in Exam.objects.filter(id=exam_id, deleted=False):
         if (
             unidecode(exam.scout.user.nickname) != exam_user_nickname
             or exam.scout.user.id != exam_user_id
@@ -134,6 +136,7 @@ def manage_exams(request):
                 scout__function__lt=user.scout.function,
                 is_archived=False,
                 is_template=False,
+                deleted=False,
             ).exclude(scout=user.scout)
         )
 
@@ -144,6 +147,7 @@ def manage_exams(request):
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_archived=False,
                 is_template=False,
+                deleted=False,
             )
         )
 
@@ -154,13 +158,17 @@ def manage_exams(request):
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_archived=False,
                 is_template=False,
+                deleted=False,
             )
         )
 
     exams.extend(
         prepare_exam(exam)
         for exam in Exam.objects.filter(
-            supervisor__user_id=user.id, is_archived=False, is_template=False
+            supervisor__user_id=user.id,
+            is_archived=False,
+            is_template=False,
+            deleted=False,
         )
     )
 
@@ -178,7 +186,7 @@ def check_tasks(request):
     user = request.user
     exams = []
     if user.scout.function >= 2:
-        for exam in Exam.objects.all():
+        for exam in Exam.objects.filter(deleted=False, is_archived=False):
             if tasks := list(exam.tasks.filter(status=1, approver=user.scout)):
                 exam.task_list = tasks
                 exams.append(exam)
@@ -210,7 +218,7 @@ def sent_tasks(request, exam_id):
 
 
 def unsubmit_task(request, exam_id, task_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if request.user.scout != exam.scout or task.status != 1 or task.exam != exam:
         messages.add_message(
@@ -222,7 +230,7 @@ def unsubmit_task(request, exam_id, task_id):
 
 
 def refuse_task(request, exam_id, task_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if task.status != 1 or task.exam != exam or task.approver != request.user.scout:
         messages.add_message(
@@ -234,7 +242,7 @@ def refuse_task(request, exam_id, task_id):
 
 
 def accept_task(request, exam_id, task_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if task.status != 1 or task.exam != exam or task.approver != request.user.scout:
         messages.add_message(
@@ -246,7 +254,7 @@ def accept_task(request, exam_id, task_id):
 
 
 def force_refuse_task(request, exam_id, task_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
         if (
@@ -273,7 +281,7 @@ def force_refuse_task(request, exam_id, task_id):
 
 
 def force_accept_task(request, exam_id, task_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
         if (
@@ -306,7 +314,7 @@ def force_accept_task(request, exam_id, task_id):
 
 
 def submit_task(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
+    exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     if request.user.scout != exam.scout:
         messages.add_message(request, messages.INFO, "Nie masz dostępu do tej próby.")
         return redirect(reverse("exam:exam"))

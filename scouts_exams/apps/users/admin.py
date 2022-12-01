@@ -1,6 +1,7 @@
 from apps.users.models import Scout, User
 from apps.users.views import UserCreationForm
 from django.contrib import admin
+from django.contrib.admin import RelatedFieldListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission
 from django.forms import ChoiceField, ModelForm, Select
@@ -93,7 +94,7 @@ class ScoutAdminForm(ModelForm):
 
 
 @admin.register(Scout)
-class EventAdmin(admin.ModelAdmin):
+class ScoutAdmin(admin.ModelAdmin):
     fields = (
         "user",
         "patrol",
@@ -111,19 +112,17 @@ class EventAdmin(admin.ModelAdmin):
         "rank",
         "function",
     )
-    list_filter = (
-        "patrol__team",
-        "patrol",
-        "scout_rank",
-        "instructor_rank",
-        "function",
-    )
+
+    def get_list_filter(self, request):
+        if request.user.is_superuser:
+            return "patrol__team", "patrol", "function", "scout_rank", "instructor_rank"
+        return ("patrol", PatrolFilter), "scout_rank", "instructor_rank", "function"
 
     def user_nickname(self, obj):
         return obj.user.nickname
 
     def get_queryset(self, request):
-        qs = super(EventAdmin, self).get_queryset(request)
+        qs = super(ScoutAdmin, self).get_queryset(request)
         return (
             qs
             if request.user.is_superuser
@@ -134,7 +133,7 @@ class EventAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             self.form = ScoutAdminForm
 
-        return super(EventAdmin, self).get_form(request, obj, **kwargs)
+        return super(ScoutAdmin, self).get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if obj.user.is_superuser:
@@ -194,3 +193,13 @@ class EventAdmin(admin.ModelAdmin):
 
         obj.user.save()
         obj.save()
+
+
+class PatrolFilter(RelatedFieldListFilter):
+    def field_choices(self, field, request, model_admin):
+        return field.get_choices(
+            include_blank=False,
+            limit_choices_to={
+                "pk__in": request.user.scout.patrol.team.patrol_set.all()
+            },
+        )

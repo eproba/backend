@@ -66,21 +66,6 @@ class TaskDetails(ModelViewSet):
         ).filter(id=self.kwargs["pk"])
 
 
-class ExamList(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
-    queryset = Exam.objects.all()
-    serializer_class = ExamSerializer
-
-
-class UserExamList(viewsets.ModelViewSet):
-    serializer_class = ExamSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Exam.objects.filter(scout__user__id=user.id)
-
-
 class ExamViewSet(ModelViewSet):
     permission_classes = [IsAllowedToManageExamOrReadOnlyForOwner, IsAuthenticated]
     serializer_class = ExamSerializer
@@ -115,6 +100,10 @@ class ExamViewSet(ModelViewSet):
             scout__user__id=user.id, is_template=False, is_archived=False
         )
 
+    def perform_destroy(self, instance):
+        instance.deleted = True
+        instance.save()
+
     def perform_create(self, serializer):
         print(serializer.validated_data)
         print(serializer.validated_data.get("scout"))
@@ -145,16 +134,6 @@ class ExamViewSet(ModelViewSet):
             scout=serializer.validated_data.get("scout")["user"].scout,
             supervisor=serializer.validated_data.get("supervisor")["user"],
         )
-
-
-class UserExamDetails(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = Exam.objects.all()
-    serializer_class = ExamSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        return Exam.objects.filter(scout__user__id=user.id)
 
 
 class UserInfo(viewsets.ModelViewSet):

@@ -10,7 +10,9 @@ def templates(request):
         exams.extend(
             prepare_exam(exam)
             for exam in Exam.objects.filter(
-                is_template=True, scout__patrol__team=request.user.scout.patrol.team
+                is_template=True,
+                scout__patrol__team=request.user.scout.patrol.team,
+                deleted=False,
             )
         )
 

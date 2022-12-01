@@ -21,12 +21,12 @@ def edit_exam(request, exam_id):
             request, messages.INFO, "Nie masz uprawnień do edycji prób."
         )
         return redirect(reverse("exam:exam"))
-    if not Exam.objects.filter(id=exam_id).exists():
+    if not Exam.objects.filter(id=exam_id, deleted=False).exists():
         messages.add_message(request, messages.ERROR, "Nie ma takiej próby.")
         return redirect(reverse("exam:manage_exams"))
     if request.user.scout.function == 2:
         if (
-            Exam.objects.get(id=exam_id).scout.patrol.team
+            Exam.objects.get(id=exam_id, deleted=False).scout.patrol.team
             != request.user.scout.patrol.team
         ):
             messages.add_message(
@@ -35,7 +35,7 @@ def edit_exam(request, exam_id):
                 "Nie masz uprawnień do edycji prób z poza swojej drużyny.",
             )
             return redirect(reverse("exam:exam"))
-    exam = Exam.objects.get(id=exam_id)
+    exam = Exam.objects.get(id=exam_id, deleted=False)
     TaskFormSet = formset_factory(TaskForm, extra=1)
     if request.method == "POST":
         exam_form = ExamCreateForm(request.POST, instance=exam)

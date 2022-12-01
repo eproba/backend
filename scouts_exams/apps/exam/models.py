@@ -32,6 +32,8 @@ class Exam(models.Model):
         default=False, verbose_name="Próba zarchiwizowana?"
     )
     is_template = models.BooleanField(default=False, verbose_name="Szablon?")
+    deleted = models.BooleanField(default=False, verbose_name="Usunięta?")
+    modification_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} - {self.scout}"
@@ -65,3 +67,7 @@ class Task(models.Model):
     class Meta:
         verbose_name = "Zadanie"
         verbose_name_plural = "Zadania"
+
+    def save(self, *args, **kwargs):
+        super(Task, self).save()
+        self.exam.save()  # update modification_date
