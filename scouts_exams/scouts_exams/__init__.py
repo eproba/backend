@@ -1,4 +1,4 @@
-__version__ = "2022.12.01.1"
+__version__ = "2022.12.03.1"
 
 from .celery import app as celery_app
 
