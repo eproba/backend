@@ -33,7 +33,7 @@ class Exam(models.Model):
     )
     is_template = models.BooleanField(default=False, verbose_name="Szablon?")
     deleted = models.BooleanField(default=False, verbose_name="Usunięta?")
-    modification_date = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} - {self.scout}"
@@ -70,4 +70,4 @@ class Task(models.Model):
 
     def save(self, *args, **kwargs):
         super(Task, self).save()
-        self.exam.save()  # update modification_date
+        self.exam.save()  # update updated_at

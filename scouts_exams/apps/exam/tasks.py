@@ -13,7 +13,7 @@ def remove_expired_deleted_exams():
     count = 0
 
     for exam in Exam.objects.filter(deleted=True):
-        if exam.modification_date.timestamp() + 2592000 < time():
+        if exam.updated_at.timestamp() + 2592000 < time():
             exam.delete()
             count += 1
 

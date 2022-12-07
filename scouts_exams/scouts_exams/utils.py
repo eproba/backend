@@ -71,32 +71,37 @@ class ExamViewSet(ModelViewSet):
     serializer_class = ExamSerializer
 
     def get_queryset(self):
+        last_sync = self.request.headers.get("last_sync")
+        if last_sync is not None:
+            exams = Exam.objects.filter(updated_at__gt=last_sync)
+        else:
+            exams = Exam.objects.all()
         user = self.request.user
         if self.request.query_params.get("user") is not None:
-            return Exam.objects.filter(
+            return exams.filter(
                 scout__user__id=user.id, is_template=False, is_archived=False
             )
         if self.request.query_params.get("templates") is not None:
-            return Exam.objects.filter(
+            return exams.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_template=True,
                 is_archived=False,
             )
         if self.request.query_params.get("archived") is not None:
-            return Exam.objects.filter(
+            return exams.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_template=False,
                 is_archived=True,
             )
         if user.scout.function >= 5:
-            return Exam.objects.filter(is_template=False)
+            return exams.filter(is_template=False)
         if user.scout.patrol and user.scout.function >= 2:
-            return Exam.objects.filter(
+            return exams.filter(
                 scout__patrol__team__id=user.scout.patrol.team.id,
                 is_template=False,
                 is_archived=False,
             )
-        return Exam.objects.filter(
+        return exams.filter(
             scout__user__id=user.id, is_template=False, is_archived=False
         )
 

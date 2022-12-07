@@ -33,7 +33,16 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ["id", "name", "user", "supervisor", "deleted", "is_archived", "tasks"]
+        fields = [
+            "id",
+            "name",
+            "user",
+            "updated_at",
+            "supervisor",
+            "deleted",
+            "is_archived",
+            "tasks",
+        ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
