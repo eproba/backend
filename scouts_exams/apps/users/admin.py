@@ -118,6 +118,11 @@ class ScoutAdmin(admin.ModelAdmin):
             return "patrol__team", "patrol", "function", "scout_rank", "instructor_rank"
         return ("patrol", PatrolFilter), "scout_rank", "instructor_rank", "function"
 
+    def lookup_allowed(self, lookup, value):
+        if lookup in ("patrol__team__id__exact", "patrol__team__isnull"):
+            return True
+        return super(ScoutAdmin, self).lookup_allowed(lookup, value)
+
     def user_nickname(self, obj):
         return obj.user.nickname
 
