@@ -36,7 +36,7 @@ new_version = {
     if old_version["year"] != datetime.today().year
     or old_version["month"] != datetime.today().month
     or old_version["day"] != datetime.today().day
-    else old_version["patch"] + 1,
+    else (old_version["patch"] + 1),
 }
 
 update_version_strings(

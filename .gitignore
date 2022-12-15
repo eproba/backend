@@ -156,3 +156,5 @@ dmypy.json
 # End of https://www.toptal.com/developers/gitignore/api/django
 
 .idea/discord.xml
+/scouts_exams/apps/users/templates/users/login_hub.html
+/scouts_exams/apps/users/views/login_hub.py

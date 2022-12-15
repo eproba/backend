@@ -14,13 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import (
-    FrontPageView,
-    IssueContactView,
-    contactView,
-    fcm_sw,
-    reload_web_app,
-)
+from apps.core.views import FrontPageView, IssueContactView, contactView, fcm_sw
 from apps.users.views import (
     change_password,
     disconnect_socials,
@@ -50,8 +44,10 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     ExamViewSet,
+    SubmitTask,
     TaskDetails,
     TasksToBeChecked,
+    UnsubmitTask,
     UserDetails,
     UserInfo,
     UserList,
@@ -100,13 +96,14 @@ urlpatterns = [
     path("api/", include(api.urls)),
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path(
-        "api/exam/<int:exam_id>/task/<int:pk>/",
+        "api/exam/<int:exam_id>/task/<int:id>/",
         TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
     path("api/exam/tasks/tbc/", TasksToBeChecked.as_view()),
+    path("api/exam/<int:exam_id>/task/<int:id>/submit", SubmitTask.as_view()),
+    path("api/exam/<int:exam_id>/task/<int:id>/unsubmit", UnsubmitTask.as_view()),
     path("api/users/", UserList.as_view({"get": "list"})),
     path("api/user/<pk>/", UserDetails.as_view(), name="user-detail"),
-    path("api/admin/reload/", reload_web_app, name="restart"),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("exam/", include("apps.exam.urls")),

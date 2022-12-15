@@ -1,13 +1,20 @@
 from apps.exam.models import Exam, Task
-from apps.exam.permissions import IsAllowedToManageExamOrReadOnlyForOwner
+from apps.exam.permissions import (
+    IsAllowedToManageExamOrReadOnlyForOwner,
+    IsAllowedToManageTaskOrReadOnlyForOwner,
+    IsTaskOwner,
+)
 from apps.exam.serializers import ExamSerializer, TaskSerializer
 from apps.users.models import Scout, User
 from apps.users.serializers import PublicUserSerializer, UserSerializer
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import generics, permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -42,28 +49,72 @@ class TasksToBeChecked(generics.ListAPIView):
 
 
 class TaskDetails(ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [
+        IsAllowedToManageTaskOrReadOnlyForOwner,
+        permissions.IsAuthenticated,
+    ]
     serializer_class = TaskSerializer
+    lookup_field = "id"
 
     def retrieve(self, request, *args, **kwargs):
-        task = get_object_or_404(self.get_queryset(), id=kwargs["pk"])
+        task = get_object_or_404(self.get_queryset(), id=kwargs["id"])
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
     def get_queryset(self):
         if self.request.user.scout.function >= 5:
             return Task.objects.filter(exam__id=self.kwargs["exam_id"]).filter(
-                id=self.kwargs["pk"]
+                id=self.kwargs["id"]
             )
         if self.request.user.scout.patrol and self.request.user.scout.function >= 2:
             return Task.objects.filter(
-                exam__id=self.kwargs["exam_id"],
-                exam__scout__patrol__team__id=self.request.user.scout.patrol.team.id,
-            ).filter(id=self.kwargs["pk"])
+                Q(id=self.kwargs["id"])
+                & Q(exam__id=self.kwargs["exam_id"])
+                & Q(
+                    exam__scout__patrol__team__id=self.request.user.scout.patrol.team.id,
+                    exam__is_template=False,
+                    exam__is_archived=False,
+                )
+                | Q(
+                    exam__supervisor__user_id=self.request.user.id,
+                    exam__is_template=False,
+                    exam__is_archived=False,
+                )
+            )
 
         return Task.objects.filter(
             exam__id=self.kwargs["exam_id"], exam__scout__user__id=self.request.user.id
-        ).filter(id=self.kwargs["pk"])
+        ).filter(id=self.kwargs["id"])
+
+
+class SubmitTask(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsTaskOwner]
+
+    def post(self, request, *args, **kwargs):
+        if request.data.get("approver") is None:
+            return Response({"approver": "This field is required."}, status=422)
+        task = get_object_or_404(Task, id=kwargs["id"], exam__id=kwargs["exam_id"])
+        if task.status == 2:
+            return Response({"message": "Task already approved"})
+        task.status = 1
+        task.approver = Scout.objects.get(user_id=request.data["approver"])
+        task.approval_date = timezone.now()
+        task.save()
+        return Response({"message": "Task submitted"})
+
+
+class UnsubmitTask(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsTaskOwner]
+
+    def post(self, request, *args, **kwargs):
+        task = get_object_or_404(Task, id=kwargs["id"], exam__id=kwargs["exam_id"])
+        if task.status != 1:
+            return Response({"message": "Task is not submitted"})
+        task.status = 0
+        task.approver = None
+        task.approval_date = None
+        task.save()
+        return Response({"message": "Task unsubmitted"})
 
 
 class ExamViewSet(ModelViewSet):
@@ -94,12 +145,15 @@ class ExamViewSet(ModelViewSet):
                 is_archived=True,
             )
         if user.scout.function >= 5:
-            return exams.filter(is_template=False)
+            return exams.filter(is_template=False, is_archived=False)
         if user.scout.patrol and user.scout.function >= 2:
             return exams.filter(
-                scout__patrol__team__id=user.scout.patrol.team.id,
-                is_template=False,
-                is_archived=False,
+                Q(
+                    scout__patrol__team__id=user.scout.patrol.team.id,
+                    is_template=False,
+                    is_archived=False,
+                )
+                | Q(supervisor__user_id=user.id, is_template=False, is_archived=False)
             )
         return exams.filter(
             scout__user__id=user.id, is_template=False, is_archived=False

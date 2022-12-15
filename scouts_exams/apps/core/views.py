@@ -90,21 +90,3 @@ def fcm_sw(request):
     return render(
         request, "firebase-messaging-sw.js", content_type="application/javascript"
     )
-
-
-@login_required
-def reload_web_app(request):
-    if request.user.is_superuser:
-        if uwsgi:
-            uwsgi.reload()
-            messages.add_message(
-                request, messages.INFO, "Aplikacja została ponownie uruchomiona."
-            )
-        else:
-            messages.add_message(
-                request,
-                messages.WARNING,
-                "Restart aplikacji nie jest dostępny na tej platformie.",
-            )
-        return redirect(reverse("frontpage"))
-    return HttpResponse("Unathorized", status=401)
