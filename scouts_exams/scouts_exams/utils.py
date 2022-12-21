@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from apps.exam.models import Exam, Task
 from apps.exam.permissions import (
     IsAllowedToManageExamOrReadOnlyForOwner,
@@ -8,7 +10,16 @@ from apps.exam.serializers import ExamSerializer, TaskSerializer
 from apps.users.models import Scout, User
 from apps.users.serializers import PublicUserSerializer, UserSerializer
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
+from fcm_django.models import FCMDevice
+from firebase_admin.messaging import (
+    Message,
+    Notification,
+    WebpushConfig,
+    WebpushFCMOptions,
+    WebpushNotification,
+)
 from rest_framework import generics, permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -100,6 +111,21 @@ class SubmitTask(APIView):
         task.approver = Scout.objects.get(user_id=request.data["approver"])
         task.approval_date = timezone.now()
         task.save()
+        FCMDevice.objects.filter(user=task.approver.user).send_message(
+            Message(
+                notification=Notification(
+                    title="Nowe zadanie do sprawdzenia",
+                    body=f"Pojawił się nowy punkt do sprawdzenia dla {task.exam.scout}.",
+                ),
+                webpush=WebpushConfig(
+                    fcm_options=WebpushFCMOptions(
+                        link="https://"
+                        + request.get_host()
+                        + reverse("exam:check_tasks")
+                    ),
+                ),
+            )
+        )
         return Response({"message": "Task submitted"})
 
 
@@ -124,7 +150,9 @@ class ExamViewSet(ModelViewSet):
     def get_queryset(self):
         last_sync = self.request.headers.get("last_sync")
         if last_sync is not None:
-            exams = Exam.objects.filter(updated_at__gt=last_sync)
+            exams = Exam.objects.filter(
+                updated_at__gt=datetime.fromtimestamp(int(last_sync))
+            )
         else:
             exams = Exam.objects.all()
         user = self.request.user

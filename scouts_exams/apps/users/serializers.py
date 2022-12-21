@@ -13,13 +13,12 @@ class ScoutSerializer(serializers.ModelSerializer):
         fields = ["patrol", "patrol_name", "team", "team_name", "rank", "function"]
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     scout = ScoutSerializer()
 
     class Meta:
         model = User
         fields = [
-            "url",
             "id",
             "nickname",
             "first_name",

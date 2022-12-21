@@ -326,19 +326,19 @@ def submit_task(request, exam_id):
             instance=Task.objects.get(id=request.POST.__getitem__("task")),
         )
         if submit_task_form.is_valid():
-            submited_task = submit_task_form.save(commit=False)
-            submited_task.user = request.user
-            submited_task.exam = exam
-            submited_task.approval_date = timezone.now()
-            submited_task.status = 1
-            submited_task.save()
+            submitted_task = submit_task_form.save(commit=False)
+            submitted_task.user = request.user
+            submitted_task.exam = exam
+            submitted_task.approval_date = timezone.now()
+            submitted_task.status = 1
+            submitted_task.save()
 
-            FCMDevice.objects.filter(user=submited_task.approver.user).send_message(
+            FCMDevice.objects.filter(user=submitted_task.approver.user).send_message(
                 Message(
                     webpush=WebpushConfig(
                         notification=WebpushNotification(
                             title="Nowe zadanie do sprawdzenia",
-                            body=f"Pojawił się nowy punkt do sprawdzenia dla {submited_task.user.scout}.",
+                            body=f"Pojawił się nowy punkt do sprawdzenia dla {submitted_task.user.scout}.",
                         ),
                         fcm_options=WebpushFCMOptions(
                             link="https://"

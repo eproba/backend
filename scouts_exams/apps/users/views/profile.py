@@ -56,6 +56,8 @@ class ScoutChangeForm(forms.ModelForm):
 
 def view_profile(request, user_id):
     user = request.user if user_id is None else get_object_or_404(User, id=user_id)
+    if user_id is None and not request.user.is_authenticated:
+        return redirect(reverse("login"))
     return render(
         request,
         "users/view_profile.html",
