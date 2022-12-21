@@ -148,7 +148,7 @@ class ExamViewSet(ModelViewSet):
     serializer_class = ExamSerializer
 
     def get_queryset(self):
-        last_sync = self.request.headers.get("last_sync")
+        last_sync = self.request.query_params.get("last_sync")
         if last_sync is not None:
             exams = Exam.objects.filter(
                 updated_at__gt=datetime.fromtimestamp(int(last_sync))
