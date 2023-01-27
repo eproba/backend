@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render
 
 from ..models import Exam
@@ -7,6 +8,9 @@ from .utils import prepare_exam
 def templates(request):
     exams = []
     if request.user.is_authenticated:
+        if not request.user.scout.patrol:
+            messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
+            return render(request, "exam/templates.html")
         exams.extend(
             prepare_exam(exam)
             for exam in Exam.objects.filter(

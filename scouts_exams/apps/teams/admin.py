@@ -4,8 +4,8 @@ from django.contrib import admin
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    fields = ("name", "short_name", "colors")
-    list_display = ("name", "short_name", "colors")
+    fields = ("name", "short_name")
+    list_display = ("name", "short_name")
 
 
 @admin.register(Patrol)
@@ -28,5 +28,7 @@ class PatrolAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(PatrolAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
+            if not request.user.scout.patrol:
+                return Team.objects.none()
             return qs.filter(team=request.user.scout.patrol.team)
         return qs

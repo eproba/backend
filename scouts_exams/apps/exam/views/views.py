@@ -121,6 +121,9 @@ def view_shared_exams(request, hex):
 def manage_exams(request):
     if not request.user.is_authenticated:
         return render(request, "exam/manage_exams.html")
+    if not request.user.scout.patrol:
+        messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
+        return render(request, "exam/manage_exams.html")
     user = request.user
     exams = []
     if request.user.scout.function < 2:

@@ -81,6 +81,7 @@ class Scout(models.Model):
         Patrol,
         on_delete=models.RESTRICT,
         null=True,
+        blank=True,
         default=None,
         related_name="scouts",
     )

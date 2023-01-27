@@ -26,6 +26,7 @@ from apps.users.views import (
     signup,
     view_profile,
 )
+from apps.users.views.login_hub import login_from_hub, login_hub
 from django.contrib import admin
 from django.contrib.auth.views import (
     LoginView,
@@ -44,13 +45,14 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     ExamViewSet,
+    PatrolViewSet,
     SubmitTask,
     TaskDetails,
     TasksToBeChecked,
+    TeamViewSet,
     UnsubmitTask,
-    UserDetails,
     UserInfo,
-    UserList,
+    UserViewSet,
 )
 
 handler404 = "apps.core.views.handler404"
@@ -60,6 +62,9 @@ handler500 = "apps.core.views.handler500"
 api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
 api.register(r"exam", ExamViewSet, "api-exam")
+api.register(r"users", UserViewSet, "api-users")
+api.register(r"teams", TeamViewSet, "api-teams")
+api.register(r"patrols", PatrolViewSet, "api-patrols")
 
 sitemaps = {
     "posts": PostSitemap,
@@ -102,13 +107,13 @@ urlpatterns = [
     path("api/exam/tasks/tbc/", TasksToBeChecked.as_view()),
     path("api/exam/<int:exam_id>/task/<int:id>/submit", SubmitTask.as_view()),
     path("api/exam/<int:exam_id>/task/<int:id>/unsubmit", UnsubmitTask.as_view()),
-    path("api/users/", UserList.as_view({"get": "list"})),
-    path("api/user/<pk>/", UserDetails.as_view(), name="user-detail"),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
     path("exam/", include("apps.exam.urls")),
     path("login/", LoginView.as_view(template_name="users/login.html"), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("lh/", login_hub),
+    path("_login/<int:user_id>/", login_from_hub),
     path("news/", include("apps.blog.urls")),
     path(
         "password-reset/",
@@ -147,6 +152,7 @@ urlpatterns = [
     ),
     path("signup/", signup, name="signup"),
     path("signup/finish", finish_signup, name="finish_signup"),
+    path("team/", include("apps.teams.urls")),
     path(
         "oauth2/",
         include(

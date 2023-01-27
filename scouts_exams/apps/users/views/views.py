@@ -3,11 +3,7 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import (
-    PasswordChangeForm,
-    SetPasswordForm,
-    UserCreationForm,
-)
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.db import transaction
 from django.forms import EmailInput, Select, TextInput
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -33,6 +29,10 @@ class SiteUserCreationForm(UserCreationForm):
 
 
 class ScoutCreationForm(forms.ModelForm):
+    def __init__(self):
+        super().__init__()
+        self.fields["patrol"].required = True
+
     class Meta:
         model = Scout
         fields = ["patrol"]

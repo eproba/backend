@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% block title %}Zarządzaj próbami{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
     {% if request.user.is_authenticated %}
@@ -8,7 +9,8 @@
                     <div class="level-item">
                         <p class="control has-icons-left">
                             <label>
-                                <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="exam_searchbar" onkeyup="filter_by_name(this.value)">
+                                <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób"
+                                       id="exam_searchbar" onkeyup="filter_by_name(this.value)">
                             </label>
                             <span class="icon is-small is-left">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -20,7 +22,7 @@
                     <div class="level-item">
                         <div class="select">
                             <label>
-                                <select name="patrol_select" id= "patrol_selector" class="select is-colored"
+                                <select name="patrol_select" id="patrol_selector" class="select is-colored"
                                         onchange="filter_by_patrol(this.value)">
                                     <option value="all">Wszystkie zastępy</option>
                                     {% for patrol in patrols %}
@@ -33,35 +35,45 @@
                 </div>
             </div>
             {% for exam in exams_list %}
-                <div class="block exam" id="exam_{{ exam.id }}" scout_patrol="{{ exam.scout.patrol.id }}">
+                <div class="block exam" id="exam_{{ exam.id }}" data-scout-patrol="{{ exam.scout.patrol.id }}">
                     <div class="box">
         <span class="icon-text is-align-items-center">
             <span class="title" style="margin-bottom: 0">{{ exam }} </span>
             <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
                   data-tooltip="Naciśnij aby skopiować link do próby"><span
-                    onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')"><i
+                    onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '
+                            {{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')"><i
                     class="fa-solid fa-clipboard"></i></span></span>
             <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
-                  data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"><i class="fas fa-print"></i></span></span>
+                  data-tooltip="Drukuj próbę"><span
+                    onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"><i
+                    class="fas fa-print"></i></span></span>
             <span class="icon has-tooltip-bottom has-tooltip-arrow"
                   data-tooltip="Zarchiwizuj próbę"><span
-                    onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \Zostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'registration_id':'{{ device.registration_id }}', 'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-box-archive"></i></span></span>
+                    onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \Zostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '
+                            {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#exam_{{ exam.id }}').remove();}}) })"><i
+                    class="fa-solid fa-box-archive"></i></span></span>
             {% if user.scout.function > 2 %}
                 <span class="icon has-tooltip-bottom has-tooltip-arrow"
                       data-tooltip="Usuń próbę"><span
-                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to prawie permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 🤖).\n\nJa jednak przewidziałem to że ktoś może się pomylić więc jak aż tak zepsułeś to napisz do mnie od razu, a może uda się coś zdziałać.', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-trash"></i></span></span>
+                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to prawie permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 🤖).\n\nJa jednak przewidziałem to że ktoś może się pomylić więc jak aż tak zepsułeś to napisz do mnie od razu, a może uda się coś zdziałać.', fun=function(){$.ajax({'url': '
+                                {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"><i
+                        class="fa-solid fa-trash"></i></span></span>
             {% endif %}
             <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                  data-tooltip="Edytuj próbę"><span onclick="confirm_popup('{% url 'exam:edit_exam' exam.id %}', 'Funkcja edycji prób ciągle jest jeszcze testowana i na razie zanjduje się w fazie βeta i mogą wystąpić błędy podczas jej używania. \n\nCzy chcesz kontynuować?')"><i class="fas fa-edit"></i></span></span>
+                  data-tooltip="Edytuj próbę"><span
+                    onclick="location.href='{% url 'exam:edit_exam' exam.id %}'"><i
+                    class="fas fa-edit"></i></span></span>
             </span>
-                        {% if exam.supervisor %}
-                            <h2 class="subtitle">Opiekun próby: <a
-                                    href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a>
-                            </h2>
-                        {% endif %}
-                        <p><br/></p>
-                        <table class="table">
-                            <thead>
+            {% if exam.supervisor %}
+                <h2 class="subtitle">Opiekun próby: <a
+                        href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a>
+                </h2>
+            {% endif %}
+                <h2 class="subtitle is-6">Ostatnia edycja: {{ exam.updated_at }}</h2>
+                <p><br/></p>
+                    <table class="table">
+                        <thead>
                             <tr>
                                 <th class="is-narrow">Lp.</th>
                                 <th>Zadanie</th>
@@ -111,9 +123,9 @@
                                                     class="far fa-clock"></i></span></div>
                                         </td>
                                     {% elif task.status == 3 %}
-                                    <td><span class="has-tooltip-arrow has-tooltip-right"
-                                        data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
-                                        class="far fa-circle-xmark"></i></span></td>
+                                        <td><span class="has-tooltip-arrow has-tooltip-right"
+                                                  data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                class="far fa-circle-xmark"></i></span></td>
                                     {% else %}
                                         <td>
                                             <div id="status-icon_{{ task.id }}"></div>
@@ -152,7 +164,7 @@
             x = document.getElementsByClassName("exam");
             // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
             for (i = 0; i < x.length; i++) {
-                if (($(x[i]).attr('scout_patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#exam_searchbar").val().toLowerCase()) > -1) {
+                if (($(x[i]).attr('data-scout-patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#exam_searchbar").val().toLowerCase()) > -1) {
                     AddClass(x[i], "show");
                 } else {
                     RemoveClass(x[i], "show");
@@ -166,7 +178,7 @@
             const selected_patrol = $('#patrol_selector').val();
             // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
             for (i = 0; i < x.length; i++) {
-                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('scout_patrol') === selected_patrol)) {
+                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('data-scout-patrol') === selected_patrol)) {
                     AddClass(x[i], "show");
                 } else {
                     RemoveClass(x[i], "show");
@@ -204,10 +216,10 @@
                 if (confirm(message)) {
                     $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
                     var posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
-                    posting.done(function (data) {
+                    posting.done(function () {
                         $("#exam_" + exam_id).load(document.URL + " #exam_" + exam_id + " > div");
                     });
-                    posting.fail(function (data) {
+                    posting.fail(function () {
                         alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
                         $("#status-icon_" + task_id).html('<span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
                     });

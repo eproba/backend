@@ -7,7 +7,14 @@ from apps.exam.permissions import (
     IsTaskOwner,
 )
 from apps.exam.serializers import ExamSerializer, TaskSerializer
+from apps.teams.models import Patrol, Team
+from apps.teams.permissions import (
+    IsAllowedToManagePatrolOrReadOnly,
+    IsAllowedToManageTeamOrReadOnly,
+)
+from apps.teams.serializers import PatrolSerializer, TeamSerializer
 from apps.users.models import Scout, User
+from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
 from django.db.models import Q
 from django.urls import reverse
@@ -18,10 +25,9 @@ from firebase_admin.messaging import (
     Notification,
     WebpushConfig,
     WebpushFCMOptions,
-    WebpushNotification,
 )
-from rest_framework import generics, permissions, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import generics, mixins, permissions, viewsets
+from rest_framework.exceptions import APIException, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,24 +35,109 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 
-class UserList(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+class UserViewSet(
+    mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
     serializer_class = PublicUserSerializer
+    permission_classes = (IsAuthenticated, IsAllowedToManageUserOrReadOnly)
 
     def get_queryset(self):
         if self.request.query_params.get("team") is not None:
             return User.objects.filter(
                 scout__patrol__team_id=self.request.query_params.get("team")
             )
+        if self.request.user.scout.patrol is None:
+            return User.objects.none()
         return User.objects.filter(
-            scout__patrol__team_id=self.request.user.scout.patrol.team.id
+            Q(scout__patrol__team_id=self.request.user.scout.patrol.team.id)
+            | Q(scout__patrol__isnull=True, is_active=False)
         )
 
+    def perform_update(self, serializer):
+        if serializer.validated_data.get("scout") is not None:
+            scout = serializer.validated_data.get("scout")
+            if scout.get("function") is not None:
+                if scout.get("function") > self.request.user.scout.function:
+                    raise PermissionDenied()
+        if (
+            serializer.instance.is_active is False
+            and serializer.validated_data.get("is_active") is True
+            and serializer.instance.scout.patrol is None
+            and self.request.user.scout.patrol
+        ):
+            try:
+                serializer.validated_data["scout"][
+                    "patrol"
+                ] = self.request.user.scout.patrol
+            except KeyError:
+                serializer.validated_data["scout"] = {
+                    "patrol": self.request.user.scout.patrol
+                }
+        serializer.save()
 
-class UserDetails(generics.RetrieveAPIView):
+    def retrieve(self, request, *args, **kwargs):
+        instance = User.objects.get(pk=kwargs.get("pk"))
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class UserInfo(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = PublicUserSerializer
+
+    def list(self, request, *args, **kwargs):
+        return Response(self.get_serializer(request.user).data)
+
+
+class TeamViewSet(viewsets.ModelViewSet):
+    serializer_class = TeamSerializer
+    permission_classes = (IsAllowedToManageTeamOrReadOnly,)
+    queryset = Team.objects.all()
+
+
+class PatrolViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+    mixins.DestroyModelMixin,
+):
+    serializer_class = PatrolSerializer
+    permission_classes = (IsAllowedToManagePatrolOrReadOnly,)
+    queryset = Patrol.objects.all()
+
+    def perform_destroy(self, instance):
+        if instance.scouts.count() > 0:
+            if instance.scouts.filter(user__is_active=True).count() > 0:
+                exception = APIException("Patrol has scouts")
+                exception.status_code = 409
+                raise exception
+            if instance.team.patrol_set.count() > 1:
+                for scout in instance.scouts.all():
+                    scout.patrol = instance.team.patrol_set.exclude(
+                        id=instance.id
+                    ).first()
+                    scout.save()
+            else:
+                for scout in instance.scouts.all():
+                    scout.patrol = None
+                    scout.function = 0
+                    scout.save()
+        instance.delete()
+
+    def perform_create(self, serializer):
+        if self.request.user.scout.function <= 2:
+            raise PermissionDenied()
+        if self.request.user.scout.function in [3, 4]:
+            if serializer.validated_data.get("team") is not None:
+                if (
+                    serializer.validated_data.get("team").id
+                    != self.request.user.scout.patrol.team.id
+                ):
+                    raise PermissionDenied()
+                serializer.save()
+            serializer.validated_data["team"] = self.request.user.scout.patrol.team
+        serializer.save()
 
 
 class TasksToBeChecked(generics.ListAPIView):
@@ -192,8 +283,6 @@ class ExamViewSet(ModelViewSet):
         instance.save()
 
     def perform_create(self, serializer):
-        print(serializer.validated_data)
-        print(serializer.validated_data.get("scout"))
         if (
             serializer.validated_data.get("scout") is None
             and serializer.validated_data.get("supervisor") is not None
@@ -221,11 +310,3 @@ class ExamViewSet(ModelViewSet):
             scout=serializer.validated_data.get("scout")["user"].scout,
             supervisor=serializer.validated_data.get("supervisor")["user"],
         )
-
-
-class UserInfo(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def list(self, request, *args, **kwargs):
-        return Response(self.get_serializer(request.user).data)

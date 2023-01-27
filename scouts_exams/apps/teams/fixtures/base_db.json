@@ -4,8 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "45 Zielonogórska Drużyna Harcerzy im. Wigierczyków",
-      "short_name": "45 ZDH",
-      "colors": "ciemnozielony"
+      "short_name": "45 ZDH"
     }
   },
   {
@@ -13,8 +12,7 @@
     "pk": 2,
     "fields": {
       "name": "30 Zielonogórska Drużyna Harcerzy “Orlęta” im. Cichociemnych",
-      "short_name": "30 ZDH",
-      "colors": "granatowy-biały"
+      "short_name": "30 ZDH"
     }
   },
   {
@@ -22,8 +20,7 @@
     "pk": 3,
     "fields": {
       "name": "31 Zielonogórska Drużyna Harcerzy “Pająki” im. A. Małkowskiego",
-      "short_name": "31 ZDH",
-      "colors": "granatowy-żółty"
+      "short_name": "31 ZDH"
     }
   },
   {
@@ -31,8 +28,7 @@
     "pk": 4,
     "fields": {
       "name": "9 Zielonogórska Drużyna Harcerzy “Dukt-Zawisza”",
-      "short_name": "9 ZDH",
-      "colors": "czarny-biały"
+      "short_name": "9 ZDH"
     }
   },
   {

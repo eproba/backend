@@ -10,6 +10,9 @@ from .utils import prepare_exam
 def archive(request):
     if not request.user.is_authenticated:
         return render(request, "exam/archive.html")
+    if not request.user.scout.patrol:
+        messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
+        return render(request, "exam/archive.html")
     user = request.user
     exams = []
     if request.user.scout.function in [0, 1]:

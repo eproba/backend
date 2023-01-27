@@ -50,6 +50,8 @@ class ExamAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(ExamAdmin, self).get_queryset(request)
         if not request.user.is_superuser:
+            if not request.user.scout.patrol:
+                return qs.filter(scout__id=request.user.scout.id)
             return qs.filter(
                 scout__patrol__team=request.user.scout.patrol.team
             ).exclude(deleted=True)

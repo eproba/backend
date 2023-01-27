@@ -2,7 +2,7 @@
 <html lang="pl">
 {% load static %}
 <script>
-    function confirm_popup(url="", message = "", fun=null) {
+    function confirm_popup(url = "", message = "", fun = null) {
         if (confirm(message)) {
             if (!url && fun) {
                 fun()
@@ -62,98 +62,115 @@
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A"/>
     <title>{% block title %}Epróba{% endblock %}</title>
-    <link rel="preload" href="{% static 'css/bulma-tooltip.min.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}"></noscript>
+    <link rel="preload" href="{% static 'css/bulma-tooltip.min.css' %}" as="style"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
+    </noscript>
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
     <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.32/ua-parser.min.js" integrity="sha512-QyFNWdGOdhSDvdDfS8tzVVg+UgnwLYmPybDSityYxHUg7mTVrw5dWRYdiUHNUOWVtLkJqTB8/LhrUCRPfkrEFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="text/javascript" charset="UTF-8" src="https://cdn.cookie-script.com/s/9d1ff57ca68556c805b491b102e1d460.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.32/ua-parser.min.js"
+            integrity="sha512-QyFNWdGOdhSDvdDfS8tzVVg+UgnwLYmPybDSityYxHUg7mTVrw5dWRYdiUHNUOWVtLkJqTB8/LhrUCRPfkrEFg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" charset="UTF-8"
+            src="https://cdn.cookie-script.com/s/9d1ff57ca68556c805b491b102e1d460.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'images/icons/favicon.svg' %}" type="image/svg+xml">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127294792989521" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127294792989521"
+            crossorigin="anonymous"></script>
     {% block headcontent %}
     {% endblock %}
 </head>
 <body>
 {% if request.user.is_authenticated %}
-<script async type="module">
-    import {initializeApp} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-    import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-analytics.js";
-    import {getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-messaging.js";
+    <script async type="module">
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+        import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-analytics.js";
+        import {
+            getMessaging,
+            getToken,
+            onMessage
+        } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-messaging.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
-        authDomain: "scouts-exams.firebaseapp.com",
-        databaseURL: "https://scouts-exams-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "scouts-exams",
-        storageBucket: "scouts-exams.appspot.com",
-        messagingSenderId: "897419344971",
-        appId: "1:897419344971:web:dd3325a492cc57756d61ce",
-        measurementId: "G-YB1DB8G1WG"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
+            authDomain: "scouts-exams.firebaseapp.com",
+            databaseURL: "https://scouts-exams-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "scouts-exams",
+            storageBucket: "scouts-exams.appspot.com",
+            messagingSenderId: "897419344971",
+            appId: "1:897419344971:web:dd3325a492cc57756d61ce",
+            measurementId: "G-YB1DB8G1WG"
+        };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const messaging = getMessaging();
-    if (Cookies.get("disable_notifications") === undefined && Cookies.get("disable_notifications") !== true) {
-        getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
-            if (currentToken) {
-                $.ajax({
-                    url: '{% url 'fcm_devices-list' %}',
-                    type: 'get',
-                    data: {},
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data.filter(e => e.registration_id === currentToken).length === 0) {
-                            $.ajax({
-                                url: '{% url 'fcm_devices-list' %}',
-                                type: 'post',
-                                data: {
-                                    "registration_id": currentToken,
-                                    "name": JSON.stringify({"os": $.ua.os, "device": $.ua.device, "browser": $.ua.browser.name}),
-                                    "type": "web"
-                                },
-                                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                                dataType: 'json',
-                                success: function (data) {
-                                    console.info("Zarejestrowano urządzenie dla FCM");
-                                }
-                            });
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const messaging = getMessaging();
+        if (Cookies.get("disable_notifications") === undefined && Cookies.get("disable_notifications") !== true) {
+            getToken(messaging, {vapidKey: "BJDPUgOL1f1s5051JlJVqiO_Ik_aj-brMltYdg8FuHa3MS45g06M_ae2yDvUDm99TI4-5myoFVluitL9AUay4mA"}).then((currentToken) => {
+                if (currentToken) {
+                    $.ajax({
+                        url: '{% url 'fcm_devices-list' %}',
+                        type: 'get',
+                        data: {},
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.filter(e => e.registration_id === currentToken).length === 0) {
+                                $.ajax({
+                                    url: '{% url 'fcm_devices-list' %}',
+                                    type: 'post',
+                                    data: {
+                                        "registration_id": currentToken,
+                                        "name": JSON.stringify({
+                                            "os": $.ua.os,
+                                            "device": $.ua.device,
+                                            "browser": $.ua.browser.name
+                                        }),
+                                        "type": "web"
+                                    },
+                                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                                    dataType: 'json',
+                                    success: function (data) {
+                                        console.info("Zarejestrowano urządzenie dla FCM");
+                                    }
+                                });
+                            }
                         }
-                    }
-                });
-                Cookies.set('fcm_token', currentToken, { expires: 365 })
-            } else {
-                console.log('No registration token available. Request permission to generate one.');
-            }
-        }).catch((err) => {
-            console.log('An error occurred while retrieving token. ', err);
-        });
-    }
+                    });
+                    Cookies.set('fcm_token', currentToken, {expires: 365})
+                } else {
+                    console.log('No registration token available. Request permission to generate one.');
+                }
+            }).catch((err) => {
+                console.log('An error occurred while retrieving token. ', err);
+            });
+        }
 
-    onMessage(messaging, (payload) => {
-        $("#notifications").append(`\
+        onMessage(messaging, (payload) => {
+            $("#notifications").append(`\
         <div class="notification" style="background-color: rgb(20 62 119 / 75%)">\
             <button class="delete" onclick="this.parentElement.remove()"></button>\
             <a href='${payload.fcmOptions.link}'><strong>${payload.notification.title}</strong><br></a>\
             ${payload.notification.body}\
         </div>`
-        )
-    });
-</script>
+            )
+        });
+    </script>
 {% endif %}
 <div class="container" id="container" style="display: flex; flex-direction: column;">
     {% include "core/navbar.html" %}
     <br>
     {% block subnavbarcontent %}
     {% endblock %}
-    <div class="container" style="position: relative; margin-bottom: 10vh;display: flex; flex-direction: column;width: 100%;">
+    <div class="container"
+         style="position: relative; margin-bottom: 10vh;display: flex; flex-direction: column;width: 100%;">
         {% block content %}
         {% endblock %}
     </div>
@@ -169,4 +186,6 @@
     </div>
 {% endblock %}
 </body>
+{% block scripts %}
+{% endblock %}
 </html>

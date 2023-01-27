@@ -27,7 +27,7 @@ def create_exam(request):
         template = None
     TaskFormSet = formset_factory(TaskForm, extra=1)
     if request.method == "POST":
-        if request.user.scout.function >= 2:
+        if request.user.scout.function >= 2 and request.user.scout.patrol:
             exam = ExtendedExamCreateForm(request.user, request.POST)
         else:
             exam = ExamCreateForm(request.POST)
@@ -39,7 +39,7 @@ def create_exam(request):
         else:
             tasks = TaskFormSet(request.POST)
         if exam.is_valid():
-            if request.user.scout.function >= 2:
+            if request.user.scout.function >= 2 and request.user.scout.patrol:
                 exam_obj = exam.save()
             else:
                 exam_obj = exam.save(commit=False)
@@ -77,7 +77,7 @@ def create_exam(request):
             return redirect(reverse("exam:exam"))
 
     else:
-        if request.user.scout.function >= 2:
+        if request.user.scout.function >= 2 and request.user.scout.patrol:
             exam = ExtendedExamCreateForm(request.user)
         else:
             exam = ExamCreateForm()
