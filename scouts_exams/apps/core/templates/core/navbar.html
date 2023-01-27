@@ -45,9 +45,14 @@
                     </div>
                 </div>
             {% endif %}
-            {% if request.user.is_superuser or request.user.scout.function >= 4 %}
+            {% if request.user.is_superuser %}
                 <a class="navbar-item" href="/admin">
                     Panel administratora
+                </a>
+            {% endif %}
+            {% if request.user.scout.function >= 3 %}
+                <a class="navbar-item" href="{% url 'teams:view_teams' %}">
+                    Zarządzaj drużyną
                 </a>
             {% endif %}
             <div class="navbar-item has-dropdown is-hoverable">
