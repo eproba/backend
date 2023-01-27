@@ -26,7 +26,8 @@ from apps.users.views import (
     signup,
     view_profile,
 )
-from apps.users.views.login_hub import login_from_hub, login_hub
+
+# from apps.users.views.login_hub import login_from_hub, login_hub
 from django.contrib import admin
 from django.contrib.auth.views import (
     LoginView,
@@ -112,8 +113,8 @@ urlpatterns = [
     path("exam/", include("apps.exam.urls")),
     path("login/", LoginView.as_view(template_name="users/login.html"), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("lh/", login_hub),
-    path("_login/<int:user_id>/", login_from_hub),
+    # path("lh/", login_hub),
+    # path("_login/<int:user_id>/", login_from_hub),
     path("news/", include("apps.blog.urls")),
     path(
         "password-reset/",
