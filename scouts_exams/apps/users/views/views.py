@@ -29,8 +29,8 @@ class SiteUserCreationForm(UserCreationForm):
 
 
 class ScoutCreationForm(forms.ModelForm):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.fields["patrol"].required = True
 
     class Meta:

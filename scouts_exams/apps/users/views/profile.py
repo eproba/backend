@@ -41,6 +41,7 @@ class ScoutChangeForm(forms.ModelForm):
             )
         else:
             self.fields["patrol"].queryset = Patrol.objects
+        self.fields["patrol"].required = True
 
     class Meta:
         model = Scout

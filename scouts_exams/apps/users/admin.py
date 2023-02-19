@@ -143,58 +143,8 @@ class ScoutAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if obj.user.is_superuser:
             obj.user.is_staff = True
-        if obj.function == 4:
-            obj.user.is_staff = True
-            obj.user.user_permissions.clear()
-            for perm in [
-                "delete_task",
-                "change_user",
-                "delete_user",
-                "view_task",
-                "change_scout",
-                "view_exam",
-                "add_patrol",
-                "view_scout",
-                "view_user",
-                "add_task",
-                "change_exam",
-                "change_task",
-                "delete_patrol",
-                "delete_exam",
-                "add_exam",
-                "view_patrol",
-                "view_team",
-                "change_patrol",
-            ]:
-                obj.user.user_permissions.add(Permission.objects.get(codename=perm))
-        elif obj.function >= 5:
-            obj.user.is_staff = True
-            obj.user.user_permissions.clear()
-            for perm in [
-                "delete_task",
-                "change_user",
-                "delete_user",
-                "view_task",
-                "change_scout",
-                "view_exam",
-                "add_patrol",
-                "view_scout",
-                "view_user",
-                "add_task",
-                "change_exam",
-                "change_task",
-                "delete_patrol",
-                "add_team",
-                "delete_exam",
-                "add_exam",
-                "view_patrol",
-                "view_team",
-                "change_patrol",
-            ]:
-                obj.user.user_permissions.add(Permission.objects.get(codename=perm))
         elif not obj.user.is_superuser:
             obj.user.is_staff = False
-            obj.user.user_permissions.clear()
 
         obj.user.save()
         obj.save()
