@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0006_auto_20211111_2141"),
         ("exam", "0010_alter_task_approval_date"),

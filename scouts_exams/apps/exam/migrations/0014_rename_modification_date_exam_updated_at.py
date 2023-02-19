@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("exam", "0013_exam_deleted_exam_modification_date"),
     ]

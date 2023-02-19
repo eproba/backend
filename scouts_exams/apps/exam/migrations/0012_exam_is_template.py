@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("exam", "0011_exam_is_archived_alter_exam_name_alter_exam_scout_and_more"),
     ]

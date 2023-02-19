@@ -35,7 +35,6 @@ def detect_rank(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0008_add_scout_scout_rank_and_instructor_rank"),
     ]
