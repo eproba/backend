@@ -28,7 +28,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
 # Crispy forms settings (https://django-crispy-forms.readthedocs.io/en/latest/)
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 # Firebase
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
+    "crispy_bootstrap5",
     "fcm_django",
     "oauth2_provider",
     "django_celery_beat",
