@@ -39,36 +39,15 @@
                     <div class="box">
         <span class="icon-text is-align-items-center">
             <span class="title" style="margin-bottom: 0">{{ exam }} </span>
-            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}"
-                  data-tooltip="Naciśnij aby skopiować link do próby"><span
-                    onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '
-                            {{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')"><i
-                    class="fa-solid fa-clipboard"></i></span></span>
-            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print"
-                  data-tooltip="Drukuj próbę"><span
-                    onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"><i
-                    class="fas fa-print"></i></span></span>
-            <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                  data-tooltip="Zarchiwizuj próbę"><span
-                    onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \Zostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '
-                            {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#exam_{{ exam.id }}').remove();}}) })"><i
-                    class="fa-solid fa-box-archive"></i></span></span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}" data-tooltip="Naciśnij aby skopiować link do próby"><span onclick="copy_to_clipboard('tooltip_text_{{ exam.id }}', '{{ request.get_host }}{% url 'exam:view_shared_exams' exam.share_key %}')"><i class="fa-solid fa-clipboard"></i></span></span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_{{ exam.id }}_print" data-tooltip="Drukuj próbę"><span onclick="location.href='{% url 'exam:print_exam' exam.share_key %}'"><i class="fas fa-print"></i></span></span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Zarchiwizuj próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \Zostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-box-archive"></i></span></span>
             {% if user.scout.function > 2 %}
-                <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                      data-tooltip="Usuń próbę"><span
-                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to prawie permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 🤖).\n\nJa jednak przewidziałem to że ktoś może się pomylić więc jak aż tak zepsułeś to napisz do mnie od razu, a może uda się coś zdziałać.', fun=function(){$.ajax({'url': '
-                                {% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"><i
-                        class="fa-solid fa-trash"></i></span></span>
+                <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Usuń próbę"><span onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to prawie permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 🤖).\n\nJa jednak przewidziałem to że ktoś może się pomylić więc jak aż tak zepsułeś to napisz do mnie od razu, a może uda się coś zdziałać.', fun=function(){$.ajax({'url': '{% url 'api-exam-list' %}{{ exam.id }}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#exam_{{ exam.id }}').remove();}}) })"><i class="fa-solid fa-trash"></i></span></span>
             {% endif %}
-            <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                  data-tooltip="Edytuj próbę"><span
-                    onclick="location.href='{% url 'exam:edit_exam' exam.id %}'"><i
-                    class="fas fa-edit"></i></span></span>
-            </span>
+            <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Edytuj próbę"><span onclick="location.href='{% url 'exam:edit_exam' exam.id %}'"><i class="fas fa-edit"></i></span></span></span>
             {% if exam.supervisor %}
-                <h2 class="subtitle">Opiekun próby: <a
-                        href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a>
-                </h2>
+                <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=exam.supervisor.user.id %}">{{ exam.supervisor.user.full_name_nickname }}</a></h2>
             {% endif %}
                 <h2 class="subtitle is-6">Ostatnia edycja: {{ exam.updated_at }}</h2>
                 <p><br/></p>
