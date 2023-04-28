@@ -158,3 +158,5 @@ dmypy.json
 .idea/discord.xml
 /scouts_exams/apps/users/templates/users/login_hub.html
 /scouts_exams/apps/users/views/login_hub.py
+!/scouts_exams/scouts_exams/maintenance_mode_state.txt
+/scouts_exams/scouts_exams/maintenance_mode_state.txt

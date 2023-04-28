@@ -16,7 +16,9 @@ from apps.teams.serializers import PatrolSerializer, TeamSerializer
 from apps.users.models import Scout, User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
+from constance.signals import config_updated
 from django.db.models import Q
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from fcm_django.models import FCMDevice
@@ -26,6 +28,7 @@ from firebase_admin.messaging import (
     WebpushConfig,
     WebpushFCMOptions,
 )
+from maintenance_mode.core import set_maintenance_mode
 from rest_framework import generics, mixins, permissions, viewsets
 from rest_framework.exceptions import APIException, PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -310,3 +313,9 @@ class ExamViewSet(ModelViewSet):
             scout=serializer.validated_data.get("scout")["user"].scout,
             supervisor=serializer.validated_data.get("supervisor")["user"],
         )
+
+
+@receiver(config_updated)
+def constance_updated(sender, key, old_value, new_value, **kwargs):
+    if key == "WEB_APP_MAINTENANCE":
+        set_maintenance_mode(new_value)

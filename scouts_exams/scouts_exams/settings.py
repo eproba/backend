@@ -66,6 +66,9 @@ INSTALLED_APPS = [
     "fcm_django",
     "oauth2_provider",
     "django_celery_beat",
+    "constance",
+    "constance.backends.database",
+    "maintenance_mode",
 ]
 
 
@@ -79,6 +82,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "maintenance_mode.middleware.MaintenanceModeMiddleware",
 ]
 
 
@@ -160,6 +164,25 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_ADAPTER = "apps.users.adapter.SocialAccountAdapter"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+
+CONSTANCE_CONFIG = {
+    "ENABLE_ADS": (True, "Enable ads"),
+    "WEB_APP_MAINTENANCE": (False, "Web app maintenance"),
+    "MINIMUM_APP_VERSION": ("0.0.0", "Minimum app version"),
+}
+
+MAINTENANCE_MODE_TEMPLATE = "errors/503.html"
+MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
+# MAINTENANCE_MODE_IGNORE_SUPERUSER = True
+MAINTENANCE_MODE_IGNORE_URLS = (
+    r"^/api/",
+    r"^/$",
+    r"^/about",
+    r"^/robots.txt",
+    r"^/sitemap.xml",
+    r"^/contact",
+)
 
 # Templates
 TEMPLATES = [
