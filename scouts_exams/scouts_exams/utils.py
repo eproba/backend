@@ -16,6 +16,7 @@ from apps.teams.serializers import PatrolSerializer, TeamSerializer
 from apps.users.models import Scout, User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
+from constance import config
 from constance.signals import config_updated
 from django.db.models import Q
 from django.dispatch import receiver
@@ -36,6 +37,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+
+
+class AppConfigView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        return Response(
+            {
+                "ads": config.ADS_MOBILE,
+                "maintenance": config.MOBILE_MAINTENANCE_MODE,
+                "min_version": config.MINIMUM_APP_VERSION,
+            }
+        )
 
 
 class UserViewSet(
@@ -317,5 +331,5 @@ class ExamViewSet(ModelViewSet):
 
 @receiver(config_updated)
 def constance_updated(sender, key, old_value, new_value, **kwargs):
-    if key == "WEB_APP_MAINTENANCE":
+    if key == "WEB_MAINTENANCE_MODE":
         set_maintenance_mode(new_value)

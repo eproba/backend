@@ -167,9 +167,11 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
-    "ENABLE_ADS": (True, "Enable ads"),
-    "WEB_APP_MAINTENANCE": (False, "Web app maintenance"),
-    "MINIMUM_APP_VERSION": ("0.0.0", "Minimum app version"),
+    "ADS_WEB": (True, "Ads (web)"),
+    "ADS_MOBILE": (True, "Ads (mobile)"),
+    "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
+    "MOBILE_MAINTENANCE_MODE": (False, "Mobile app maintenance"),
+    "MINIMUM_APP_VERSION": (20230100, "Minimum app version"),
 }
 
 MAINTENANCE_MODE_TEMPLATE = "errors/503.html"
