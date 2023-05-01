@@ -205,6 +205,10 @@ class TaskDetails(ModelViewSet):
             exam__id=self.kwargs["exam_id"], exam__scout__user__id=self.request.user.id
         ).filter(id=self.kwargs["id"])
 
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        serializer.instance.exam.save()  # update exam modification date
+
 
 class SubmitTask(APIView):
     permission_classes = [permissions.IsAuthenticated, IsTaskOwner]

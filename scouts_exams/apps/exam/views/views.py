@@ -241,6 +241,7 @@ def refuse_task(request, exam_id, task_id):
         )
         return redirect(reverse("exam:check_tasks"))
     Task.objects.filter(id=task.id).update(status=3)
+    exam.save()  # update exam's last modification date
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -253,6 +254,7 @@ def accept_task(request, exam_id, task_id):
         )
         return redirect(reverse("exam:check_tasks"))
     Task.objects.filter(id=task.id).update(status=2, approval_date=timezone.now())
+    exam.save()  # update exam's last modification date
     return redirect(reverse("exam:check_tasks"))
 
 
@@ -269,6 +271,7 @@ def force_refuse_task(request, exam_id, task_id):
         Task.objects.filter(id=task.id).update(
             status=3, approver=request.user.scout, approval_date=None
         )
+        exam.save()  # update exam's last modification date
         return HttpResponse("OK", status=200)
     if (
         task.exam != exam
@@ -298,6 +301,7 @@ def force_accept_task(request, exam_id, task_id):
             approver=request.user.scout,
             approval_date=timezone.now(),
         )
+        exam.save()  # update exam's last modification date
         return HttpResponse("OK", status=200)
     if (
         task.exam != exam
