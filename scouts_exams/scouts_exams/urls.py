@@ -14,7 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import FrontPageView, IssueContactView, contactView, fcm_sw
+from apps.core.views import (
+    FrontPageView,
+    IssueContactView,
+    contactView,
+    fcm_sw,
+    site_management,
+)
 from apps.users.views import (
     change_password,
     disconnect_socials,
@@ -162,4 +168,5 @@ urlpatterns = [
             (oauth2_base_urlpatterns, oauth2_app_name), namespace="oauth2_provider"
         ),
     ),
+    path("site-management/", site_management, name="site_management"),
 ]

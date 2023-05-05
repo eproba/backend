@@ -1,4 +1,5 @@
 from apps.blog.models import Post
+from constance import config
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import BadHeaderError, send_mail
@@ -90,3 +91,20 @@ def fcm_sw(request):
     return render(
         request, "firebase-messaging-sw.js", content_type="application/javascript"
     )
+
+
+@login_required
+def site_management(request):
+    if not request.user.is_superuser:
+        return redirect(reverse("frontpage"))
+    if request.method == "POST":
+        config.ADS_WEB = bool(request.POST.get("ads_web", False))
+        config.ADS_MOBILE = bool(request.POST.get("ads_mobile", False))
+        config.WEB_MAINTENANCE_MODE = bool(request.POST.get("maintenance_web", False))
+        config.MOBILE_MAINTENANCE_MODE = bool(
+            request.POST.get("maintenance_mobile", False)
+        )
+        config.MINIMUM_APP_VERSION = request.POST.get("min_app_version", "0")
+        print(request.POST)
+        return redirect(reverse("site_management"))
+    return render(request, "sites/site_management.html", {"config": config})

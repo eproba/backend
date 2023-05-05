@@ -184,6 +184,9 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/robots.txt",
     r"^/sitemap.xml",
     r"^/contact",
+    r"^/privacy-policy",
+    r"^/terms-of-service",
+    r"^/site-management",
 )
 
 # Templates

@@ -46,9 +46,17 @@
                 </div>
             {% endif %}
             {% if request.user.is_superuser %}
-                <a class="navbar-item" href="/admin">
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link" href="/admin">
                     Panel administratora
                 </a>
+
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="{% url 'site_management' %}">
+                        Zarządzaj stroną
+                    </a>
+                </div>
+            </div>
             {% endif %}
             {% if request.user.scout.function >= 3 %}
                 <a class="navbar-item" href="{% url 'teams:view_teams' %}">
