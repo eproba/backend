@@ -22,6 +22,6 @@ def prepare_exam(exam):
         exam.percent = f"{percent}%"
     else:
         exam.percent = "Nie masz jeszcze dodanych żadnych zadań"
-    exam.share_key = f"{''.join('{:02x}'.format(ord(c)) for c in unidecode(exam.scout.user.nickname))}{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
+    exam.share_key = f"{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
 
     return exam

@@ -44,7 +44,6 @@ def view_exams(request):
 
 def print_exam(request, hex):
     try:
-        exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
         exam_user_id = int(f"0x{hex.split('0x')[1]}", 0) // 7312
         exam_id = int(f"0x{hex.split('0x')[2]}", 0) // 2137
     except Exception:
@@ -54,10 +53,7 @@ def print_exam(request, hex):
         return redirect(reverse("frontpage"))
     exams = []
     for exam in Exam.objects.filter(id=exam_id, deleted=False):
-        if (
-            unidecode(exam.scout.user.nickname) != exam_user_nickname
-            or exam.scout.user.id != exam_user_id
-        ):
+        if exam.scout.user.id != exam_user_id:
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
             )
@@ -84,7 +80,6 @@ def print_exam(request, hex):
 def view_shared_exams(request, hex):
     user = request.user
     try:
-        exam_user_nickname = bytearray.fromhex(hex.split("0x")[0]).decode()
         exam_user_id = int(f"0x{hex.split('0x')[1]}", 0) // 7312
         exam_id = int(f"0x{hex.split('0x')[2]}", 0) // 2137
     except Exception:
@@ -94,10 +89,7 @@ def view_shared_exams(request, hex):
         return redirect(reverse("frontpage"))
     exams = []
     for exam in Exam.objects.filter(id=exam_id, deleted=False):
-        if (
-            unidecode(exam.scout.user.nickname) != exam_user_nickname
-            or exam.scout.user.id != exam_user_id
-        ):
+        if exam.scout.user.id != exam_user_id:
             messages.add_message(
                 request, messages.INFO, "Podany link do próby jest nieprawidłowy."
             )
@@ -232,7 +224,7 @@ def unsubmit_task(request, exam_id, task_id):
     return redirect(f"/exam/{str(exam_id)}/tasks/sent")
 
 
-def refuse_task(request, exam_id, task_id):
+def reject_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if task.status != 1 or task.exam != exam or task.approver != request.user.scout:
@@ -258,7 +250,7 @@ def accept_task(request, exam_id, task_id):
     return redirect(reverse("exam:check_tasks"))
 
 
-def force_refuse_task(request, exam_id, task_id):
+def force_reject_task(request, exam_id, task_id):
     exam = get_object_or_404(Exam, id=exam_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
@@ -268,9 +260,7 @@ def force_refuse_task(request, exam_id, task_id):
             or request.user.scout.function < exam.scout.function
         ):
             return HttpResponse("401 Unauthorized", status=401)
-        Task.objects.filter(id=task.id).update(
-            status=3, approver=request.user.scout, approval_date=None
-        )
+        Task.objects.filter(id=task.id).update(status=3, approver=request.user.scout)
         exam.save()  # update exam's last modification date
         return HttpResponse("OK", status=200)
     if (
@@ -282,7 +272,7 @@ def force_refuse_task(request, exam_id, task_id):
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("exam:edit_exams"))
-    Task.objects.filter(id=task.id).update(status=3, approver=None, approval_date=None)
+    Task.objects.filter(id=task.id).update(status=3, approver=None)
     return redirect(reverse("exam:edit_exams"))
 
 

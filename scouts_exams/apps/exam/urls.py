@@ -15,12 +15,12 @@ urlpatterns = [
     path("tasks/check", views.check_tasks, name="check_tasks"),
     path("templates", views.templates, name="templates"),
     path(
-        "<int:exam_id>/<int:task_id>/task/accept",
+        "<int:exam_id>/task/<int:task_id>/accept",
         views.accept_task,
         name="accept_task",
     ),
     path(
-        "<int:exam_id>/<int:task_id>/task/refuse", views.refuse_task, name="refuse_task"
+        "<int:exam_id>/task/<int:task_id>/reject", views.reject_task, name="reject_task"
     ),
     path("<int:exam_id>/tasks/sent", views.sent_tasks, name="sent_tasks"),
     path("<int:exam_id>/task/submit", views.submit_task, name="submit_task"),
@@ -30,13 +30,13 @@ urlpatterns = [
         name="unsubmit_task",
     ),
     path(
-        "<int:exam_id>/<int:task_id>/task/force/accept",
+        "<int:exam_id>/task/<int:task_id>/force/accept",
         views.force_accept_task,
         name="force_accept_task",
     ),
     path(
-        "<int:exam_id>/<int:task_id>/task/force/refuse",
-        views.force_refuse_task,
-        name="force_refuse_task",
+        "<int:exam_id>/task/<int:task_id>/force/reject",
+        views.force_reject_task,
+        name="force_reject_task",
     ),
 ]

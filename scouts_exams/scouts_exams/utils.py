@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from exam.tasks import remove_expired_deleted_exams
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import (
     Message,
@@ -37,6 +38,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from users.tasks import clear_tokens
 
 
 class AppConfigView(APIView):
@@ -208,6 +210,7 @@ class TaskDetails(ModelViewSet):
     def perform_update(self, serializer):
         super().perform_update(serializer)
         serializer.instance.exam.save()  # update exam modification date
+        clear_tokens()  # clear old oauth2 tokens
 
 
 class SubmitTask(APIView):
@@ -302,6 +305,7 @@ class ExamViewSet(ModelViewSet):
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
+        remove_expired_deleted_exams()  # remove exams deleted more than 30 days ago
 
     def perform_create(self, serializer):
         if (

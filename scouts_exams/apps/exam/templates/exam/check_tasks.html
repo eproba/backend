@@ -32,7 +32,7 @@
                                             class="far fa-check-circle" style="color:green;"></i></a></span> <span
                                             class="has-tooltip-arrow has-tooltip-right has-tooltip-danger"
                                             data-tooltip="Odrzuć prośbę"><a
-                                            onclick="confirm_popup('{% url 'exam:refuse_task' exam.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i
+                                            onclick="confirm_popup('{% url 'exam:reject_task' exam.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i
                                             class="far fa-times-circle" style="color:red;"></i></a></span></td>
                                 </tr>
                             {% endfor %}
