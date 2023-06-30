@@ -7,6 +7,7 @@ from apps.exam.permissions import (
     IsTaskOwner,
 )
 from apps.exam.serializers import ExamSerializer, TaskSerializer
+from apps.exam.tasks import remove_expired_deleted_exams
 from apps.teams.models import Patrol, Team
 from apps.teams.permissions import (
     IsAllowedToManagePatrolOrReadOnly,
@@ -16,13 +17,13 @@ from apps.teams.serializers import PatrolSerializer, TeamSerializer
 from apps.users.models import Scout, User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
+from apps.users.tasks import clear_tokens
 from constance import config
 from constance.signals import config_updated
 from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from exam.tasks import remove_expired_deleted_exams
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import (
     Message,
@@ -38,7 +39,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from users.tasks import clear_tokens
 
 
 class AppConfigView(APIView):
