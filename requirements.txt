@@ -1,5 +1,5 @@
 django==4.2.2
-django-allauth==0.54.0
+django-allauth==0.55.0
 django-crispy-forms==2.0
 crispy-bootstrap5==0.7
 djangorestframework==3.14.0
