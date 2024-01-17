@@ -22,7 +22,7 @@
             </a>
             {% if request.user.scout.function >= 2 %}
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link">
+                    <a class="navbar-link" href="{% url 'exam:manage_exams' %}">
                         Zarządzaj próbami
                     </a>
                     <div class="navbar-dropdown">
