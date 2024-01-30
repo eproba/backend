@@ -167,6 +167,7 @@ def manage_exams(request):
         )
     )
 
+    exams.sort(key=lambda x: x.updated_at, reverse=True)
     patrols = Patrol.objects.filter(team__id=user.scout.patrol.team.id).order_by("name")
     return render(
         request,
