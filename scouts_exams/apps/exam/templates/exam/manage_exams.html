@@ -101,10 +101,10 @@
                     examDiv.className = 'exam-container';
                     examDiv.innerHTML = '<div class="box">W systemie nie ma jeszcze żadnej próby którą możesz edytować.</div>';
                     examsList.appendChild(examDiv);
-
                 }
 
-
+                exams.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+                
                 exams.filter(exam => exam.deleted === false).forEach((exam) => {
                     examsList.appendChild(renderExam(exam, users, missingUsers));
                 });

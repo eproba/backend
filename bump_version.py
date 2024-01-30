@@ -31,11 +31,13 @@ new_version = {
     "year": datetime.today().year,
     "month": datetime.today().strftime("%m"),
     "day": datetime.today().strftime("%d"),
-    "patch": 0
-    if old_version["year"] != datetime.today().year
-    or old_version["month"] != datetime.today().month
-    or old_version["day"] != datetime.today().day
-    else (old_version["patch"] + 1),
+    "patch": (
+        0
+        if old_version["year"] != datetime.today().year
+        or old_version["month"] != datetime.today().month
+        or old_version["day"] != datetime.today().day
+        else (old_version["patch"] + 1)
+    ),
 }
 
 update_version_strings(

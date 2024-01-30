@@ -26,7 +26,7 @@ def view_exams(request):
         exams = [
             prepare_exam(exam)
             for exam in Exam.objects.filter(
-                scout__user=user, is_template=False, deleted=False
+                scout__user=user, is_template=False, deleted=False, is_archived=False
             )
         ]
 
@@ -70,9 +70,9 @@ def print_exam(request, hex):
         HTML(string=render_to_string("exam/exam_pdf.html", {"exam": exam})).write_pdf(),
         content_type="application/pdf",
     )
-    response[
-        "Content-Disposition"
-    ] = f'inline; filename="{unidecode(str(exam))} (by epróba).pdf"'
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(exam))} (by epróba).pdf"'
+    )
 
     return response
 

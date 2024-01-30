@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "django_celery_beat",
     "constance",
-    "constance.backends.database",
     "maintenance_mode",
 ]
 
@@ -83,6 +82,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
