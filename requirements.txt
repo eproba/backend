@@ -1,5 +1,5 @@
 django==5.0.1
-django-allauth==0.60.1
+django-allauth==0.61.1
 django-crispy-forms==2.1
 crispy-bootstrap5==2023.10
 djangorestframework==3.14.0
