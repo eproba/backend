@@ -245,13 +245,26 @@ label.toggle-item:before {
 
     <h1 class="title">{{ info }}</h1>
     <div class="buttons">
-        {% if "google" in socialaccount_providers|ids %}
-        <button onclick="window.location.href='{% provider_login_url "google" next=request.GET.next %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zarejestruj się z Google</span></button>
+        {% if request.GET.next %}
+        {% url 'check_signup' as check_signup_url %}
+        {% with check_signup_url|add:"?next="|add:request.GET.next as next_url %}
+            {% if "google" in socialaccount_providers|ids %}
+            <button onclick="window.location.href='{% provider_login_url "google" next=next_url %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zarejestruj się z Google</span></button>
+            {% endif %}
+            {% if "facebook" in socialaccount_providers|ids %}
+            <button onclick="window.location.href='{% provider_login_url "facebook" next=next_url %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zarejestruj się z Facebook</span></button>
+            {% endif %}
+            <p><br/></p>
+        {% endwith %}
+        {% else %}
+            {% if "google" in socialaccount_providers|ids %}
+            <button onclick="window.location.href='{% provider_login_url "google" %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zarejestruj się z Google</span></button>
+            {% endif %}
+            {% if "facebook" in socialaccount_providers|ids %}
+            <button onclick="window.location.href='{% provider_login_url "facebook" %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zarejestruj się z Facebook</span></button>
+            {% endif %}
+            <p><br/></p>
         {% endif %}
-        {% if "facebook" in socialaccount_providers|ids %}
-        <button onclick="window.location.href='{% provider_login_url "facebook" next=request.GET.next %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zarejestruj się z Facebook</span></button>
-        {% endif %}
-        <p><br/></p>
     </div>
     <form method="post">
         {% csrf_token %}

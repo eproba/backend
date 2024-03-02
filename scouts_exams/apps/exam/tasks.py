@@ -1,12 +1,9 @@
 import logging
 from time import time
 
-from celery import shared_task
-
 logger = logging.getLogger(__name__)
 
 
-@shared_task
 def remove_expired_deleted_exams():
     from .models import Exam
 

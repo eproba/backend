@@ -5,30 +5,45 @@
 {% load static %}
 {% block content %}
 {% get_providers as socialaccount_providers %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
 
-    <h1 class="title">Zaloguj się</h1>
-    <form action="." method="post">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.GET.next }}" />
-        {{ form|crispy }}
-        <div class="field">
-            <div class="block">
-            </div>
-            <div class="buttons">
-                <div class="control">
-                    <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
-                    <button onclick="window.location.href='{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
-                    {% if "google" in socialaccount_providers|ids %}
-                    <button onclick="window.location.href='{% provider_login_url "google" next=request.GET.next %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
-                    {% endif %}
-                    {% if "facebook" in socialaccount_providers|ids %}
-                    <button onclick="window.location.href='{% provider_login_url "facebook" next=request.GET.next %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zaloguj się z Facebook</span></button>
-                    {% endif %}
-                    <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-link is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
-                </div>
+<h1 class="title">Zaloguj się</h1>
+<form action="." method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="field">
+        <div class="block">
+        </div>
+        <div class="buttons">
+            <div class="control">
+            {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% url 'check_signup' as check_signup_url %}
+            {% with check_signup_url|add:"?next="|add:request.GET.next as next_url %}
+                <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
+                <button onclick="window.location.href='{% url 'signup' %}?next={{ request.GET.next }}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
+                {% if "google" in socialaccount_providers|ids %}
+                <button onclick="window.location.href='{% provider_login_url "google" next=next_url %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
+                {% endif %}
+                {% if "facebook" in socialaccount_providers|ids %}
+                <button onclick="window.location.href='{% provider_login_url "facebook" next=next_url %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zaloguj się z Facebook</span></button>
+                {% endif %}
+                <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-link is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
+            {% endwith %}
+            {% else %}
+                <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
+                <button onclick="window.location.href='{% url 'signup' %}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
+                {% if "google" in socialaccount_providers|ids %}
+                <button onclick="window.location.href='{% provider_login_url "google" %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
+                {% endif %}
+                {% if "facebook" in socialaccount_providers|ids %}
+                <button onclick="window.location.href='{% provider_login_url "facebook" %}'" class="button is-info  is-outlined" type="button"><span class="icon"><i class="fab fa-facebook"></i></span><span>Zaloguj się z Facebook</span></button>
+                {% endif %}
+                <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-link is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
+            {% endif %}
             </div>
         </div>
-    </form>
+    </div>
+</form>
 {% endblock %}

@@ -1,4 +1,5 @@
 from .profile import (
+    check_signup_complete,
     disconnect_socials,
     edit_profile,
     finish_signup,

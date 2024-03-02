@@ -22,8 +22,9 @@ from apps.core.views import (
     fcm_sw,
     site_management,
 )
+from apps.users.views import change_password
+from apps.users.views import check_signup_complete as check_signup
 from apps.users.views import (
-    change_password,
     disconnect_socials,
     edit_profile,
     finish_signup,
@@ -161,6 +162,7 @@ urlpatterns = [
         name="django.contrib.sitemaps.views.sitemap",
     ),
     path("signup/", signup, name="signup"),
+    path("signup/check", check_signup, name="check_signup"),
     path("signup/finish", finish_signup, name="finish_signup"),
     path("team/", include("apps.teams.urls")),
     path(

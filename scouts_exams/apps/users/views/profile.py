@@ -127,6 +127,14 @@ def finish_signup(request):
     )
 
 
+def check_signup_complete(request):
+    if not request.user.is_authenticated:
+        return redirect(reverse("login"))
+    if not request.user.scout.patrol or not request.user.nickname:
+        return redirect(reverse("finish_signup") + f"?next={request.GET.get('next')}")
+    return redirect(request.GET.get("next", reverse("frontpage")))
+
+
 @login_required
 @transaction.atomic
 def set_password(request, user_id):

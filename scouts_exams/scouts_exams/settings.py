@@ -23,10 +23,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "scouts_exams.wsgi.application"
 
 
-# Periodic tasks settings (Celery)
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-
 # Crispy forms settings (https://django-crispy-forms.readthedocs.io/en/latest/)
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -65,7 +61,6 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "fcm_django",
     "oauth2_provider",
-    "django_celery_beat",
     "constance",
     "maintenance_mode",
 ]
