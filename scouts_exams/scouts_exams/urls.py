@@ -44,8 +44,9 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.contrib.sitemaps.views import sitemap
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import include, path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
@@ -172,4 +173,8 @@ urlpatterns = [
         ),
     ),
     path("site-management/", site_management, name="site_management"),
+    path(
+        "app-ads.txt",
+        RedirectView.as_view(url=staticfiles_storage.url("app-ads.txt")),
+    ),
 ]
