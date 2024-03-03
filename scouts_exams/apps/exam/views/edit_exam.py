@@ -59,7 +59,7 @@ def edit_exam(request, exam_id):
                         t.save()
                 messages.add_message(request, messages.INFO, "Próba została zapisana.")
             else:
-                messages.add_message(request, messages.ERROR, "Błąd w zadanach.")
+                messages.add_message(request, messages.ERROR, "Błąd w zadaniach.")
             return redirect(reverse("exam:manage_exams"))
 
     else:
