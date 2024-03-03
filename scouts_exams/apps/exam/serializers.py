@@ -93,7 +93,7 @@ class ExamSerializer(serializers.ModelSerializer):
             if task_name in existing_task_names:
                 # Update only name and description, clear other fields
                 Task.objects.filter(task=task_name, exam=instance).update(
-                    description=task_data.get("description")
+                    description=task_data.get("description", ""),
                 )
             else:
                 Task.objects.create(
