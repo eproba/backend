@@ -177,6 +177,7 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/$",
     r"^/about",
     r"^/robots.txt",
+    r"^/app-ads.txt",
     r"^/sitemap.xml",
     r"^/contact",
     r"^/privacy-policy",
