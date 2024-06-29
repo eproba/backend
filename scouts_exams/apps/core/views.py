@@ -105,6 +105,7 @@ def site_management(request):
             request.POST.get("maintenance_mobile", False)
         )
         config.MINIMUM_APP_VERSION = request.POST.get("min_app_version", "0")
+        config.THE_END = bool(request.POST.get("the_end", False))
         print(request.POST)
         return redirect(reverse("site_management"))
     return render(request, "sites/site_management.html", {"config": config})

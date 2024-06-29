@@ -1,4 +1,3 @@
-from unidecode import unidecode
 
 
 def prepare_exam(exam):

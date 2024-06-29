@@ -14,7 +14,7 @@ from apps.teams.permissions import (
     IsAllowedToManageTeamOrReadOnly,
 )
 from apps.teams.serializers import PatrolSerializer, TeamSerializer
-from apps.users.models import Scout, User
+from apps.users.models import EndMessage, Scout, User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
 from apps.users.tasks import clear_tokens
@@ -45,11 +45,24 @@ class AppConfigView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
+        end_messages = []
+        if request.user.is_authenticated and config.THE_END:
+            for message in EndMessage.objects.all():
+                if message.target_type == "all":
+                    end_messages.append(message.message)
+                elif message.target_type == "users":
+                    if request.user in message.targets.all():
+                        end_messages.append(message.message)
+                elif message.target_type == "users_exclude":
+                    if request.user not in message.targets.all():
+                        end_messages.append(message.message)
         return Response(
             {
                 "ads": config.ADS_MOBILE,
                 "maintenance": config.MOBILE_MAINTENANCE_MODE,
                 "min_version": config.MINIMUM_APP_VERSION,
+                "the_end": config.THE_END,
+                "end_messages": end_messages,
             }
         )
 

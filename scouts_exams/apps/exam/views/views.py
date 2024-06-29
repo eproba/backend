@@ -59,7 +59,7 @@ def print_exam(request, hex):
             )
             return redirect(reverse("frontpage"))
 
-    if exams is []:
+    if exams == []:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
@@ -97,7 +97,7 @@ def view_shared_exams(request, hex):
 
         exams.append(prepare_exam(exam))
 
-    if exams is []:
+    if exams == []:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )

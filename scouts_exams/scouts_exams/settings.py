@@ -76,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.middleware.TheEndMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
     "allauth.account.middleware.AccountMiddleware",
 ]
@@ -167,6 +168,7 @@ CONSTANCE_CONFIG = {
     "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
     "MOBILE_MAINTENANCE_MODE": (False, "Mobile app maintenance"),
     "MINIMUM_APP_VERSION": (20230100, "Minimum app version"),
+    "THE_END": (False, "The end"),
 }
 
 MAINTENANCE_MODE_TEMPLATE = "errors/503.html"

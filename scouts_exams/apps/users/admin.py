@@ -1,9 +1,8 @@
-from apps.users.models import Scout, User
+from apps.users.models import EndMessage, Scout, User
 from apps.users.views import UserCreationForm
 from django.contrib import admin
 from django.contrib.admin import RelatedFieldListFilter
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Permission
 from django.forms import ChoiceField, ModelForm, Select
 
 
@@ -158,3 +157,6 @@ class PatrolFilter(RelatedFieldListFilter):
                 "pk__in": request.user.scout.patrol.team.patrol_set.all()
             },
         )
+
+
+admin.site.register(EndMessage)

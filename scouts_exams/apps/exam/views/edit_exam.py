@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.forms import formset_factory, inlineformset_factory
+from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
 

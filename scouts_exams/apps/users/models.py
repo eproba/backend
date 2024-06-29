@@ -118,3 +118,19 @@ def update_profile_signal(sender, instance, created, **kwargs):
     if created:
         Scout.objects.create(user=instance)
     instance.scout.save()
+
+
+class EndMessage(models.Model):
+    target_type = models.CharField(
+        max_length=20,
+        choices=[
+            ("users", "Konkretni użytkownicy"),
+            ("users_exclude", "Wszyscy oprócz konkretnych użytkowników"),
+            ("all", "Wszyscy użytkownicy"),
+        ],
+    )
+    targets = models.ManyToManyField(User, blank=True)
+    message = models.TextField()
+
+    def __str__(self):
+        return f"{self.target_type}: {self.message[:50]}{'...' if len(self.message) > 50 else ''}"
