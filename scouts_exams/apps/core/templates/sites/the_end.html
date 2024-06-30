@@ -9,9 +9,17 @@
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
     <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+          rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
 </head>
 <body>
-
 <script async type="module">
     import {initializeApp} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
     import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-analytics.js";
@@ -44,8 +52,8 @@
                               style="fill: white"></path>
                     </svg>
                 </div>
-                <h1 class="title">Epróba zakończyła swoją działalność</h1>
-                <p>
+                <h1 class="title has-text-centered">Epróba zakończyła swoją działalność</h1>
+                <p class="has-text-centered" style="margin-top: 1rem; font-size: 1.2rem; line-height: 1.5;">
                     Po prawie 4 latach działalności, Epróba została zamknięta. Dziękujemy wszystkim użytkownikom za
                     korzystanie z serwisu. <br>
                     W razie pytań prosimy o kontakt na adres
@@ -53,7 +61,7 @@
                 </p>
                 <!-- Custom messages for logged in users -->
                 {% for message in end_messages %}
-                    <p>
+                    <p class="has-text-centered">
                         {{ message }}
                     </p>
                 {% endfor %}

@@ -108,7 +108,7 @@ class UserViewSet(
         serializer.save()
 
     def retrieve(self, request, *args, **kwargs):
-        instance = User.objects.get(pk=kwargs.get("pk"))
+        instance = get_object_or_404(User, pk=kwargs["pk"])
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 

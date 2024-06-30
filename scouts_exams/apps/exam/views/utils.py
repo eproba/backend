@@ -1,5 +1,3 @@
-
-
 def prepare_exam(exam):
     _all = 0
     _done = 0
