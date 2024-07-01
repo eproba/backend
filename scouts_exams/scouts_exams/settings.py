@@ -166,7 +166,7 @@ CONSTANCE_CONFIG = {
     "ADS_WEB": (True, "Ads (web)"),
     "ADS_MOBILE": (True, "Ads (mobile)"),
     "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
-    "MOBILE_MAINTENANCE_MODE": (False, "Mobile app maintenance"),
+    "API_MAINTENANCE_MODE": (False, "API maintenance"),
     "MINIMUM_APP_VERSION": (20230100, "Minimum app version"),
     "THE_END": (False, "The end"),
 }

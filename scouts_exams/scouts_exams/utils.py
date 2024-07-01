@@ -59,7 +59,8 @@ class AppConfigView(APIView):
         return Response(
             {
                 "ads": config.ADS_MOBILE,
-                "maintenance": config.MOBILE_MAINTENANCE_MODE,
+                "maintenance": True,  # this id for backwards compatibility
+                "api_maintenance": config.API_MAINTENANCE_MODE,
                 "min_version": config.MINIMUM_APP_VERSION,
                 "the_end": config.THE_END,
                 "end_messages": end_messages,
