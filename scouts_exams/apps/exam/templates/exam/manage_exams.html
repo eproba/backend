@@ -275,7 +275,7 @@
                     statusHTML = `
                         <div id="status-icon_${task.id} data-status=1"><span
                         class="has-tooltip-arrow has-tooltip-left" id="status-icon-tooltip_${task.id}"
-                        data-tooltip="${(new Date(task.approval_date)).toLocaleString()} wysłano prośbę o zaliczenie do${approver.scout.rank} ${approver.nickname}"><i
+                        data-tooltip="${(new Date(task.approval_date)).toLocaleString()} wysłano prośbę o zaliczenie do ${approver.scout.rank} ${approver.nickname}"><i
                         class="far fa-clock"></i></span></div>
                     `;
                 } else if (task.status === 3) {
