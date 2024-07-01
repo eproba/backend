@@ -4,8 +4,10 @@ from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.core.mail import send_mail
 from django.db import transaction
 from django.forms import EmailInput, Select, TextInput
+from django.http import BadHeaderError, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
 
@@ -125,4 +127,45 @@ def change_password(request, user_id):
 
     return render(
         request, "users/common.html", {"forms": [password_form], "info": "Zmień hasło"}
+    )
+
+
+def duplicated_accounts(request, user_id_1, user_id_2):
+    user_1 = get_object_or_404(User, id=user_id_1)
+    user_2 = get_object_or_404(User, id=user_id_2)
+
+    if user_1 == user_2:
+        messages.add_message(
+            request, messages.ERROR, "Nie możesz porównać dwóch takich samych kont."
+        )
+        return redirect(reverse("frontpage"))
+
+    if request.user != user_1 and request.user != user_2:
+        messages.add_message(
+            request, messages.ERROR, "Nie masz uprawnień do przeglądania tej strony."
+        )
+        return redirect(reverse("frontpage"))
+
+    if request.method == "POST":
+        selected_user = get_object_or_404(User, id=request.POST.get("selected_user"))
+        note = request.POST.get("note")
+
+        try:
+            send_mail(
+                "Zgłoszenie zduplikowanych kont",
+                f"Zgłoszenie zduplikowanych kont od {request.user.email}.\n\nKonto 1: {user_1.email}\nKonto 2: {user_2.email}\n\nWybrane konto: {selected_user.email} (ID: {selected_user.id})\n\nNotatka: {note}",
+                None,
+                ["antoni.czaplicki@zhr.pl"],
+            )
+        except BadHeaderError:
+            return HttpResponse("Invalid header found.")
+        messages.add_message(
+            request,
+            messages.INFO,
+            "Zgłoszenie zostało wysłane, w ciągu kilku dni twoje stare konto zostanie usunięte.",
+        )
+        return redirect(reverse("frontpage"))
+
+    return render(
+        request, "users/duplicated_accounts.html", {"user_1": user_1, "user_2": user_2}
     )

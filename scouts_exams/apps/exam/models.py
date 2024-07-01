@@ -15,7 +15,7 @@ class Exam(models.Model):
     scout = models.ForeignKey(
         Scout,
         on_delete=models.RESTRICT,
-        related_name="scout",
+        related_name="exams",
         verbose_name="Właściciel próby",
     )
     supervisor = models.ForeignKey(
@@ -23,7 +23,7 @@ class Exam(models.Model):
         on_delete=models.RESTRICT,
         null=True,
         default=None,
-        related_name="supervisor",
+        related_name="supervised_exams",
         blank=True,
         verbose_name="Opiekun próby",
     )
@@ -52,7 +52,7 @@ class Task(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         default=None,
-        related_name="approver",
+        related_name="approved_tasks",
         blank=True,
         verbose_name="Zatwierdzający",
     )

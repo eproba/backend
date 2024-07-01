@@ -26,6 +26,7 @@ from apps.users.views import change_password
 from apps.users.views import check_signup_complete as check_signup
 from apps.users.views import (
     disconnect_socials,
+    duplicated_accounts,
     edit_profile,
     finish_signup,
     password_reset_complete,
@@ -180,5 +181,10 @@ urlpatterns = [
     path(
         "ads.txt",
         RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
+    ),
+    path(
+        "duplicated-accounts/<int:user_id_1>/<int:user_id_2>",
+        duplicated_accounts,
+        name="duplicated_accounts",
     ),
 ]
