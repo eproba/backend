@@ -95,7 +95,7 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-success"
-                            onclick="createPatrol($('#create-patrol-input-{{ team.id }}').val()); $('#create-patrol-input-{{ team.id }}').val('')">
+                            onclick="createPatrol($('#create-patrol-input-{{ team.id }}').val(), {{ team.id }}); $('#create-patrol-input-{{ team.id }}').val('')">
                         Utwórz
                     </button>
                     <button class="button">Anuluj</button>
@@ -207,7 +207,7 @@
                 });
             }
 
-            function createPatrol(patrolName) {
+            function createPatrol(patrolName, teamId) {
                 if (patrolName === "" || patrolName === " ") {
                     alert("Nazwa zastępu nie może być pusta");
                     return;
@@ -216,7 +216,7 @@
                     url: "{% url 'api-patrols-list' %}",
                     type: 'POST',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'name': patrolName}),
+                    data: JSON.stringify({'name': patrolName, 'team': teamId}),
                     contentType: "application/json",
                     dataType: "json",
                     success: function () {
