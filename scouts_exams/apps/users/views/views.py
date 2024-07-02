@@ -92,7 +92,7 @@ def password_reset_done(request):
         messages.SUCCESS,
         "Wysłaliśmy do ciebie maila z linkiem do zresetowania hasła, jeśli go nie otrzymałeś odczekaj kilka sekund, sprawdź kosz i spam. Jeśli nadal nie możesz go znaleźć, spróbuj ponownie zresetować hasło uważając na poprawność adresu email.",
     )
-    return redirect(reverse("frontpage"))
+    return redirect(reverse("login"))
 
 
 def password_reset_complete(request):

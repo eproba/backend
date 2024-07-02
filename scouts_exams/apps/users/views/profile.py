@@ -7,6 +7,7 @@ from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.views import redirect_to_login
 from django.db import transaction
 from django.forms import Select, TextInput
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -58,7 +59,7 @@ class ScoutChangeForm(forms.ModelForm):
 def view_profile(request, user_id):
     user = request.user if user_id is None else get_object_or_404(User, id=user_id)
     if user_id is None and not request.user.is_authenticated:
-        return redirect(reverse("login"))
+        return redirect_to_login(request.get_full_path())
     return render(
         request,
         "users/view_profile.html",
@@ -127,9 +128,8 @@ def finish_signup(request):
     )
 
 
+@login_required
 def check_signup_complete(request):
-    if not request.user.is_authenticated:
-        return redirect(reverse("login"))
     if not request.user.scout.patrol or not request.user.nickname:
         return redirect(reverse("finish_signup") + f"?next={request.GET.get('next')}")
     return redirect(request.GET.get("next", reverse("frontpage")))

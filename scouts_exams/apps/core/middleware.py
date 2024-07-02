@@ -13,7 +13,13 @@ EXCLUDED_END_PATHS = [
     "/gdpr",
     "/site-management",
     "/login",
+    "/password-reset",
+    "/password-reset-done",
     "/oauth2/authorize",
+    "/accounts/google/login",
+    "/accounts/google/login/callback",
+    "/accounts/facebook/login",
+    "/accounts/facebook/login/callback",
     "/static/images/icons/favicon.svg",
     "/api/app_config",
 ]
