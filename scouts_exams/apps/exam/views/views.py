@@ -51,21 +51,15 @@ def print_exam(request, hex):
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
         return redirect(reverse("frontpage"))
-    exams = []
-    for exam in Exam.objects.filter(id=exam_id, deleted=False):
-        if exam.scout.user.id != exam_user_id:
-            messages.add_message(
-                request, messages.INFO, "Podany link do próby jest nieprawidłowy."
-            )
-            return redirect(reverse("frontpage"))
 
-    if exams == []:
+    exam = get_object_or_404(Exam, pk=exam_id)
+
+    if exam.scout.user.id != exam_user_id:
         messages.add_message(
             request, messages.INFO, "Podany link do próby jest nieprawidłowy."
         )
         return redirect(reverse("frontpage"))
 
-    exam = get_object_or_404(Exam, pk=exam_id)
     response = HttpResponse(
         HTML(string=render_to_string("exam/exam_pdf.html", {"exam": exam})).write_pdf(),
         content_type="application/pdf",
