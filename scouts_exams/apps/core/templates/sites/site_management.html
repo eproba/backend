@@ -110,6 +110,14 @@
                                                                                                      for="the_end"></label>
                     </td>
                 </tr>
+                {% if config.THE_END %}
+                    <tr>
+                        <td style="border: none">Zarządzanie użytkownikami</td>
+                        <td style="border: none"><a class="button is-outlined is-info"
+                                                    href="/admin/users/">Zarządzaj</a>
+                        </td>
+                    </tr>
+                {% endif %}
                 </tbody>
             </table>
         </div>

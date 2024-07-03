@@ -35,7 +35,11 @@ class TheEndMiddleware:
 
         path = request.path_info
 
-        if config.THE_END and path.removesuffix("/") not in EXCLUDED_END_PATHS:
+        if (
+            config.THE_END
+            and path.removesuffix("/") not in EXCLUDED_END_PATHS
+            and not path.startswith("/admin/users/")
+        ):
             if path.startswith("/api"):
                 return JsonResponse({"error": "The end"})
             if request.user.is_authenticated:
