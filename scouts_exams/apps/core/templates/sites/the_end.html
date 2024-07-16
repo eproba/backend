@@ -58,11 +58,6 @@
                     korzystanie z serwisu. <br>
                     W razie pytań prosimy o kontakt na adres
                     <a href="mailto:antoni.czaplicki@zhr.pl">antoni.czaplicki@zhr.pl</a>.
-                    {% if request.user.is_authenticated %}
-                        Podaj ID: {{ request.user.id }}
-                    {% else %}
-                        Podaj ID: ___
-                    {% endif %}
                 </p>
                 <!-- Custom messages for logged in users -->
                 {% for message in end_messages %}
@@ -74,10 +69,15 @@
                 {% if not request.user.is_authenticated %}
                     <div style="display: flex; justify-content: center; margin-top: 1rem;">
                         <a href="{% url 'login' %}"
-                           style="font-size: small; color: darkgray; text-decoration: underline">Zaloguj się aby
-                            zobaczyć swoje ID oraz pobrać próby</a>
+                           style="font-size: small; color: darkgray; text-decoration: underline">Zaloguj się pobrać swoje próby</a>
                     </div>
-                {% else %}
+                {% endif %}
+
+                <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 1rem; text-align: end;">
+                    <p>~ Czuwaj!<br>"Czapla"</p>
+                </div>
+            
+                {% if request.user.is_authenticated %}
                     <div style="display: flex; justify-content: center; margin-top: 1rem;">
                         <a href="{% url 'exam:export' %}" class="button is-link is-outlined">
                             <span class="icon">
@@ -87,10 +87,6 @@
                         </a>
                     </div>
                 {% endif %}
-
-                <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 1rem; text-align: end;">
-                    <p>~ Czuwaj!<br>"Czapla"</p>
-                </div>
 
             </div>
         </div>
