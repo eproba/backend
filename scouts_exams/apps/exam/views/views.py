@@ -65,7 +65,7 @@ def print_exam(request, hex):
         content_type="application/pdf",
     )
     response["Content-Disposition"] = (
-        f'inline; filename="{unidecode(str(exam))} (by epróba).pdf"'
+        f'inline; filename="{unidecode(str(exam))} (Epróba).pdf"'
     )
 
     return response

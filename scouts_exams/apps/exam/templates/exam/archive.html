@@ -73,7 +73,7 @@
                                 {% if exam.show_description_column %}
                                     <th></th>
                                 {% endif %}
-                                <th><span class="has-tooltip-arrow has-tooltip-right has-tooltip-primary"
+                                <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
                                           data-tooltip="Procent wykonanych zadań">{{ exam.percent }}</span></th>
                             </tr>
                             </tfoot>
@@ -92,19 +92,19 @@
                                     {% if task.status == 2 %}
                                         <td>
                                             <div id="status-icon_{{ task.id }}"><span
-                                                    class="has-tooltip-arrow has-tooltip-right"
+                                                    class="has-tooltip-arrow has-tooltip-left"
                                                     data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
                                                     class="far fa-check-circle"></i></span></div>
                                         </td>
                                     {% elif task.status == 1 %}
                                         <td>
                                             <div id="status-icon_{{ task.id }}"><span
-                                                    class="has-tooltip-arrow has-tooltip-right"
+                                                    class="has-tooltip-arrow has-tooltip-left"
                                                     data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
                                                     class="far fa-clock"></i></span></div>
                                         </td>
                                     {% elif task.status == 3 %}
-                                    <td><span class="has-tooltip-arrow has-tooltip-right"
+                                    <td><span class="has-tooltip-arrow has-tooltip-left"
                                         data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
                                         class="far fa-circle-xmark"></i></span></td>
                                     {% else %}

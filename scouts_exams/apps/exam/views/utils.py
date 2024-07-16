@@ -22,3 +22,8 @@ def prepare_exam(exam):
     exam.share_key = f"{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
 
     return exam
+
+
+def prepare_for_export(exam):
+    exam.share_key = f"{hex(exam.scout.user.id * 7312)}{hex(exam.id * 2137)}"
+    return exam

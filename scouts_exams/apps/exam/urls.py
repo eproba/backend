@@ -39,4 +39,6 @@ urlpatterns = [
         views.force_reject_task,
         name="force_reject_task",
     ),
+    path("export/", views.export, name="export"),
+    path("export/<str:hex>", views.export_exam, name="export_exam"),
 ]

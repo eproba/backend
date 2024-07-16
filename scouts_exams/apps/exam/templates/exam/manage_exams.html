@@ -239,7 +239,7 @@
                                         <i class="far fa-check-circle" style="color:green;"></i>
                                     </a>
                                 </span>
-                                <span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Odrzuć zadanie">
+                                <span class="has-tooltip-arrow has-tooltip-left has-tooltip-danger" data-tooltip="Odrzuć zadanie">
                                     <a onclick="updateTaskStatus('${exam.id}', '${task.id}', 3, 'Czy na pewno chcesz odrzucić to zadanie?')">
                                         <i class="far fa-times-circle" style="color:red;"></i>
                                     </a>
@@ -365,7 +365,7 @@
                 if (confirm(message)) {
                     const examElement = $("#exam_" + exam_id);
                     const statusIcon = $("#status-icon_" + task_id);
-                    statusIcon.html('<span class="has-tooltip-arrow has-tooltip-right" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
+                    statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
                     let url;
                     if (newStatus === 2) {
                         url = `/exam/${exam_id}/task/${task_id}/force/accept`
@@ -391,7 +391,7 @@
                     });
                     posting.fail(function () {
                         alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
-                        statusIcon.html('<span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
+                        statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
                     });
                 }
             } else {

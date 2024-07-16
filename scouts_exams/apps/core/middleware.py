@@ -39,6 +39,7 @@ class TheEndMiddleware:
             config.THE_END
             and path.removesuffix("/") not in EXCLUDED_END_PATHS
             and not path.startswith("/admin/users/")
+            and not path.startswith("/exam/export")
         ):
             if path.startswith("/api"):
                 return JsonResponse({"error": "The end"})

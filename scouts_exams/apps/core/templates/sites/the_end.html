@@ -75,7 +75,16 @@
                     <div style="display: flex; justify-content: center; margin-top: 1rem;">
                         <a href="{% url 'login' %}"
                            style="font-size: small; color: darkgray; text-decoration: underline">Zaloguj się aby
-                            zobaczyć swoje ID oraz wiadomości</a>
+                            zobaczyć swoje ID oraz pobrać próby</a>
+                    </div>
+                {% else %}
+                    <div style="display: flex; justify-content: center; margin-top: 1rem;">
+                        <a href="{% url 'exam:export' %}" class="button is-link is-outlined">
+                            <span class="icon">
+                                <i class="fas fa-download"></i>
+                            </span>
+                            <span>Pobierz swoje próby</span>
+                        </a>
                     </div>
                 {% endif %}
 
