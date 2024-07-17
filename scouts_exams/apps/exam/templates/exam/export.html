@@ -808,16 +808,17 @@
 
 
             try {
-                const content = await zip.generateAsync({type: 'blob'});
-                const zipName = `${zipBaseName || 'eksport'}_${new Date().toISOString().split('T')[0]} (Epróba).zip`;
+                if (!abortController.signal.aborted) {
+                   const content = await zip.generateAsync({type: 'blob'});
+                    const zipName = `${zipBaseName || 'eksport'}_${new Date().toISOString().split('T')[0]} (Epróba).zip`;
 
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
-                link.download = zipName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
+                   const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = zipName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
             } catch (error) {
                 console.error('There was a problem with the zip generation:', error);
                 document.getElementById('error_text').textContent = 'Wystąpił błąd podczas generowania pliku ZIP. Spróbuj ponownie później.';
