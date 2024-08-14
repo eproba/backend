@@ -1,4 +1,0 @@
-Sitemap: https://eproba.pl/sitemap.xml
-
-User-agent: *
-Disallow: /admin/

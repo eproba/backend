@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from scouts_exams.scouts_exams import __version__ as old_version_str
+from eproba.eproba import __version__ as old_version_str
 
 
 def update_version_strings(file_path, _new_version, version_regex):
@@ -41,7 +41,7 @@ new_version = {
 }
 
 update_version_strings(
-    "scouts_exams/scouts_exams/__init__.py",
+    "eproba/eproba/__init__.py",
     f"{new_version['year']}.{new_version['month']}.{new_version['day']}{'.' + str(new_version['patch']) if new_version['patch'] != 0 else ''}",
     r"(__version__ = \")(\d{4}\.\d{2}\.\d{2}(\.\d{1,2})?)",
 )

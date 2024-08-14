@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+{% block title %}Wysłane prośby o zatwierdzenie{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if tasks_list %}
+        <div class="box">
+            <h1 class="title">{{ exam }}</h1>
+            <h2 class="subtitle">Wysłane prośby o zatwierdzenie</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Lp.</th>
+                    <th>Zadanie</th>
+                    <th>Zatwierdzający</th>
+                    <th>Data wysłania</th>
+                    <th>Akcja</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for task in tasks_list %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ task.task }}</td>
+                        <td>{{ task.approver }}</td>
+                        <td>{{ task.approval_date }}</td>
+                        <td><span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger"
+                                  data-tooltip="Anuluj prośbę"><a
+                                onclick="confirm_unsubmit_task('{% url 'exam:unsubmit_task' exam.id task.id %}')"><i
+                                class="far fa-times-circle" style="color:red;"></i></a></span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="box">
+            <div class="content">
+                <h1 class="title">{{ exam }}</h1>
+                <h2 class="subtitle">Wysłane prośby o zatwierdzenie</h2>
+                <p>Nie masz wysłanych żadnych próśb o zatwierdzenie dla tej próby.</p>
+                <a href="{% url 'exam:exam' %}">
+                    <button class="button is-primary is-light">
+						<span class="icon">
+							<i class="fas fa-clipboard-list"></i>
+						</span>
+                        <span>Wróć do swoich prób</span>
+                    </button>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+    <script>
+        function confirm_unsubmit_task(url) {
+            var txt;
+            if (confirm("Czy na pewno chcesz anulować prośbę?")) {
+                location.replace(url);
+            }
+        }
+    </script>
+{% endblock %}

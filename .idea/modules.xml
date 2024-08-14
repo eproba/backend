@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/scouts_exams.iml" filepath="$PROJECT_DIR$/.idea/scouts_exams.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/eproba.iml" filepath="$PROJECT_DIR$/.idea/eproba.iml" />
     </modules>
   </component>
 </project>
