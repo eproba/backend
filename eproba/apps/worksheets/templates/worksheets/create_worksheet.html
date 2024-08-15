@@ -348,7 +348,7 @@
                 </div>
                 <div class="block">
                     <div class="container has-text-centered">
-                        <button type="submit" class="button is-outlined">
+                        <button type="submit" class="button is-outlined is-primary">
                             <span class="icon">
                                 <i class="fas fa-pen"></i>
                             </span>
@@ -358,6 +358,18 @@
                 </div>
             </form>
         </div>
+    <style>
+    .select {
+        width: 100%;
+    }
+
+    .select select {
+        width: 100%;
+    }
+    .add-form-row, .remove-form-row, button.draggable {
+        height: 100%;
+    }
+    </style>
     {% else %}
         <div class="box">
             Nie powinno cię tu być, zaloguj się i wtedy do nas zajrzyj.

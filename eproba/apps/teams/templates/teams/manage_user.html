@@ -389,7 +389,7 @@
                             <label class="label">Stopień harcerski</label>
                             <div class="control">
                                 <div class="select">
-                                    <select id="scout-rank-select" class="select is-colored"
+                                    <select id="scout-rank-select" class="select"
                                             onchange="if(this.value>=5) {$('#instructor-rank-field').show()} else {$('#instructor-rank-field').hide(); $('#instructor-rank-select').val(0)}">
                                         {% for rank in scout_ranks %}
                                             <option value="{{ rank.0 }}">{{ rank.1 }}</option>
@@ -402,7 +402,7 @@
                             <label class="label">Stopień instruktorski</label>
                             <div class="control">
                                 <div class="select">
-                                    <select id="instructor-rank-select" class="select is-colored">
+                                    <select id="instructor-rank-select" class="select">
                                         {% for rank in instructor_ranks %}
                                             <option value="{{ rank.0 }}">{{ rank.1 }}</option>
                                         {% endfor %}
@@ -433,7 +433,7 @@
                         <label class="label">Zastęp</label>
                         <div class="control">
                             <div class="select">
-                                <select id="patrol-select" class="select is-colored">
+                                <select id="patrol-select" class="select">
                                     {% for patrol in patrols|dictsort:'name' %}
                                         <option value="{{ patrol.id }}">{{ patrol.name }}</option>
                                     {% endfor %}
@@ -460,7 +460,7 @@
                         <label class="label">Funkcja</label>
                         <div class="control">
                             <div class="select">
-                                <select id="function-select" class="select is-colored">
+                                <select id="function-select" class="select">
                                     {% for function in functions %}
                                         <option value="{{ function.0 }}">{{ function.1 }}</option>
                                     {% endfor %}
@@ -488,7 +488,7 @@
                         <label class="label">Drużyna</label>
                         <div class="control">
                             <div class="select">
-                                <select id="transfer-user-team-select" class="select is-colored">
+                                <select id="transfer-user-team-select" class="select">
                                     {% for team in foreign_teams|dictsort:"name" %}
                                         <option value="{{ team.id }}">{{ team }}</option>
                                     {% endfor %}
@@ -500,7 +500,7 @@
                         <label class="label">Zastęp</label>
                         <div class="control">
                             <div class="select">
-                                <select id="transfer-user-patrol-select" class="select is-colored">
+                                <select id="transfer-user-patrol-select" class="select">
                                     {% for patrol in foreign_patrols|dictsort:"name" %}
                                         <option value="{{ patrol.id }}"
                                                 data-team-id="{{ patrol.team.id }}">{{ patrol }}</option>

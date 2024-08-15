@@ -44,7 +44,7 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <button class="button is-warning is-light" onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}&source=templates&template={{ worksheet.id }}'">
+                        <button class="button is-info" onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}&source=templates&template={{ worksheet.id }}'">
                             <span class="icon">
                                 <i class="fa-solid fa-object-group"></i>
                             </span>

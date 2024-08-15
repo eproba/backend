@@ -107,3 +107,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             if self.instructor_rank != 0
             else self.get_scout_rank_display()
         )
+
+    def rank_nickname(self):
+        return f"{self.rank()} {self.nickname}"

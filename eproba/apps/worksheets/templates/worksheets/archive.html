@@ -9,7 +9,7 @@
                     <div class="level-item">
                         <p class="control has-icons-left">
                             <label>
-                                <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
+                                <input class="input" placeholder="Szukaj prób" id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
                             </label>
                             <span class="icon is-small is-left">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -21,7 +21,7 @@
                     <div class="level-item">
                         <div class="select">
                             <label>
-                                <select name="patrol_select" id= "patrol_selector" class="select is-colored"
+                                <select name="patrol_select" id= "patrol_selector" class="select"
                                         onchange="filter_by_patrol(this.value)">
                                     <option value="all">Wszystkie zastępy</option>
                                     {% for patrol in patrols %}

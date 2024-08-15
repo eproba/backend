@@ -26,11 +26,11 @@ class SiteUserCreationForm(UserCreationForm):
             "last_name": "Nazwisko",
         }
         widgets = {
-            "nickname": TextInput(attrs={"class": "input is-colored"}),
-            "email": EmailInput(attrs={"class": "input is-colored"}),
-            "first_name": TextInput(attrs={"class": "input is-colored"}),
-            "last_name": TextInput(attrs={"class": "input is-colored"}),
-            "patrol": Select(attrs={"class": "select is-colored"}),
+            "nickname": TextInput(attrs={"class": "input"}),
+            "email": EmailInput(attrs={"class": "input"}),
+            "first_name": TextInput(attrs={"class": "input"}),
+            "last_name": TextInput(attrs={"class": "input"}),
+            "patrol": Select(attrs={"class": "select"}),
         }
 
 

@@ -101,13 +101,13 @@
 </div>
 <div class="buttons">
     {% if worksheet.show_submit_task_button %}
-    <button class="button is-success is-light" id="button-desktop" onclick="$('#request_task_check_modal_div_{{ worksheet.id }}').load('{% url 'worksheets:submit_task' worksheet.id %} #form'); document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.add('is-active');">
+    <button class="button is-success" id="button-desktop" onclick="$('#request_task_check_modal_div_{{ worksheet.id }}').load('{% url 'worksheets:submit_task' worksheet.id %} #form'); document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.add('is-active');">
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
     </span>
     <span>Wyślij prośbę o zatwierdzenie zadania</span>
     </button>
-    <button class="button is-success is-light" id="button-mobile" onclick="location.href='{% url 'worksheets:submit_task' worksheet.id %}'">
+    <button class="button is-success" id="button-mobile" onclick="location.href='{% url 'worksheets:submit_task' worksheet.id %}'">
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
     </span>
@@ -115,7 +115,7 @@
     </button>
     {%  endif %}
     {% if worksheet.show_sent_tasks_button %}
-    <button class="button is-primary is-light" onclick="location.href='{% url 'worksheets:sent_tasks' worksheet.id %}'">
+    <button class="button is-primary" onclick="location.href='{% url 'worksheets:sent_tasks' worksheet.id %}'">
     <span class="icon">
     <i class="fas fa-paper-plane"></i>
     </span>
@@ -125,13 +125,13 @@
     {% else %}
     <div class="buttons">
         {% endif %}
-        <button class="button is-warning is-light" onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'">
+        <button class="button is-warning" onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'">
         <span class="icon">
         <i class="fas fa-print"></i>
         </span>
         <span>Drukuj próbę</span>
         </button>
-        <button onclick="document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = ''; new QRCode(document.getElementById('qr_modal_div_{{ worksheet.id }}'), '{{ request.scheme }}://{{ request.get_host }}/worksheets/share/view/{{ worksheet.id }}'); $('#qr_modal_div_{{ worksheet.id }}').children('img').css({'margin': 'auto', 'padding': '10px', 'background': '#ffffff', 'border-radius': '10px'}); document.getElementById('qr_modal_{{ worksheet.id }}').classList.add('is-active');" class="button is-link is-light">
+        <button onclick="document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = ''; new QRCode(document.getElementById('qr_modal_div_{{ worksheet.id }}'), '{{ request.scheme }}://{{ request.get_host }}/worksheets/share/view/{{ worksheet.id }}'); $('#qr_modal_div_{{ worksheet.id }}').children('img').css({'margin': 'auto', 'padding': '10px', 'background': '#ffffff', 'border-radius': '10px'}); document.getElementById('qr_modal_{{ worksheet.id }}').classList.add('is-active');" class="button is-link">
         <span class="icon">
         <i class="fas fa-qrcode"></i>
         </span>
@@ -139,7 +139,7 @@
         </button>
         <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow" id="tooltip_text_{{ worksheet.id }}"
             data-tooltip="Naciśnij aby skopiować link">
-        <button onclick="copy_to_clipboard('tooltip_text_{{ worksheet.id }}', '{{ request.get_host }}{% url 'worksheets:view_shared_worksheets' worksheet.id %}')" class="button is-link is-light">
+        <button onclick="copy_to_clipboard('tooltip_text_{{ worksheet.id }}', '{{ request.get_host }}{% url 'worksheets:view_shared_worksheets' worksheet.id %}')" class="button is-link">
         <span class="icon">
         <i class="fas fa-share-alt"></i>
         </span>

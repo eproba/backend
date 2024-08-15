@@ -25,9 +25,9 @@ class UserChangeForm(auth.forms.UserChangeForm):
             "last_name": "Nazwisko",
         }
         widgets = {
-            "nickname": TextInput(attrs={"class": "input is-colored"}),
-            "first_name": TextInput(attrs={"class": "input is-colored"}),
-            "last_name": TextInput(attrs={"class": "input is-colored"}),
+            "nickname": TextInput(attrs={"class": "input"}),
+            "first_name": TextInput(attrs={"class": "input"}),
+            "last_name": TextInput(attrs={"class": "input"}),
         }
 
 
@@ -124,8 +124,8 @@ def set_password(request, user_id):
 
     else:
         password_form = SetPasswordForm(request.user)
-        password_form.fields["new_password1"].widget.attrs["class"] = "input is-colored"
-        password_form.fields["new_password2"].widget.attrs["class"] = "input is-colored"
+        password_form.fields["new_password1"].widget.attrs["class"] = "input"
+        password_form.fields["new_password2"].widget.attrs["class"] = "input"
 
     return render(
         request, "users/common.html", {"forms": [password_form], "info": "Utwórz hasło"}

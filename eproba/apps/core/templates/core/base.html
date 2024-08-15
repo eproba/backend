@@ -67,7 +67,7 @@
     <noscript>
         <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
     </noscript>
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
     <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
@@ -82,9 +82,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'images/icons/favicon.svg' %}" type="image/svg+xml">
     {% if config.ADS_WEB %}
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127294792989521" crossorigin="anonymous"></script>
+        <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127294792989521"
+                crossorigin="anonymous"></script>
     {% else %}
-    <!--ADS are disabled-->
+        <!--ADS are disabled-->
     {% endif %}
     {% block headcontent %}
     {% endblock %}

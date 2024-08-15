@@ -8,7 +8,7 @@
                 <div class="level-item">
                     <p class="control has-icons-left">
                         <label>
-                            <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
+                            <input class="input" placeholder="Szukaj prób" id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
                         </label>
                         <span class="icon is-small is-left">
                             <i class="fa-solid fa-magnifying-glass"></i>
@@ -20,7 +20,7 @@
                 <div class="level-item">
                     <div class="select">
                         <label>
-                            <select name="patrol_select" id="patrol_selector" class="select is-colored" onchange="filter_by_patrol(this.value)">
+                            <select name="patrol_select" id="patrol_selector" class="select" onchange="filter_by_patrol(this.value)">
                                 <option value="all">Wszystkie zastępy</option>
                                 {% for patrol in patrols %}
                                     <option value={{ patrol.id }}>{{ patrol.name }}</option>
@@ -44,7 +44,7 @@
         <script>
             async function fetchWorksheets() {
                 try {
-                    const response = await fetch('/api/worksheet/');
+                    const response = await fetch('/api/worksheets/');
                     return await response.json();
                 } catch (error) {
                     console.log('Error fetching worksheets:', error);
@@ -157,7 +157,7 @@
                                 </span>
                             </span>
                             <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}_print" data-tooltip="Drukuj próbę">
-                                <span onclick="location.href='/worksheet/print/${worksheet.id}'">
+                                <span onclick="location.href='/worksheets/print/${worksheet.id}'">
                                     <i class="fas fa-print"></i>
                                 </span>
                             </span>
@@ -174,7 +174,7 @@
                             </span>
                             {% endif %}
                             <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Edytuj próbę">
-                                <span onclick="location.href='/worksheet/edit/${worksheet.id}'">
+                                <span onclick="location.href='/worksheets/edit/${worksheet.id}'">
                                     <i class="fas fa-edit"></i>
                                 </span>
                             </span>
@@ -360,9 +360,9 @@
                     statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
                     let url;
                     if (newStatus === 2) {
-                        url = `/worksheet/${worksheet_id}/task/${task_id}/force/accept`
+                        url = `/worksheets/${worksheet_id}/task/${task_id}/force/accept`
                     } else if (newStatus === 3) {
-                        url = `/worksheet/${worksheet_id}/task/${task_id}/force/reject`
+                        url = `/worksheets/${worksheet_id}/task/${task_id}/force/reject`
                     }
                     const posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
                     posting.done(function () {

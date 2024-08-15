@@ -13,11 +13,6 @@ class WorksheetCreateForm(ModelForm):
         labels = {
             "name": "Nazwa próby",
         }
-        widgets = {
-            "name": TextInput(
-                attrs={"class": "input textInput form-control is-colored"}
-            ),
-        }
 
 
 class ExtendedWorksheetCreateForm(ModelForm):
@@ -37,12 +32,6 @@ class ExtendedWorksheetCreateForm(ModelForm):
             "user": "Dla kogo chcesz stworzyć próbę?",
             "name": "Nazwa próby",
         }
-        widgets = {
-            "user": Select(attrs={"class": "select form-control is-colored"}),
-            "name": TextInput(
-                attrs={"class": "input textInput form-control is-colored"}
-            ),
-        }
 
 
 class TaskForm(ModelForm):
@@ -53,7 +42,7 @@ class TaskForm(ModelForm):
             "task": "Zadanie",
         }
         widgets = {
-            "task": TextInput(attrs={"class": "input is-colored"}),
+            "task": TextInput(attrs={"class": "input"}),
         }
 
 
@@ -74,7 +63,7 @@ class SubmitTaskForm(ModelForm):
         self.fields["task"].queryset = (
             Task.objects.filter(worksheet=worksheet).exclude(status=1).exclude(status=2)
         )
-        self.fields["task"].widget.attrs["class"] = "select form-control is-colored"
+        self.fields["task"].widget.attrs["class"] = "select form-control"
 
     task = forms.ModelChoiceField(queryset=None, label="Wybierz zadanie do przesłania")
 
@@ -88,7 +77,7 @@ class SubmitTaskForm(ModelForm):
         widgets = {
             "approver": Select(
                 attrs={
-                    "class": "select form-control is-colored",
+                    "class": "select form-control",
                     "required": "required",
                 }
             ),

@@ -1,3 +1,43 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+        --bulma-scheme-main: #06090f;
+        --logo-color: #FFFFFF;
+        --bulma-link-text: #1abc9c;
+    }
+
+    .navbar {
+        --bulma-navbar-background-color: #161b22;
+        --bulma-navbar-dropdown-background-color: #161b22;
+        --bulma-navbar-dropdown-arrow: var(--bulma-navbar-item-color);
+    }
+
+    .box {
+        --bulma-box-background-color: #0d1117;
+        --bulma-box-shadow: none;
+    }
+
+    @media screen and (min-width: 1024px) {
+        .navbar-dropdown a.navbar-item:not(.is-active,.is-selected) {
+            background-color: #161b22;
+        }
+    }
+
+    .input, .select select, .textarea {
+        background-color: #161B22;
+    }
+
+    .table {
+        --bulma-table-background-color: transparent;
+    }
+
+}
+
+.navbar {
+    border-radius: .4em;
+}
+
+
 @media (min-width: 600px) {
     #container {
         padding-top: 20px;
@@ -132,10 +172,4 @@ body {
     border-radius: 0.25rem;
     -moz-appearance: none;
     appearance: none;
-}
-
-@media (prefers-color-scheme: dark) {
-    input.is-colored.has-colored-placeholder::placeholder {
-        color: #a2aeb0 !important;
-    }
 }

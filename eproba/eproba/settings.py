@@ -26,8 +26,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
 
-# Crispy forms settings (https://django-crispy-forms.readthedocs.io/en/latest/)
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
+
+CRISPY_TEMPLATE_PACK = "bulma"
 
 
 # Firebase
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
+    "crispy_bulma",
     "crispy_bootstrap5",
     "fcm_django",
     "oauth2_provider",

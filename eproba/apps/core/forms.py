@@ -4,17 +4,17 @@ from django.forms import EmailInput, Textarea, TextInput
 
 class ContactForm(forms.Form):
     from_email = forms.EmailField(
-        widget=EmailInput(attrs={"class": "input is-colored"}),
+        widget=EmailInput(),
         required=True,
         label="Twój email",
     )
     subject = forms.CharField(
-        widget=TextInput(attrs={"class": "input is-colored"}),
+        widget=TextInput(),
         required=True,
         label="Temat",
     )
     message = forms.CharField(
-        widget=Textarea(attrs={"class": "input is-colored"}),
+        widget=Textarea(),
         required=True,
         label="Wiadomość",
     )
@@ -22,17 +22,17 @@ class ContactForm(forms.Form):
 
 class IssueContactForm(forms.Form):
     from_email = forms.EmailField(
-        widget=EmailInput(attrs={"class": "input is-colored"}),
+        widget=EmailInput(),
         required=True,
         label="Twój email",
     )
     subject = forms.CharField(
-        widget=TextInput(attrs={"class": "input is-colored"}),
+        widget=TextInput(),
         required=True,
         label="Opisz problem w jednym zdaniu",
     )
     message = forms.CharField(
-        widget=Textarea(attrs={"class": "input is-colored"}),
+        widget=Textarea(),
         required=True,
         label="Opisz dokłądnie swój problem wraz z opisem jak na niego trafiłeś",
     )

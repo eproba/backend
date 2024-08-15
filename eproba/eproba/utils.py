@@ -342,5 +342,5 @@ class WorksheetViewSet(ModelViewSet):
 
 @receiver(config_updated)
 def constance_updated(sender, key, old_value, new_value, **kwargs):
-    if key == "WEB_MAINTENANCE_MODE":
+    if key == "WEB_MAINTENANCE_MODE" and old_value != new_value:
         set_maintenance_mode(new_value)

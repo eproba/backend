@@ -6,9 +6,9 @@
                              onclick="history.back()"></i> {{ patrol }}</h1>
         <h1 class="subtitle">{{ patrol.short_name }}</h1>
         <table class="table">
-            {% for users in users.all|dictsort:'nickname' %}
+            {% for user in users.all|dictsort:'nickname' %}
                 <tr>
-                    <td><a href="{% url 'teams:manage_user' user.id %}">{{ user }}</a></td>
+                    <td><a href="{% url 'teams:manage_user' user.id %}">{{ user.rank_nickname }}</a></td>
                 </tr>
             {% endfor %}
         </table>

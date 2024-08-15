@@ -25,7 +25,6 @@
     <orderEntry type="library" name="jquery-3.6.0" level="application" />
     <orderEntry type="library" name="UAParser.js" level="application" />
     <orderEntry type="library" name="885b512168b0f9e771984917f48c7251" level="application" />
-    <orderEntry type="library" name="bootstrap" level="application" />
     <orderEntry type="library" name="qrcode" level="application" />
     <orderEntry type="library" name="js-cookie" level="application" />
     <orderEntry type="library" name="a00f1140b1" level="application" />
@@ -42,10 +41,10 @@
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/../eproba/eproba/apps/core/templates" />
-        <option value="$MODULE_DIR$/../eproba/eproba/apps/blog/templates" />
-        <option value="$MODULE_DIR$/../eproba/eproba/apps/users/templates" />
-        <option value="$MODULE_DIR$/../eproba/eproba/apps/exam/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/core/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/blog/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/users/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/exam/templates" />
       </list>
     </option>
   </component>
