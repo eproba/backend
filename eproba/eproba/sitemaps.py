@@ -8,7 +8,7 @@ class Sitemap(Sitemap):
             "about",
             "frontpage",
             "contact",
-            "exam:exam",
+            "worksheets:worksheets",
             "login",
             "signup",
             "blog:news",

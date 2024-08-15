@@ -268,9 +268,7 @@ label.toggle-item:before {
     </div>
     <form method="post">
         {% csrf_token %}
-        {% for form in forms %}
-            {{ form|crispy }}
-        {% endfor %}
+        {{ form|crispy }}
         <div class="toggle-wrapper">
           <div class="toggle dog-rollover">
             <input id="doggo" type="checkbox" required/>

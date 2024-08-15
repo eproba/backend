@@ -98,29 +98,6 @@
             <input type="number" pattern="[0-9]*" inputmode="numeric" class="input is-colored" style="width: unset"
                    id="min_app_version" name="min_app_version" value="{{ config.MINIMUM_APP_VERSION }}">
         </div>
-        <div class="box">
-            <h1 class="subtitle">The end</h1>
-            <p class="subtitle is-6">Zaznacz żeby całkowicie wyłączyć dostęp do serwisu</p>
-            <table class="table">
-                <tbody>
-                <tr>
-                    <td style="border: none">Wszystko</td>
-                    <td style="border: none"><input type="checkbox" id="the_end" name="the_end"
-                                                    {% if config.THE_END %}checked{% endif %}><label class="toggle"
-                                                                                                     for="the_end"></label>
-                    </td>
-                </tr>
-                {% if config.THE_END %}
-                    <tr>
-                        <td style="border: none">Zarządzanie użytkownikami</td>
-                        <td style="border: none"><a class="button is-outlined is-info"
-                                                    href="/admin/users/">Zarządzaj</a>
-                        </td>
-                    </tr>
-                {% endif %}
-                </tbody>
-            </table>
-        </div>
 
         <div class="level">
             <div class="level-item">

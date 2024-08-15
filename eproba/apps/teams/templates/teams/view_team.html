@@ -18,7 +18,7 @@
     {% for team in teams %}
         <div class="box">
             <h1 class="title">
-                {% if request.user.scout.function >= 4 %}
+                {% if request.user.function >= 4 %}
                     <div id="team-name-{{ team.id }}" class="is-inline" contentEditable="true">{{ team }}</div>
                     <div id="team-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
                          onclick="$('#team-name-{{ team.id }}').focus()"><i class="fa-solid fa-pen fa-xs"></i></div>
@@ -36,7 +36,7 @@
                 {% endif %}
             </h1>
             <h1 class="subtitle">
-                {% if request.user.scout.function >= 4 %}
+                {% if request.user.function >= 4 %}
                     <div id="team-short-name-{{ team.id }}" class="is-inline"
                          contentEditable="true">{{ team.short_name }}</div>
                     <div id="team-short-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
@@ -95,7 +95,7 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-success"
-                            onclick="createPatrol($('#create-patrol-input-{{ team.id }}').val(), {{ team.id }}); $('#create-patrol-input-{{ team.id }}').val('')">
+                            onclick="createPatrol($('#create-patrol-input-{{ team.id }}').val(), '{{ team.id }}'); $('#create-patrol-input-{{ team.id }}').val('')">
                         Utwórz
                     </button>
                     <button class="button">Anuluj</button>
@@ -208,7 +208,7 @@
             }
 
             function createPatrol(patrolName, teamId) {
-                if (patrolName === "" || patrolName === " ") {
+                if (patrolName.trim() === "") {
                     alert("Nazwa zastępu nie może być pusta");
                     return;
                 }

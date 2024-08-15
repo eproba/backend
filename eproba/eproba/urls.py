@@ -56,7 +56,6 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     AppConfigView,
-    ExamViewSet,
     PatrolViewSet,
     SubmitTask,
     TaskDetails,
@@ -65,6 +64,7 @@ from .utils import (
     UnsubmitTask,
     UserInfo,
     UserViewSet,
+    WorksheetViewSet,
 )
 
 handler404 = "apps.core.views.handler404"
@@ -73,7 +73,7 @@ handler500 = "apps.core.views.handler500"
 # Routers provide a way of automatically determining the URL conf.
 api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
-api.register(r"exam", ExamViewSet, "api-exam")
+api.register(r"worksheets", WorksheetViewSet, "api-worksheets")
 api.register(r"users", UserViewSet, "api-users")
 api.register(r"teams", TeamViewSet, "api-teams")
 api.register(r"patrols", PatrolViewSet, "api-patrols")
@@ -114,19 +114,24 @@ urlpatterns = [
     path("api/app_config/", AppConfigView.as_view()),
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path(
-        "api/exam/<int:exam_id>/task/<int:id>/",
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",
         TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
-    path("api/exam/tasks/tbc/", TasksToBeChecked.as_view()),
-    path("api/exam/<int:exam_id>/task/<int:id>/submit", SubmitTask.as_view()),
-    path("api/exam/<int:exam_id>/task/<int:id>/unsubmit", UnsubmitTask.as_view()),
+    path("api/worksheets/tasks/tbc/", TasksToBeChecked.as_view()),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/submit", SubmitTask.as_view()
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/unsubmit",
+        UnsubmitTask.as_view(),
+    ),
     path("contact/", contactView, name="contact"),
     path("contact/issue", IssueContactView, name="issue_contact"),
-    path("exam/", include("apps.exam.urls")),
+    path("worksheets/", include("apps.worksheets.urls")),
     path("login/", LoginView.as_view(template_name="users/login.html"), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     # path("lh/", login_hub),
-    # path("_login/<int:user_id>/", login_from_hub),
+    # path("_login/<uuid:user_id>/", login_from_hub),
     path("news/", include("apps.blog.urls")),
     path(
         "password-reset/",
@@ -146,13 +151,13 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     path("password-reset-done/", password_reset_done, name="password_reset_done"),
-    path("profile/edit/<int:user_id>", edit_profile, name="edit_profile"),
+    path("profile/edit/<uuid:user_id>", edit_profile, name="edit_profile"),
     path(
-        "profile/edit/<int:user_id>/password", change_password, name="change_password"
+        "profile/edit/<uuid:user_id>/password", change_password, name="change_password"
     ),
-    path("profile/set/<int:user_id>/password", set_password, name="set_password"),
+    path("profile/set/<uuid:user_id>/password", set_password, name="set_password"),
     path("profile/view/", view_profile, name="view_profile", kwargs={"user_id": None}),
-    path("profile/view/<int:user_id>", view_profile, name="view_profile"),
+    path("profile/view/<uuid:user_id>", view_profile, name="view_profile"),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
@@ -183,7 +188,7 @@ urlpatterns = [
         RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
     ),
     path(
-        "duplicated-accounts/<int:user_id_1>/<int:user_id_2>",
+        "duplicated-accounts/<uuid:user_id_1>/<uuid:user_id_2>",
         duplicated_accounts,
         name="duplicated_accounts",
     ),

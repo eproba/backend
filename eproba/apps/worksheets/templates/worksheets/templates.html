@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% block title %}Szablony{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if request.user.is_authenticated %}
+        {% if worksheets_list %}
+            {% for worksheet in worksheets_list %}
+                <div class="block worksheet" id="worksheet_{{ worksheet.id }}">
+                    <div class="box">
+                        <span class="title">{{ worksheet.name }} </span>
+                        <p><br/></p>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="is-narrow">Lp.</th>
+                                <th>Zadanie</th>
+                                {% if worksheet.show_description_column %}
+                                    <th>Opis</th>
+                                {% endif %}
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                {% if worksheet.show_description_column %}
+                                    <th></th>
+                                {% endif %}
+                            </tr>
+                            </tfoot>
+                            <tbody>
+                            {% for task in worksheet.tasks.all %}
+                                <tr>
+                                    <th>{{ forloop.counter }}</th>
+                                    <td>{{ task.task }}</td>
+                                    {% if worksheet.show_description_column %}
+                                        {% if task.description != "" %}
+                                            <td>{{ task.description }}</td>
+                                        {% else %}
+                                            <td></td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <button class="button is-warning is-light" onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}&source=templates&template={{ worksheet.id }}'">
+                            <span class="icon">
+                                <i class="fa-solid fa-object-group"></i>
+                            </span>
+                            <span>Użyj szablonu</span>
+                        </button>
+                        <a href="{% url 'worksheets:print_worksheet' worksheet.id %}">Print</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="box">
+                W systemie nie ma jeszcze żadnych szablonów.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="box">
+            Aby użyć szablonów musisz się najpierw zalogować.
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,41 +1,42 @@
-from apps.users.models import EndMessage, Scout, User
-from apps.users.views import UserCreationForm
+from apps.users.models import User
 from django.contrib import admin
-from django.contrib.admin import RelatedFieldListFilter
 from django.contrib.auth.admin import UserAdmin
-from django.forms import ChoiceField, ModelForm, Select
 
 
 class CustomUserAdmin(UserAdmin):
-    add_form = UserCreationForm
     model = User
     list_display = (
         "email",
         "nickname",
         "is_superuser",
+        "is_staff",
         "is_active",
         "first_name",
         "last_name",
+        "patrol",
     )
     list_filter = (
         "is_staff",
         "is_superuser",
         "is_active",
     )
-    fieldsets = (
-        (
-            None,
-            {"fields": ("email", "password", "nickname", "first_name", "last_name")},
-        ),
-    )
-    super_fieldsets = (
+    normal_fieldsets = (
         (
             None,
             {"fields": ("email", "password", "nickname", "first_name", "last_name")},
         ),
         (
-            "Permissions",
-            {"fields": ("is_staff", "is_active", "is_superuser", "user_permissions")},
+            "Scout",
+            {
+                "fields": (
+                    "patrol",
+                    (
+                        "scout_rank",
+                        "instructor_rank",
+                        "function",
+                    ),
+                )
+            },
         ),
     )
     add_fieldsets = (
@@ -45,118 +46,53 @@ class CustomUserAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "email",
+                    "nickname",
+                    "first_name",
+                    "last_name",
                     "password1",
                     "password2",
                     "is_active",
                 ),
             },
         ),
+        (
+            "Scout",
+            {
+                "fields": (
+                    "patrol",
+                    (
+                        "scout_rank",
+                        "instructor_rank",
+                        "function",
+                    ),
+                )
+            },
+        ),
     )
-    search_fields = ("email",)
+    super_fieldsets = (
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_staff",
+                    "is_active",
+                    "is_superuser",
+                    "user_permissions",
+                    "groups",
+                )
+            },
+        ),
+    )
+    search_fields = ("email", "nickname", "first_name", "last_name")
     ordering = ("email",)
 
-    def get_form(self, request, obj=None, **kwargs):
+    def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
-            self.fieldsets = self.super_fieldsets
+            self.fieldsets = self.normal_fieldsets + self.super_fieldsets
+        else:
+            self.fieldsets = self.normal_fieldsets
 
-        return super(CustomUserAdmin, self).get_form(request, obj, **kwargs)
-
-    def get_queryset(self, request):
-        qs = super(CustomUserAdmin, self).get_queryset(request)
-        return (
-            qs
-            if request.user.is_superuser
-            else qs.filter(scout__patrol__team=request.user.scout.patrol.team)
-        )
+        return super(CustomUserAdmin, self).get_fieldsets(request, obj)
 
 
 admin.site.register(User, CustomUserAdmin)
-
-FUNCTION_CHOICES = [
-    (0, "Druh"),
-    (1, "Podzastępowy"),
-    (2, "Zastępowy"),
-    (3, "Przyboczny"),
-    (4, "Drużynowy"),
-]
-
-
-class ScoutAdminForm(ModelForm):
-    class Meta:
-        model = Scout
-        fields = "__all__"
-        widgets = {
-            "user": Select(attrs={"style": "pointer-events: none;"}),
-        }
-
-    function = ChoiceField(choices=FUNCTION_CHOICES)
-
-
-@admin.register(Scout)
-class ScoutAdmin(admin.ModelAdmin):
-    fields = (
-        "user",
-        "patrol",
-        (
-            "scout_rank",
-            "instructor_rank",
-            "function",
-        ),
-    )
-    list_display = (
-        "user",
-        "user_nickname",
-        "team_short_name",
-        "patrol",
-        "rank",
-        "function",
-    )
-
-    def get_list_filter(self, request):
-        if request.user.is_superuser:
-            return "patrol__team", "patrol", "function", "scout_rank", "instructor_rank"
-        return ("patrol", PatrolFilter), "scout_rank", "instructor_rank", "function"
-
-    def lookup_allowed(self, lookup, value):
-        if lookup in ("patrol__team__id__exact", "patrol__team__isnull"):
-            return True
-        return super(ScoutAdmin, self).lookup_allowed(lookup, value)
-
-    def user_nickname(self, obj):
-        return obj.user.nickname
-
-    def get_queryset(self, request):
-        qs = super(ScoutAdmin, self).get_queryset(request)
-        return (
-            qs
-            if request.user.is_superuser
-            else qs.filter(patrol__team=request.user.scout.patrol.team)
-        )
-
-    def get_form(self, request, obj=None, **kwargs):
-        if not request.user.is_superuser:
-            self.form = ScoutAdminForm
-
-        return super(ScoutAdmin, self).get_form(request, obj, **kwargs)
-
-    def save_model(self, request, obj, form, change):
-        if obj.user.is_superuser:
-            obj.user.is_staff = True
-        elif not obj.user.is_superuser:
-            obj.user.is_staff = False
-
-        obj.user.save()
-        obj.save()
-
-
-class PatrolFilter(RelatedFieldListFilter):
-    def field_choices(self, field, request, model_admin):
-        return field.get_choices(
-            include_blank=False,
-            limit_choices_to={
-                "pk__in": request.user.scout.patrol.team.patrol_set.all()
-            },
-        )
-
-
-admin.site.register(EndMessage)

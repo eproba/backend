@@ -1,15 +1,13 @@
 from allauth.socialaccount import signals as social_signals
 from allauth.socialaccount.models import SocialAccount
-from apps.teams.models import Patrol
-from apps.users.models import Scout, User
-from django import forms
+from apps.users.models import User
 from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.views import redirect_to_login
 from django.db import transaction
-from django.forms import Select, TextInput
+from django.forms import TextInput
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
 
@@ -33,29 +31,6 @@ class UserChangeForm(auth.forms.UserChangeForm):
         }
 
 
-class ScoutChangeForm(forms.ModelForm):
-    def __init__(self, request, *args, **kwargs):
-        super(ScoutChangeForm, self).__init__(*args, **kwargs)
-        if request.user.scout.patrol:
-            self.fields["patrol"].queryset = Patrol.objects.filter(
-                team=request.user.scout.patrol.team
-            )
-        else:
-            self.fields["patrol"].queryset = Patrol.objects
-        self.fields["patrol"].required = True
-
-    class Meta:
-        model = Scout
-        fields = ["patrol"]
-
-        labels = {
-            "patrol": "Zastęp",
-        }
-        widgets = {
-            "patrol": Select(attrs={"class": "is-colored"}),
-        }
-
-
 def view_profile(request, user_id):
     user = request.user if user_id is None else get_object_or_404(User, id=user_id)
     if user_id is None and not request.user.is_authenticated:
@@ -76,22 +51,19 @@ def edit_profile(request, user_id):
 
     if request.method == "POST":
         user_form = UserChangeForm(request.POST, instance=user)
-        scout_form = ScoutChangeForm(request, request.POST, instance=user.scout)
 
-        if user_form.is_valid() and scout_form.is_valid():
+        if user_form.is_valid():
             user = user_form.save()
-            user.scout.patrol = scout_form.cleaned_data.get("patrol")
             user.save()
             return redirect(reverse("view_profile", kwargs={"user_id": user_id}))
 
     else:
         user_form = UserChangeForm(instance=user)
-        scout_form = ScoutChangeForm(request=request, instance=user.scout)
 
     return render(
         request,
         "users/common.html",
-        {"forms": [user_form, scout_form], "info": "Edytuj profil"},
+        {"forms": [user_form], "info": "Edytuj profil"},
     )
 
 
@@ -105,11 +77,9 @@ def finish_signup(request):
 
     if request.method == "POST":
         user_form = UserChangeForm(request.POST, instance=user)
-        scout_form = ScoutChangeForm(request, request.POST, instance=user.scout)
 
-        if user_form.is_valid() and scout_form.is_valid():
+        if user_form.is_valid():
             user = user_form.save()
-            user.scout.patrol = scout_form.cleaned_data.get("patrol")
             user.save()
             return redirect(
                 reverse("frontpage")
@@ -119,18 +89,17 @@ def finish_signup(request):
 
     else:
         user_form = UserChangeForm(instance=user)
-        scout_form = ScoutChangeForm(request=request, instance=user.scout)
 
     return render(
         request,
         "users/common.html",
-        {"forms": [user_form, scout_form], "info": "Dokończ konfigurowanie profilu"},
+        {"forms": [user_form], "info": "Dokończ konfigurowanie profilu"},
     )
 
 
 @login_required
 def check_signup_complete(request):
-    if not request.user.scout.patrol or not request.user.nickname:
+    if not request.user.patrol or not request.user.nickname:
         return redirect(reverse("finish_signup") + f"?next={request.GET.get('next')}")
     return redirect(request.GET.get("next", reverse("frontpage")))
 

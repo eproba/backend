@@ -15,10 +15,13 @@ SECRET_KEY = "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
 DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
 
 
-SITE_ID = 4
 ALLOWED_HOSTS = ["*"]
 ROOT_URLCONF = "eproba.urls"
-CSRF_TRUSTED_ORIGINS = ["https://eproba.zhr.pl"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://eproba.zhr.pl",
+    "http://localhost:8000",
+    "http://130.162.49.113",
+]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
@@ -45,7 +48,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
-    "django.contrib.sites",
     "rest_framework",
     "allauth",
     "allauth.account",
@@ -54,7 +56,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.facebook",
     "apps.blog.apps.BlogConfig",
     "apps.core.apps.CoreConfig",
-    "apps.exam.apps.ExamConfig",
+    "apps.worksheets.apps.WorksheetConfig",
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
@@ -76,7 +78,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "apps.core.middleware.TheEndMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
     "allauth.account.middleware.AccountMiddleware",
 ]
@@ -98,7 +99,7 @@ REST_FRAMEWORK = {
 
 # Accounts and authentication
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "exam:exam"
+LOGIN_REDIRECT_URL = "worksheets:worksheets"
 LOGOUT_REDIRECT_URL = "frontpage"
 AUTH_USER_MODEL = "users.User"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -168,7 +169,6 @@ CONSTANCE_CONFIG = {
     "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
     "API_MAINTENANCE_MODE": (False, "API maintenance"),
     "MINIMUM_APP_VERSION": (20230100, "Minimum app version"),
-    "THE_END": (False, "The end"),
 }
 
 MAINTENANCE_MODE_TEMPLATE = "errors/503.html"

@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% block title %}Prośby o zatwierdzenie{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if request.user.is_authenticated %}
+        {% if worksheets_list %}
+            {% for worksheet in worksheets_list %}
+                {% if worksheet.task_list %}
+                    <div class="box">
+                        <h1 class="title">{{ worksheet }}</h1>
+                        {% if worksheet.supervisor %}
+                            <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a></h2>
+                        {% endif %}
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="is-narrow">Lp.</th>
+                                <th>Zadanie</th>
+                                <th>Data wysłania</th>
+                                <th>Akcja</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for task in worksheet.task_list %}
+                                <tr>
+                                    <th>{{ forloop.counter }}</th>
+                                    <td>{{ task.task }}</td>
+                                    <td>{{ task.approval_date }}</td>
+                                    <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-success "
+                                              data-tooltip="Zaakceptuj prośbę"><a
+                                            onclick="confirm_popup('{% url 'worksheets:accept_task' worksheet.id task.id %}', 'Czy na pewno chcesz zaliczyć zadanie?')"><i
+                                            class="far fa-check-circle" style="color:green;"></i></a></span> <span
+                                            class="has-tooltip-arrow has-tooltip-right has-tooltip-danger"
+                                            data-tooltip="Odrzuć prośbę"><a
+                                            onclick="confirm_popup('{% url 'worksheets:reject_task' worksheet.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i
+                                            class="far fa-times-circle" style="color:red;"></i></a></span></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="box">
+                        Nie masz żadnych prób do sprawdzenia.
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="box">
+                Nie masz żadnych prób do sprawdzenia.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="box">
+            Aby wyświetlić swoje próby musisz się najpierw zalogować.
+        </div>
+    {% endif %}
+{% endblock %}

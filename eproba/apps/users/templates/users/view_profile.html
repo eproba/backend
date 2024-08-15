@@ -40,7 +40,15 @@
                 <td>Stopień</td>
                 <td>
                     <p>
-                        {{ user.scout.rank }}
+                        {{ user.rank }}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Okręg</td>
+                <td>
+                    <p>
+                        {{ user.patrol.team.district }}
                     </p>
                 </td>
             </tr>
@@ -48,9 +56,9 @@
                 <td>Drużyna</td>
                 <td>
                     <p>
-                        {{ user.scout.patrol.team }}
-                        {% if user.scout.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
-                        {% if user.scout.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
+                        {{ user.patrol.team }}
+                        {% if user.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
+                        {% if user.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
                     </p>
                 </td>
             </tr>
@@ -58,9 +66,9 @@
                 <td>Zastęp</td>
                 <td>
                     <p>
-                        {{ user.scout.patrol }}
-                        {% if user.scout.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
-                        {% if user.scout.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
+                        {{ user.patrol }}
+                        {% if user.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
+                        {% if user.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
                     </p>
                 </td>
             </tr>

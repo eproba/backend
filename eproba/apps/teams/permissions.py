@@ -7,10 +7,10 @@ class IsAllowedToManageTeamOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.scout.function >= 4
-            and request.user.scout.patrol
-            and request.user.scout.patrol.team == team
-        ) or request.user.scout.function >= 5
+            request.user.function >= 4
+            and request.user.patrol
+            and request.user.patrol.team == team
+        ) or request.user.function >= 5
 
 
 class IsAllowedToManagePatrolOrReadOnly(permissions.BasePermission):
@@ -19,7 +19,7 @@ class IsAllowedToManagePatrolOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.scout.function >= 3
-            and request.user.scout.patrol
-            and request.user.scout.patrol.team == patrol.team
-        ) or request.user.scout.function >= 5
+            request.user.function >= 3
+            and request.user.patrol
+            and request.user.patrol.team == patrol.team
+        ) or request.user.function >= 5

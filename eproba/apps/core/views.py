@@ -33,7 +33,7 @@ class FrontPageView(generic.ListView):
             )
 
         return Post.objects.filter(
-            status=1, minimum_function__lte=self.request.user.scout.function
+            status=1, minimum_function__lte=self.request.user.function
         ).order_by("-created_on")
 
 
@@ -103,7 +103,6 @@ def site_management(request):
         config.WEB_MAINTENANCE_MODE = bool(request.POST.get("maintenance_web", False))
         config.API_MAINTENANCE_MODE = bool(request.POST.get("maintenance_api", False))
         config.MINIMUM_APP_VERSION = request.POST.get("min_app_version", "0")
-        config.THE_END = bool(request.POST.get("the_end", False))
         print(request.POST)
         return redirect(reverse("site_management"))
     return render(request, "sites/site_management.html", {"config": config})

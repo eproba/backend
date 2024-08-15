@@ -78,7 +78,7 @@
                     url: '{% url 'api-users-list' %}{{ user.id }}/',
                     type: 'PATCH',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'scout': {'patrol': targetPatrolId, 'function': 0}}),
+                    data: JSON.stringify({'patrol': targetPatrolId, 'function': 0}),
                     contentType: "application/json",
                     dataType: "json",
                     success: function () {
@@ -100,11 +100,11 @@
                     url: '{% url 'api-users-list' %}{{ user.id }}/',
                     type: 'PATCH',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'scout': {'patrol': targetPatrolId}}),
+                    data: JSON.stringify({'patrol': targetPatrolId}),
                     contentType: "application/json",
                     dataType: "json",
                     success: function (data) {
-                        $('#patrol').html(`${data.scout.patrol_name} <i class="fa-solid fa-pen fa-xs"></i></p>`);
+                        $('#patrol').html(`${data.patrol_name} <i class="fa-solid fa-pen fa-xs"></i></p>`);
                         alert('Użytkownik został przeniesiony do innego zastępu');
                     },
                     error: function (data) {
@@ -122,11 +122,11 @@
                     url: '{% url 'api-users-list' %}{{ user.id }}/',
                     type: 'PATCH',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'scout': {'function': newFunction}}),
+                    data: JSON.stringify({'function': newFunction}),
                     contentType: "application/json",
                     dataType: "json",
                     success: function (data) {
-                        $('#function').html(`${functions[data.scout.function]} <i class="fa-solid fa-pen fa-xs"></i></p>`);
+                        $('#function').html(`${functions[data.function]} <i class="fa-solid fa-pen fa-xs"></i></p>`);
                         alert('Funkcja użytkownika została zmieniona');
                     },
                     error: function (data) {
@@ -144,11 +144,11 @@
                     url: '{% url 'api-users-list' %}{{ user.id }}/',
                     type: 'PATCH',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'scout': {'scout_rank': newScoutRank, 'instructor_rank': newInstructorRank}}),
+                    data: JSON.stringify({'scout_rank': newScoutRank, 'instructor_rank': newInstructorRank}),
                     contentType: "application/json",
                     dataType: "json",
                     success: function (data) {
-                        $('#rank').html(`${rankDisplay(data.scout.scout_rank, data.scout.instructor_rank)} <i class="fa-solid fa-pen fa-xs"></i></p>`);
+                        $('#rank').html(`${rankDisplay(data.scout_rank, data.instructor_rank)} <i class="fa-solid fa-pen fa-xs"></i></p>`);
                         alert('Stopień użytkownika został zmieniony');
                     },
                     error: function (data) {
@@ -312,17 +312,17 @@
                 <td>
                     {% if enable_edit %}
                         <p id="rank" class="js-modal-trigger" style="cursor: pointer"
-                           data-target="rank-modal">{{ user.scout.rank }} <i class="fa-solid fa-pen fa-xs"></i></p>
+                           data-target="rank-modal">{{ user.rank }} <i class="fa-solid fa-pen fa-xs"></i></p>
                     {% else %}
-                        <p id="rank">{{ user.scout.rank }}</p>
+                        <p id="rank">{{ user.rank }}</p>
                     {% endif %}
                 </td>
             </tr>
-            {% if request.user.scout.patrol.team.id != user.scout.patrol.team.id %}
+            {% if request.user.patrol.team.id != user.patrol.team.id %}
                 <tr>
                     <td>Drużyna</td>
                     <td>
-                        <p id="team">{{ user.scout.patrol.team.name }}</p>
+                        <p id="team">{{ user.patrol.team.name }}</p>
                     </td>
                 </tr>
             {% endif %}
@@ -331,10 +331,10 @@
                 <td>
                     {% if enable_edit %}
                         <p id="patrol" class="js-modal-trigger" style="cursor: pointer"
-                           data-target="patrol-modal">{{ user.scout.patrol.name }} <i class="fa-solid fa-pen fa-xs"></i>
+                           data-target="patrol-modal">{{ user.patrol.name }} <i class="fa-solid fa-pen fa-xs"></i>
                         </p>
                     {% else %}
-                        <p id="patrol">{{ user.scout.patrol.name }}</p>
+                        <p id="patrol">{{ user.patrol.name }}</p>
                     {% endif %}
                 </td>
             </tr>
@@ -343,10 +343,10 @@
                 <td>
                     {% if enable_edit %}
                         <p id="function" class="js-modal-trigger" style="cursor: pointer" data-target="function-modal">
-                            {{ user.scout.get_function_display }} <i class="fa-solid fa-pen fa-xs"></i>
+                            {{ user.get_function_display }} <i class="fa-solid fa-pen fa-xs"></i>
                         </p>
                     {% else %}
-                        <p id="function">{{ user.scout.get_function_display }}</p>
+                        <p id="function">{{ user.get_function_display }}</p>
                     {% endif %}
                 </td>
             </tr>
@@ -567,11 +567,11 @@
                 let previousNickname = nicknameField.text();
 
                 // Set initial values for select elements
-                $('#scout-rank-select').val({{ user.scout.scout_rank }});
-                $('#instructor-rank-select').val({{ user.scout.instructor_rank }});
-                $('#patrol-select').val({{ user.scout.patrol.id }});
-                $('#function-select').val({{ user.scout.function }});
-                if ({{ user.scout.scout_rank }} >= 5 ) {
+                $('#scout-rank-select').val({{ user.scout_rank }});
+                $('#instructor-rank-select').val({{ user.instructor_rank }});
+                $('#patrol-select').val("{{ user.patrol.id }}");
+                $('#function-select').val({{ user.function }});
+                if ({{ user.scout_rank }} >= 5 ) {
                     $('#instructor-rank-field').show()
                 }
 

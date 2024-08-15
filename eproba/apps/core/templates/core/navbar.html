@@ -17,29 +17,29 @@
 
     <div id="navMenu" class="navbar-menu">
         <div class="navbar-start">
-            <a class="navbar-item" href="{% url 'exam:exam' %}">
+            <a class="navbar-item" href="{% url 'worksheets:worksheets' %}">
                 Twoje próby
             </a>
-            {% if request.user.scout.function >= 2 %}
+            {% if request.user.function >= 2 %}
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link" href="{% url 'exam:manage_exams' %}">
+                    <a class="navbar-link" href="{% url 'worksheets:manage_worksheets' %}">
                         Zarządzaj próbami
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item" href="{% url 'exam:check_tasks' %}">
+                        <a class="navbar-item" href="{% url 'worksheets:check_tasks' %}">
                             Prośby o zatwierdzenie
                         </a>
-                        <a class="navbar-item" href="{% url 'exam:manage_exams' %}">
+                        <a class="navbar-item" href="{% url 'worksheets:manage_worksheets' %}">
                             Zarządzaj próbami
                         </a>
-                        <a class="navbar-item" href="{% url 'exam:archive' %}">
+                        <a class="navbar-item" href="{% url 'worksheets:archive' %}">
                             Archiwum
                         </a>
                         <a class="navbar-item"
-                           onclick="location.href='{% url 'exam:create_exam' %}?next={% url 'exam:manage_exams' %}'">
+                           onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}'">
                             Utwórz nową próbę
                         </a>
-                        <a class="navbar-item" onclick="location.href='{% url 'exam:templates' %}'">
+                        <a class="navbar-item" onclick="location.href='{% url 'worksheets:templates' %}'">
                             Szablony
                         </a>
                     </div>
@@ -58,7 +58,7 @@
                 </div>
             </div>
             {% endif %}
-            {% if request.user.scout.function >= 3 %}
+            {% if request.user.function >= 3 %}
                 <a class="navbar-item" href="{% url 'teams:view_teams' %}">
                     Zarządzaj drużyną
                 </a>

@@ -6,13 +6,13 @@
                              onclick="history.back()"></i> {{ patrol }}</h1>
         <h1 class="subtitle">{{ patrol.short_name }}</h1>
         <table class="table">
-            {% for scout in scouts.all|dictsort:'user.nickname' %}
+            {% for users in users.all|dictsort:'nickname' %}
                 <tr>
-                    <td><a href="{% url 'teams:manage_user' scout.user.id %}">{{ scout }}</a></td>
+                    <td><a href="{% url 'teams:manage_user' user.id %}">{{ user }}</a></td>
                 </tr>
             {% endfor %}
         </table>
-        {% if scouts.count == 0 %}
+        {% if users.count == 0 %}
             <p>W tym zastępie nie ma żadnych harcerzy.</p>
         {% endif %}
     </div>

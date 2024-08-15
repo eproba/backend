@@ -1,69 +1,23 @@
-from apps.users.models import Scout, User
-from django import forms
+from apps.users.models import User
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.mail import send_mail
 from django.db import transaction
-from django.forms import EmailInput, Select, TextInput
 from django.http import BadHeaderError, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.utils.safestring import mark_safe
-
-
-class SiteUserCreationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ["email", "nickname", "first_name", "last_name"]
-        labels = {
-            "nickname": "Pseudonim",
-            "email": "Email",
-            "first_name": "Imię",
-            "last_name": "Nazwisko",
-        }
-        widgets = {
-            "nickname": TextInput(attrs={"class": "input is-colored"}),
-            "email": EmailInput(attrs={"class": "input is-colored"}),
-            "first_name": TextInput(attrs={"class": "input is-colored"}),
-            "last_name": TextInput(attrs={"class": "input is-colored"}),
-        }
-
-
-class ScoutCreationForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["patrol"].required = True
-
-    class Meta:
-        model = Scout
-        fields = ["patrol"]
-
-        labels = {"patrol": "Zastęp"}
-        widgets = {
-            "patrol": Select(attrs={"class": "is-colored"}),
-        }
-
-
-class TermsOfServiceForm(forms.Form):
-    terms_of_service = forms.BooleanField(
-        label=mark_safe(
-            "Publikujemy Warunki korzystania z serwisu oraz Politykę prywatności, aby poinformować Cię, czego możesz się spodziewać, korzystając z naszych usług. Zaznaczając to polę, wyrażasz zgodę na te warunki."
-        ),
-        required=True,
-    )
+from users.forms import SiteUserCreationForm
 
 
 @transaction.atomic
 def signup(request):
     if request.method == "POST":
         user_form = SiteUserCreationForm(request.POST)
-        scout_form = ScoutCreationForm(request.POST)
 
-        if user_form.is_valid() and scout_form.is_valid():
+        if user_form.is_valid():
             user = user_form.save()
             user.refresh_from_db()
-            user.scout.patrol = scout_form.cleaned_data.get("patrol")
             user.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect(
@@ -74,7 +28,6 @@ def signup(request):
 
     else:
         user_form = SiteUserCreationForm()
-        scout_form = ScoutCreationForm()
         # terms_of_service_form = TermsOfServiceForm()
         user_form.fields["password1"].widget.attrs["class"] = "input is-colored"
         user_form.fields["password2"].widget.attrs["class"] = "input is-colored"
@@ -82,7 +35,7 @@ def signup(request):
     return render(
         request,
         "users/signup.html",
-        {"forms": [user_form, scout_form], "info": "Załóż konto"},
+        {"form": user_form, "info": "Załóż konto"},
     )
 
 

@@ -1,0 +1,454 @@
+{% extends 'core/base.html' %}
+{% block title %}Zarządzaj próbami{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <p class="control has-icons-left">
+                        <label>
+                            <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób" id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
+                        </label>
+                        <span class="icon is-small is-left">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <div class="select">
+                        <label>
+                            <select name="patrol_select" id="patrol_selector" class="select is-colored" onchange="filter_by_patrol(this.value)">
+                                <option value="all">Wszystkie zastępy</option>
+                                {% for patrol in patrols %}
+                                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="worksheets-list"></div>
+
+        <div class="box show" id="loading">
+            <div class="block" style="display: flex; justify-content: center">
+                <div class="lds-ripple"><div></div><div></div></div>
+            </div>
+        </div>
+
+
+
+        <script>
+            async function fetchWorksheets() {
+                try {
+                    const response = await fetch('/api/worksheet/');
+                    return await response.json();
+                } catch (error) {
+                    console.log('Error fetching worksheets:', error);
+                    return [];
+                }
+            }
+
+            async function fetchUsers() {
+                try {
+                    const response = await fetch('/api/users/');
+                    return await response.json();
+                } catch (error) {
+                    console.log('Error fetching users:', error);
+                    return [];
+                }
+            }
+
+
+            async function fetchUser(id) {
+                try {
+                    const response = await fetch(`/api/users/${id}/`);
+                    return await response.json();
+                } catch (error) {
+                    console.log('Error fetching user:', error);
+                    return [];
+                }
+            }
+
+            function calculatePercentage(tasks) {
+                const totalTasks = tasks.length;
+                const completedTasks = tasks.filter(task => task.status === 2).length;
+
+                if (totalTasks !== 0) {
+                    return Math.round((completedTasks / totalTasks) * 100) + '%';
+                } else {
+                    return "Nie masz jeszcze dodanych żadnych zadań";
+                }
+            }
+
+            function renderWorksheets(worksheets, users) {
+                const worksheetsList = document.getElementById('worksheets-list');
+                document.getElementById('loading').style.display = 'none';
+                var missingUsers = []
+
+                if (worksheets.length === 0) {
+                    const worksheetDiv = document.createElement('div');
+                    worksheetDiv.className = 'worksheets-container';
+                    worksheetDiv.innerHTML = '<div class="box">W systemie nie ma jeszcze żadnej próby którą możesz edytować.</div>';
+                    worksheetsList.appendChild(worksheetDiv);
+                }
+
+                worksheets.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+                
+                worksheets.filter(worksheet => worksheet.deleted === false).forEach((worksheet) => {
+                    worksheetsList.appendChild(renderWorksheet(worksheet, users, missingUsers));
+                });
+
+                new Set(missingUsers.map(missingUser => missingUser.id)).forEach(id =>
+                    fetchUser(id).then(function (user) {
+                        users.push(user)
+                        missingUsers.filter(missingUser => missingUser.id === id).forEach(missingUser => {
+                            const element = document.getElementById(missingUser.element_id)
+                            if (missingUser.type === 'worksheet_title') {
+                                element.innerHTML = element.innerHTML.replace('Nieznany użytkownik #' + id, `${user.rank} ${user.nickname}`)
+                                element.parentElement.setAttribute('data-patrol-id', user.patrol)
+                            } else if (missingUser.type === 'worksheet_supervisor') {
+                                element.innerHTML = element.innerHTML.replace('Nieznany użytkownik #' + id, `${user.rank} ${user.nickname}`)
+                            } else  if (missingUser.type === 'task_status_icon') {
+                                element.setAttribute('data-tooltip', element.getAttribute('data-tooltip').replace('Nieznany użytkownik #' + id, `${user.rank} ${user.nickname}`))
+                            }
+                        })
+                    })
+
+                )
+            }
+
+            function renderWorksheet(worksheet, users, missingUsers) {
+                const showDescription = worksheet.tasks.some(task => task.hasOwnProperty('description') && task.description !== '');
+                const worksheetDiv = document.createElement('div');
+                worksheetDiv.className = 'block worksheets show';
+                worksheetDiv.id = `worksheet_${worksheet.id}`
+                worksheetDiv.setAttribute('data-tasks-count', worksheet.tasks.length);
+                worksheetDiv.setAttribute('data-completed-tasks-count', worksheet.tasks.filter(task => task.status === 2).length);
+
+                let user;
+                user = users.find(user => user.id === worksheet.user);
+                if (!user) {
+                    missingUsers.push({'id': worksheet.user, 'element_id': `worksheet-title_${worksheet.id}`, 'type':'worksheet_title'})
+                    user = {nickname: `Nieznany użytkownik #${worksheet.user}`, patrol: null, rank: ''}
+                }
+                let supervisor;
+                if (worksheet.supervisor) {
+                    supervisor = users.find(user => user.id === worksheet.supervisor);
+                    if (!supervisor) {
+                        missingUsers.push({'id':worksheet.supervisor, 'element_id':`worksheet-supervisor_${worksheet.id}`, 'type':'worksheet_supervisor'})
+                        supervisor = {
+                            nickname: {nickname: `Nieznany użytkownik #${worksheet.supervisor}`},
+                            rank: ''
+                        }
+                    }
+                }
+                worksheetDiv.setAttribute('data-patrol-id', user.patrol)
+                worksheetDiv.innerHTML = `
+                    <div class="box">
+                        <span class="icon-text is-align-items-center">
+                            <span class="title" style="margin-bottom: 0" id="worksheet-title_${worksheet.id}">${worksheet.name} - ${user.rank} ${user.nickname}</span>
+                            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}" data-tooltip="Naciśnij aby skopiować link do próby">
+                                <span onclick="copy_to_clipboard('tooltip_text_${worksheet.id}', '{{ request.get_host }}/worksheets/share/view/${worksheet.id}')">
+                                    <i class="fa-solid fa-clipboard"></i>
+                                </span>
+                            </span>
+                            <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}_print" data-tooltip="Drukuj próbę">
+                                <span onclick="location.href='/worksheet/print/${worksheet.id}'">
+                                    <i class="fas fa-print"></i>
+                                </span>
+                            </span>
+                            <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Zarchiwizuj próbę">
+                                <span onclick="confirm_popup(null, 'Czy na pewno chcesz zarchwiwizować tę próbę? \\nZostanie ona przeniesiona do archiwum i będziesz miał możliwość jej przywrócenia.', fun=function(){$.ajax({'url': '{% url 'api-worksheets-list' %}${worksheet.id}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'is_archived': 'true'}, 'success': function () {alert('Próba została zarchiwizowana.'); $('#worksheet_${worksheet.id}').remove();}}) })">
+                                    <i class="fa-solid fa-box-archive"></i>
+                                </span>
+                            </span>
+                            {% if user.function > 2 %}
+                            <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Usuń próbę">
+                                <span onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \\nJest to prawie permanentne i nie będziesz w stanie nigdy cofnąć tej akcji.', fun=function(){$.ajax({'url': '{% url 'api-worksheets-list' %}${worksheet.id}/', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#worksheet_${worksheet.id}').remove();}}) })">
+                                    <i class="fa-solid fa-trash"></i>
+                                </span>
+                            </span>
+                            {% endif %}
+                            <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Edytuj próbę">
+                                <span onclick="location.href='/worksheet/edit/${worksheet.id}'">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                            </span>
+                        </span>
+                        ${worksheet.supervisor ? ` <h2 class="subtitle" id="worksheet-supervisor_${worksheet.id}">Opiekun próby: <a href="/profile/view/${worksheet.supervisor}">${supervisor.rank} ${supervisor.nickname}</a></h2>` : ''}
+                        <h2 class="subtitle is-6">Ostatnia edycja: ${(new Date(worksheet.updated_at)).toLocaleString()}</h2>
+                        <p>
+                            <br/>
+                        </p>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th> ${showDescription ? ' <th>Opis</th>' : ''}
+                                    <th style="width:4rem">Status</th>
+                                    <th style="width:4rem">Akcja</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th> ${showDescription ? ' <th></th>' : ''}
+                                    <th></th>
+                                    <th>
+                                        <span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary" data-tooltip="Procent wykonanych zadań" id="worksheet-percentage_${worksheet.id}">
+                                            ${calculatePercentage(worksheet.tasks)}
+                                        </span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                ${renderTasks(worksheet, users, missingUsers, showDescription)}
+                            </tbody>
+                        </table>
+                    </div>
+                `
+                return worksheetDiv
+            }
+
+
+
+            function renderTasks(worksheet, users, missingUsers, showDescription = false) {
+                let tasksHTML = '';
+
+
+                worksheet.tasks.forEach(function (task, i) {
+                    tasksHTML += `
+                        <tr>
+                            <th>${i + 1}</th>
+                            <td>${task.task}</td> ${showDescription ? ` <td>${task.description}</td>` : ''} <td>${renderStatusIcon(task, users, missingUsers)}</td>
+                            <td>
+                                <span class="has-tooltip-arrow has-tooltip-left has-tooltip-success" data-tooltip="Zatwierdź zadanie">
+                                    <a onclick="updateTaskStatus('${worksheet.id}', '${task.id}', 2, 'Czy na pewno chcesz zatwierdzić to zadanie?')">
+                                        <i class="far fa-check-circle" style="color:green;"></i>
+                                    </a>
+                                </span>
+                                <span class="has-tooltip-arrow has-tooltip-left has-tooltip-danger" data-tooltip="Odrzuć zadanie">
+                                    <a onclick="updateTaskStatus('${worksheet.id}', '${task.id}', 3, 'Czy na pewno chcesz odrzucić to zadanie?')">
+                                        <i class="far fa-times-circle" style="color:red;"></i>
+                                    </a>
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                return tasksHTML;
+            }
+
+            function renderStatusIcon(task, users, missingUsers) {
+                let approver;
+                if (task.approver !== null && task.status !== 0) {
+                    approver = users.find(user => user.id === task.approver);
+                    if (!approver) {
+                        missingUsers.push({'id':task.approver, 'element_id':'status-icon-tooltip_' + task.id, 'type':'task_status_icon'})
+                        approver = {nickname: `Nieznany użytkownik #${task.approver}`, rank: ''};
+                    }
+                } else {
+                    approver = {nickname: `Nieznany użytkownik #${task.approver}`, rank: ''};
+                }
+                let statusHTML;
+                if (task.status === 2) {
+                    statusHTML = `
+                        <div id="status-icon_${task.id}" data-status=2><span
+                        class="has-tooltip-arrow has-tooltip-left" id="status-icon-tooltip_${task.id}"
+                        data-tooltip="${approver.rank} ${approver.nickname} zatwierdził ${(new Date(task.approval_date)).toLocaleString()}"><i
+                        class="far fa-check-circle"></i></span></div>
+                    `;
+                } else if (task.status === 1) {
+                    statusHTML = `
+                        <div id="status-icon_${task.id} data-status=1"><span
+                        class="has-tooltip-arrow has-tooltip-left" id="status-icon-tooltip_${task.id}"
+                        data-tooltip="${(new Date(task.approval_date)).toLocaleString()} wysłano prośbę o zaliczenie do ${approver.rank} ${approver.nickname}"><i
+                        class="far fa-clock"></i></span></div>
+                    `;
+                } else if (task.status === 3) {
+                    statusHTML = `
+                        <div id="status-icon_${task.id}" data-status=3><span
+                        class="has-tooltip-arrow has-tooltip-left" id="status-icon-tooltip_${task.id}"
+                        data-tooltip="${(new Date(task.approval_date)).toLocaleString()} zadanie zostało odrzucone przez ${approver.rank} ${approver.nickname}"><i
+                        class="far fa-circle-xmark"></i></span></div>
+                    `;
+                } else {
+                    statusHTML = `
+                        <div id="status-icon_${task.id}" data-status=0></div>
+                    `;
+                }
+                return statusHTML;
+            }
+
+
+            async function main() {
+                const worksheets = await fetchWorksheets();
+                const users = await fetchUsers();
+                renderWorksheets(worksheets, users);
+            }
+
+            main();
+        </script>
+    {% else %}
+        <div class="box">
+            Aby edytować próby musisz się najpierw zalogować.
+        </div>
+    {% endif %}
+    <script>
+        function filter_by_patrol(c) {
+            let x, i;
+            x = document.getElementsByClassName("worksheet");
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+            for (i = 0; i < x.length; i++) {
+                if (($(x[i]).attr('data-patrol-id') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#worksheet_searchbar").val().toLowerCase()) > -1) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        function filter_by_name(c) {
+            let x, i;
+            x = document.getElementsByClassName("worksheet");
+            const selected_patrol = $('#patrol_selector').val();
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
+            for (i = 0; i < x.length; i++) {
+                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('data-patrol-id') === selected_patrol)) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        // Show filtered elements
+        function AddClass(element, name) {
+            let i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                if (arr1.indexOf(arr2[i]) === -1) {
+                    element.className += " " + arr2[i];
+                }
+            }
+        }
+
+        // Hide elements that are not selected
+        function RemoveClass(element, name) {
+            let i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                while (arr1.indexOf(arr2[i]) > -1) {
+                    arr1.splice(arr1.indexOf(arr2[i]), 1);
+                }
+            }
+            element.className = arr1.join(" ");
+        }
+
+        function updateTaskStatus(worksheet_id, task_id, newStatus, message) {
+            if (message) {
+                if (confirm(message)) {
+                    const worksheetElement = $("#worksheet_" + worksheet_id);
+                    const statusIcon = $("#status-icon_" + task_id);
+                    statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left" data-tooltip="Ładowanie"><i class="fas fa-spinner fa-spin"></i></span>');
+                    let url;
+                    if (newStatus === 2) {
+                        url = `/worksheet/${worksheet_id}/task/${task_id}/force/accept`
+                    } else if (newStatus === 3) {
+                        url = `/worksheet/${worksheet_id}/task/${task_id}/force/reject`
+                    }
+                    const posting = $.post(url, {'csrfmiddlewaretoken': '{{ csrf_token }}'});
+                    posting.done(function () {
+                        const previousStatus = parseInt(statusIcon.attr('data-status'));
+                        if (newStatus===2) {
+                            statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left" data-tooltip="Zadanie właśnie zostało zaliczone"><i class="far fa-check-circle"></i></span>');
+                            if (previousStatus === 0 || previousStatus === 1 || previousStatus === 3) {
+                                worksheetElement.attr('data-completed-tasks-count', parseInt(worksheetElement.attr('data-completed-tasks-count')) + 1)
+                            }
+                        } else if (newStatus===3) {
+                            statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left" data-tooltip="Zadanie właśnie zostało odrzucone"><i class="far fa-circle-xmark"></i></span>');
+                            if (previousStatus === 2) {
+                                worksheetElement.attr('data-completed-tasks-count', parseInt(worksheetElement.attr('data-completed-tasks-count')) - 1)
+                            }
+                        }
+                        statusIcon.attr('data-status', newStatus);
+                        $(`#worksheet-percentage_${worksheet_id}`).html(Math.round(parseInt(worksheetElement.attr('data-completed-tasks-count')) / parseInt(worksheetElement.attr('data-tasks-count')) * 100) + "%" );
+                    });
+                    posting.fail(function () {
+                        alert("Wystąpił błąd przy edycji zadania, spróbuj ponownie później.");
+                        statusIcon.html('<span class="has-tooltip-arrow has-tooltip-left has-tooltip-danger" data-tooltip="Wystąpił błąd"><i class="fas fa-exclamation-circle bounce" style="color:red;"></i></span>');
+                    });
+                }
+            } else {
+                console.log("No message");
+            }
+        }
+    </script>
+    <style>
+        .worksheet {
+            display: none; /* Hidden by default */
+        }
+
+        .show {
+            display: block;
+        }
+
+        .lds-ripple {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .lds-ripple div {
+            position: absolute;
+            border: 4px solid #fff;
+            opacity: 1;
+            border-radius: 50%;
+            animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        }
+
+        .lds-ripple div:nth-child(2) {
+            animation-delay: -0.5s;
+        }
+
+        @keyframes lds-ripple {
+            0% {
+                top: 36px;
+                left: 36px;
+                width: 0;
+                height: 0;
+                opacity: 0;
+            }
+            4.9% {
+                top: 36px;
+                left: 36px;
+                width: 0;
+                height: 0;
+                opacity: 0;
+            }
+            5% {
+                top: 36px;
+                left: 36px;
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                top: 0;
+                left: 0;
+                width: 72px;
+                height: 72px;
+                opacity: 0;
+            }
+        }
+
+    </style>
+{% endblock %}

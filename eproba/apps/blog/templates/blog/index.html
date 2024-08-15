@@ -6,7 +6,7 @@
             <!-- Blog Entries Column -->
             <div>
                 {% for post in post_list %}
-                    {% if post.minimum_function <= request.user.scout.function %}
+                    {% if post.minimum_function <= request.user.function %}
                     <div class="block card" onclick="location.href='{% url 'blog:post_detail' post.slug %}'"
                          style="cursor: pointer;">
                         <div class="card-content">

@@ -1,0 +1,898 @@
+{% extends 'core/base.html' %}
+{% block title %}Eksportuj próby - Epróba{% endblock %}
+{% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    {% if request.user.is_authenticated %}
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <p class="control has-icons-left">
+                        <label>
+                            <input class="input is-colored has-colored-placeholder" placeholder="Szukaj prób"
+                                   id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
+                        </label>
+                        <span class="icon is-small is-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                    </p>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <div class="select">
+                        <label>
+                            <select name="patrol_select" id="patrol_selector" class="select is-colored"
+                                    onchange="filter_by_patrol(this.value)">
+                                <option value="all">Wszystkie zastępy</option>
+                                {% for patrol in patrols %}
+                                    <option value={{ patrol.id }}>{{ patrol.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if team_worksheets or patrol_worksheets or archived_user_worksheets or archived_team_worksheets or archived_patrol_worksheets %}
+            <div class="level">
+            <div class="level-item has-text-centered">
+                <a href="#user_worksheets">Twoje próby</a>
+            </div>
+            {% if team_worksheets %}
+                <div class="level-item has-text-centered">
+                    <a href="#team_worksheets">Próby drużyny</a>
+                </div>
+            {% endif %}
+            {% if patrol_worksheets %}
+                <div class="level-item has-text-centered">
+                    <a href="#patrol_worksheets">Próby zastępu</a>
+                </div>
+            {% endif %}
+            {% if archived_user_worksheets %}
+                <div class="level-item has-text-centered">
+                    <a href="#archived_user_worksheets">Twoje próby - Archiwum</a>
+                </div>
+            {% endif %}
+            {% if archived_team_worksheets %}
+                <div class="level-item has-text-centered">
+                    <a href="#archived_team_worksheets">Próby drużyny - Archiwum</a>
+                </div>
+            {% endif %}
+            {% if archived_patrol_worksheets %}
+                <div class="level-item has-text-centered">
+                    <a href="#archived_patrol_worksheets">Próby zastępu - Archiwum</a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <h1 class="title" id="user_worksheets">Twoje próby</h1>
+                </div>
+            </div>
+            {% if user_worksheets %}
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_user_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie twoje próby</span>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if user_worksheets %}
+            <div id="user_worksheets_div">
+                {% for worksheet in user_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="box">
+                Nie masz żadnych prób.
+            </div>
+        {% endif %}
+        {% if team_worksheets %}
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title" id="team_worksheets">Próby drużyny</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_team_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie próby drużyny</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="team_worksheets_div">
+                {% for worksheet in team_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if patrol_worksheets %}
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title" id="patrol_worksheets">Próby zastępu</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_patrol_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie próby zastępu</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="patrol_worksheets_div">
+                {% for worksheet in patrol_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if archived_user_worksheets %}
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title" id="archived_user_worksheets">Twoje próby - Archiwum</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_archived_user_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie twoje próby z archiwum</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="archived_user_worksheets_div">
+                {% for worksheet in archived_user_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if archived_team_worksheets %}
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title" id="archived_team_worksheets">Próby drużyny - Archiwum</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_archived_team_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie próby drużyny z archiwum</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="archived_team_worksheets_div">
+                {% for worksheet in archived_team_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if archived_patrol_worksheets %}
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title" id="archived_patrol_worksheets">Próby zastępu - Archiwum</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-primary" id="export_all_archived_patrol_worksheets_button">
+                            <span class="icon"><i class="fas fa-file-export"></i></span>
+                            <span>Eksportuj wszystkie próby zastępu z archiwum</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="archived_patrol_worksheets_div">
+                {% for worksheet in archived_patrol_worksheets %}
+                    <div class="block worksheet" id="worksheet_{{ worksheet.id }}" data-user-patrol="{{ worksheet.user.patrol.id }}"
+                         data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                        <div class="box">
+                            <span class="icon-text is-align-items-center">
+                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                            </span>
+                            {% if worksheet.supervisor %}
+                                <h2 class="subtitle">Opiekun próby: <a
+                                        href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
+                                </h2>
+                            {% endif %}
+                            <p><br/></p>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="is-narrow">Lp.</th>
+                                    <th>Zadanie</th>
+                                    {% if worksheet.show_description_column %}
+                                        <th>Opis</th>
+                                    {% endif %}
+                                    <th style="width:4rem">Status</th>
+                                </tr>
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    {% if worksheet.show_description_column %}
+                                        <th></th>
+                                    {% endif %}
+                                    <th><span class="has-tooltip-arrow has-tooltip-left has-tooltip-primary"
+                                              data-tooltip="Procent wykonanych zadań">{{ worksheet.percent }}</span></th>
+                                </tr>
+                                </tfoot>
+                                <tbody>
+                                {% for task in worksheet.tasks.all %}
+                                    <tr>
+                                        <th>{{ forloop.counter }}</th>
+                                        <td>{{ task.task }}</td>
+                                        {% if worksheet.show_description_column %}
+                                            {% if task.description != "" %}
+                                                <td>{{ task.description }}</td>
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if task.status == 2 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approver }} zatwierdził {{ task.approval_date }}"><i
+                                                        class="far fa-check-circle"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 1 %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"><span
+                                                        class="has-tooltip-arrow has-tooltip-left"
+                                                        data-tooltip="{{ task.approval_date }} wysłano prośbę o zaliczenie do {{ task.approver }}"><i
+                                                        class="far fa-clock"></i></span></div>
+                                            </td>
+                                        {% elif task.status == 3 %}
+                                            <td><span class="has-tooltip-arrow has-tooltip-left"
+                                                      data-tooltip="{{ task.approval_date }} zadanie zostało odrzucone przez {{ task.approver }}"><i
+                                                    class="far fa-circle-xmark"></i></span></td>
+                                        {% else %}
+                                            <td>
+                                                <div id="status-icon_{{ task.id }}"></div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <a class="button is-secondary" href="{% url 'worksheets:export_worksheet' worksheet.id %}">
+                                <span class="icon"><i class="fas fa-file-export"></i></span>
+                                <span>Eksportuj próbę</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="modal" id="progress_modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <div class="box has-text-centered">
+                    <h1 class="title">Eksportowanie prób</h1>
+                    <p>Trwa eksportowanie prób. Proszę czekać...</p>
+                    <p>Nie zamykaj tej karty, dopóki eksportowanie nie zostanie zakończone.</p>
+                    <progress class="progress is-success" id="progress_bar" max="100">0%</progress>
+                    <p id="progress_text">0%</p>
+                    <br>
+                    <button class="button is-danger is-outlined" id="cancel_export_button">Anuluj</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="error_modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <div class="box has-text-centered">
+                    <h1 class="title">Wystąpił błąd</h1>
+                    <p id="error_text"></p>
+                    <br>
+                    <button class="button is-primary"
+                            onclick="document.getElementById('error_modal').classList.remove('is-active')">Zamknij
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="box">
+            Aby zobaczyć zawartość tej strony, musisz być zalogowany.
+        </div>
+    {% endif %}
+    <script>
+        function sanitizeFilename(filename) {
+            // Regular expression to match forbidden characters
+            const forbiddenChars = /[<>:"\/\\|?*]/g;
+            // Replace forbidden characters with an empty string
+            return filename.replace(forbiddenChars, '');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = [
+                {id: 'export_all_user_worksheets_button', container: 'user_worksheets_div', zipBaseName: 'eksport_z_twoich_prob'},
+                {
+                    id: 'export_all_team_worksheets_button',
+                    container: 'team_worksheets_div',
+                    zipBaseName: 'eksport_z_prob_druzyny'
+                },
+                {
+                    id: 'export_all_patrol_worksheets_button',
+                    container: 'patrol_worksheets_div',
+                    zipBaseName: 'eksport_z_prob_zastepu'
+                },
+                {
+                    id: 'export_all_archived_user_worksheets_button',
+                    container: 'archived_user_worksheets_div',
+                    zipBaseName: 'eksport_z_twoich_prob_z_archiwum'
+                },
+                {
+                    id: 'export_all_archived_team_worksheets_button',
+                    container: 'archived_team_worksheets_div',
+                    zipBaseName: 'eksport_z_prob_druzyny_z_archiwum'
+                },
+                {
+                    id: 'export_all_archived_patrol_worksheets_button',
+                    container: 'archived_patrol_worksheets_div',
+                    zipBaseName: 'eksport_z_prob_zastepu_z_archiwum'
+                },
+            ];
+
+            buttons.forEach(function (button) {
+                const element = document.getElementById(button.id);
+                if (element) {
+                    element.addEventListener('click', function () {
+                        exportWorksheets(button.container);
+                    });
+                }
+            });
+        });
+
+
+        async function exportWorksheets(worksheetContainerId, zipBaseName) {
+            const modal = document.getElementById('progress_modal');
+            const errorModal = document.getElementById('error_modal');
+            const progressBar = document.getElementById('progress_bar');
+            const progressText = document.getElementById('progress_text');
+            modal.classList.add('is-active');
+
+            const zip = new JSZip();
+            const worksheetContainer = document.getElementById(worksheetContainerId);
+            const worksheets = worksheetContainer.getElementsByClassName('worksheet');
+            const totalWorksheets = worksheets.length;
+
+            const abortController = new AbortController(); // Step 1
+
+            function cancelExport() {
+                abortController.abort(); // Abort the fetch request
+                modal.classList.remove('is-active');
+                progressBar.value = 0;
+                progressText.textContent = '0%';
+                document.getElementById('cancel_export_button').removeEventListener('click', cancelExport);
+            }
+
+            document.getElementById('cancel_export_button').addEventListener('click', cancelExport); // Step 3
+
+            for (let i = 0; i < totalWorksheets; i++) {
+                const worksheet = worksheets[i];
+                const pdfUrl = worksheet.getAttribute('data-pdf-url');
+
+                try {
+                    const response = await fetch(pdfUrl, {signal: abortController.signal}); // Step 2
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    const blob = await response.blob();
+
+                    const fileName = `Epróba - ${worksheet.querySelector('.title').textContent} (ID:${worksheet.id.split('_')[1]}).pdf`;
+                    zip.file(sanitizeFilename(fileName), blob);
+
+                    const progress = Math.round(((i + 1) / totalWorksheets) * 100);
+                    progressBar.value = progress;
+                    progressText.textContent = `${progress}%`;
+
+                } catch (error) {
+                    if (error.name === 'AbortError') { // Step 5
+                        console.log('Export aborted by the user.');
+                        document.getElementById('error_text').textContent = 'Eksportowanie zostało anulowane przez użytkownika.';
+                        errorModal.classList.add('is-active');
+                        break; // Exit the loop
+                    } else {
+                        console.error('There was a problem with the fetch operation:', error);
+                        document.getElementById('error_text').textContent = 'Wystąpił błąd podczas eksportowania prób. Spróbuj ponownie później.';
+                        errorModal.classList.add('is-active');
+                    }
+                }
+            }
+
+
+            try {
+                if (!abortController.signal.aborted) {
+                   const content = await zip.generateAsync({type: 'blob'});
+                    const zipName = `${zipBaseName || 'eksport'}_${new Date().toISOString().split('T')[0]} (Epróba).zip`;
+
+                   const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = zipName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            } catch (error) {
+                console.error('There was a problem with the zip generation:', error);
+                document.getElementById('error_text').textContent = 'Wystąpił błąd podczas generowania pliku ZIP. Spróbuj ponownie później.';
+                errorModal.classList.add('is-active');
+            }
+
+            // Cleanup
+            modal.classList.remove('is-active');
+            progressBar.value = 0;
+            progressText.textContent = '0%';
+            document.getElementById('cancel_export_button').removeEventListener('click', cancelExport); // Step 4
+        }
+
+        filter_by_patrol("all")
+
+        function filter_by_patrol(c) {
+            let x, i;
+            x = document.getElementsByClassName("worksheet");
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+            for (i = 0; i < x.length; i++) {
+                if (($(x[i]).attr('data-user-patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#worksheet_searchbar").val().toLowerCase()) > -1) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        function filter_by_name(c) {
+            let x, i;
+            x = document.getElementsByClassName("worksheet");
+            const selected_patrol = $('#patrol_selector').val();
+            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
+            for (i = 0; i < x.length; i++) {
+                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('data-user-patrol') === selected_patrol)) {
+                    AddClass(x[i], "show");
+                } else {
+                    RemoveClass(x[i], "show");
+                }
+            }
+        }
+
+        // Show filtered elements
+        function AddClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                if (arr1.indexOf(arr2[i]) === -1) {
+                    element.className += " " + arr2[i];
+                }
+            }
+        }
+
+        // Hide elements that are not selected
+        function RemoveClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                while (arr1.indexOf(arr2[i]) > -1) {
+                    arr1.splice(arr1.indexOf(arr2[i]), 1);
+                }
+            }
+            element.className = arr1.join(" ");
+        }
+    </script>
+    <style>
+        .worksheet {
+            display: none; /* Hidden by default */
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
+{% endblock %}

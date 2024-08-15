@@ -7,13 +7,13 @@ class IsAllowedToManageUserOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.scout.function >= 3
-            and request.user.scout.function >= user.scout.function
-            and request.user.scout.patrol
-            and user.scout.patrol
-            and request.user.scout.patrol.team == user.scout.patrol.team
+            request.user.function >= 3
+            and request.user.function >= user.function
+            and request.user.patrol
+            and user.patrol
+            and request.user.patrol.team == user.patrol.team
         ) or (
-            request.user.scout.function >= 3
-            and request.user.scout.function >= user.scout.function
-            and not user.scout.patrol
+            request.user.function >= 3
+            and request.user.function >= user.function
+            and not user.patrol
         )
