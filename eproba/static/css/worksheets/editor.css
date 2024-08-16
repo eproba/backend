@@ -1,0 +1,17 @@
+.select {
+    width: 100%;
+}
+
+.select select {
+    width: 100%;
+}
+
+.add-form-row, .remove-form-row, button.draggable {
+    height: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .field-label {
+        margin-inline-end: .5rem;
+    }
+}

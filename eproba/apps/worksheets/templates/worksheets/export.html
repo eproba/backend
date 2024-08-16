@@ -1,5 +1,10 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Eksportuj próby - Epróba{% endblock %}
+{% block extrahead %}
+    <script src="{% static 'js/worksheets/export.js' %}"></script>
+    <script src="{% static 'js/worksheets/filter.js' %}"></script>
+{% endblock %}
 {% block content %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     {% if request.user.is_authenticated %}
@@ -9,7 +14,7 @@
                     <p class="control has-icons-left">
                         <label>
                             <input class="input" placeholder="Szukaj prób"
-                                   id="worksheet_searchbar" onkeyup="filter_by_name(this.value)">
+                                   id="worksheet_searchbar" onkeyup="filterByName(this.value)">
                         </label>
                         <span class="icon is-small is-left">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -22,7 +27,7 @@
                     <div class="select">
                         <label>
                             <select name="patrol_select" id="patrol_selector" class="select"
-                                    onchange="filter_by_patrol(this.value)">
+                                    onchange="filterByPatrol(this.value)">
                                 <option value="all">Wszystkie zastępy</option>
                                 {% for patrol in patrols %}
                                     <option value={{ patrol.id }}>{{ patrol.name }}</option>
@@ -68,7 +73,7 @@
         <div class="level">
             <div class="level-left">
                 <div class="level-item">
-                    <h1 class="title" id="user_worksheets">Twoje próby</h1>
+                    <h1 class="title has-text-weight-medium" id="user_worksheets">Twoje próby</h1>
                 </div>
             </div>
             {% if user_worksheets %}
@@ -89,7 +94,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }}</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -175,7 +180,7 @@
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <h1 class="title" id="team_worksheets">Próby drużyny</h1>
+                        <h1 class="title has-text-weight-medium" id="team_worksheets">Próby drużyny</h1>
                     </div>
                 </div>
                 <div class="level-right">
@@ -193,7 +198,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }}</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -275,7 +280,7 @@
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <h1 class="title" id="patrol_worksheets">Próby zastępu</h1>
+                        <h1 class="title has-text-weight-medium" id="patrol_worksheets">Próby zastępu</h1>
                     </div>
                 </div>
                 <div class="level-right">
@@ -293,7 +298,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }}</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }}</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -375,7 +380,7 @@
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <h1 class="title" id="archived_user_worksheets">Twoje próby - Archiwum</h1>
+                        <h1 class="title has-text-weight-medium" id="archived_user_worksheets">Twoje próby - Archiwum</h1>
                     </div>
                 </div>
                 <div class="level-right">
@@ -393,7 +398,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -475,7 +480,7 @@
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <h1 class="title" id="archived_team_worksheets">Próby drużyny - Archiwum</h1>
+                        <h1 class="title has-text-weight-medium" id="archived_team_worksheets">Próby drużyny - Archiwum</h1>
                     </div>
                 </div>
                 <div class="level-right">
@@ -493,7 +498,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -575,7 +580,7 @@
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <h1 class="title" id="archived_patrol_worksheets">Próby zastępu - Archiwum</h1>
+                        <h1 class="titlehas-text-weight-medium" id="archived_patrol_worksheets">Próby zastępu - Archiwum</h1>
                     </div>
                 </div>
                 <div class="level-right">
@@ -593,7 +598,7 @@
                          data-pdf-url="{% url 'worksheets:export_worksheet' worksheet.id %}">
                         <div class="box">
                             <span class="icon-text is-align-items-center">
-                                <span class="title" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
+                                <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }} (Archiwum)</span>
                             </span>
                             {% if worksheet.supervisor %}
                                 <h2 class="subtitle">Opiekun próby: <a
@@ -675,7 +680,7 @@
             <div class="modal-background"></div>
             <div class="modal-content">
                 <div class="box has-text-centered">
-                    <h1 class="title">Eksportowanie prób</h1>
+                    <h1 class="title has-text-weight-medium">Eksportowanie prób</h1>
                     <p>Trwa eksportowanie prób. Proszę czekać...</p>
                     <p>Nie zamykaj tej karty, dopóki eksportowanie nie zostanie zakończone.</p>
                     <progress class="progress is-success" id="progress_bar" max="100">0%</progress>
@@ -689,7 +694,7 @@
             <div class="modal-background"></div>
             <div class="modal-content">
                 <div class="box has-text-centered">
-                    <h1 class="title">Wystąpił błąd</h1>
+                    <h1 class="title has-text-weight-medium">Wystąpił błąd</h1>
                     <p id="error_text"></p>
                     <br>
                     <button class="button is-primary"
@@ -704,187 +709,7 @@
         </div>
     {% endif %}
     <script>
-        function sanitizeFilename(filename) {
-            // Regular expression to match forbidden characters
-            const forbiddenChars = /[<>:"\/\\|?*]/g;
-            // Replace forbidden characters with an empty string
-            return filename.replace(forbiddenChars, '');
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const buttons = [
-                {id: 'export_all_user_worksheets_button', container: 'user_worksheets_div', zipBaseName: 'eksport_z_twoich_prob'},
-                {
-                    id: 'export_all_team_worksheets_button',
-                    container: 'team_worksheets_div',
-                    zipBaseName: 'eksport_z_prob_druzyny'
-                },
-                {
-                    id: 'export_all_patrol_worksheets_button',
-                    container: 'patrol_worksheets_div',
-                    zipBaseName: 'eksport_z_prob_zastepu'
-                },
-                {
-                    id: 'export_all_archived_user_worksheets_button',
-                    container: 'archived_user_worksheets_div',
-                    zipBaseName: 'eksport_z_twoich_prob_z_archiwum'
-                },
-                {
-                    id: 'export_all_archived_team_worksheets_button',
-                    container: 'archived_team_worksheets_div',
-                    zipBaseName: 'eksport_z_prob_druzyny_z_archiwum'
-                },
-                {
-                    id: 'export_all_archived_patrol_worksheets_button',
-                    container: 'archived_patrol_worksheets_div',
-                    zipBaseName: 'eksport_z_prob_zastepu_z_archiwum'
-                },
-            ];
-
-            buttons.forEach(function (button) {
-                const element = document.getElementById(button.id);
-                if (element) {
-                    element.addEventListener('click', function () {
-                        exportWorksheets(button.container);
-                    });
-                }
-            });
-        });
-
-
-        async function exportWorksheets(worksheetContainerId, zipBaseName) {
-            const modal = document.getElementById('progress_modal');
-            const errorModal = document.getElementById('error_modal');
-            const progressBar = document.getElementById('progress_bar');
-            const progressText = document.getElementById('progress_text');
-            modal.classList.add('is-active');
-
-            const zip = new JSZip();
-            const worksheetContainer = document.getElementById(worksheetContainerId);
-            const worksheets = worksheetContainer.getElementsByClassName('worksheet');
-            const totalWorksheets = worksheets.length;
-
-            const abortController = new AbortController(); // Step 1
-
-            function cancelExport() {
-                abortController.abort(); // Abort the fetch request
-                modal.classList.remove('is-active');
-                progressBar.value = 0;
-                progressText.textContent = '0%';
-                document.getElementById('cancel_export_button').removeEventListener('click', cancelExport);
-            }
-
-            document.getElementById('cancel_export_button').addEventListener('click', cancelExport); // Step 3
-
-            for (let i = 0; i < totalWorksheets; i++) {
-                const worksheet = worksheets[i];
-                const pdfUrl = worksheet.getAttribute('data-pdf-url');
-
-                try {
-                    const response = await fetch(pdfUrl, {signal: abortController.signal}); // Step 2
-                    if (!response.ok) throw new Error('Network response was not ok.');
-                    const blob = await response.blob();
-
-                    const fileName = `Epróba - ${worksheet.querySelector('.title').textContent} (ID:${worksheet.id.split('_')[1]}).pdf`;
-                    zip.file(sanitizeFilename(fileName), blob);
-
-                    const progress = Math.round(((i + 1) / totalWorksheets) * 100);
-                    progressBar.value = progress;
-                    progressText.textContent = `${progress}%`;
-
-                } catch (error) {
-                    if (error.name === 'AbortError') { // Step 5
-                        console.log('Export aborted by the user.');
-                        document.getElementById('error_text').textContent = 'Eksportowanie zostało anulowane przez użytkownika.';
-                        errorModal.classList.add('is-active');
-                        break; // Exit the loop
-                    } else {
-                        console.error('There was a problem with the fetch operation:', error);
-                        document.getElementById('error_text').textContent = 'Wystąpił błąd podczas eksportowania prób. Spróbuj ponownie później.';
-                        errorModal.classList.add('is-active');
-                    }
-                }
-            }
-
-
-            try {
-                if (!abortController.signal.aborted) {
-                   const content = await zip.generateAsync({type: 'blob'});
-                    const zipName = `${zipBaseName || 'eksport'}_${new Date().toISOString().split('T')[0]} (Epróba).zip`;
-
-                   const link = document.createElement('a');
-                    link.href = URL.createObjectURL(content);
-                    link.download = zipName;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            } catch (error) {
-                console.error('There was a problem with the zip generation:', error);
-                document.getElementById('error_text').textContent = 'Wystąpił błąd podczas generowania pliku ZIP. Spróbuj ponownie później.';
-                errorModal.classList.add('is-active');
-            }
-
-            // Cleanup
-            modal.classList.remove('is-active');
-            progressBar.value = 0;
-            progressText.textContent = '0%';
-            document.getElementById('cancel_export_button').removeEventListener('click', cancelExport); // Step 4
-        }
-
-        filter_by_patrol("all")
-
-        function filter_by_patrol(c) {
-            let x, i;
-            x = document.getElementsByClassName("worksheet");
-            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
-            for (i = 0; i < x.length; i++) {
-                if (($(x[i]).attr('data-user-patrol') === c || c === "all") && $(x[i]).find(".title").text().toLowerCase().indexOf($("#worksheet_searchbar").val().toLowerCase()) > -1) {
-                    AddClass(x[i], "show");
-                } else {
-                    RemoveClass(x[i], "show");
-                }
-            }
-        }
-
-        function filter_by_name(c) {
-            let x, i;
-            x = document.getElementsByClassName("worksheet");
-            const selected_patrol = $('#patrol_selector').val();
-            // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not matching the search query
-            for (i = 0; i < x.length; i++) {
-                if ($(x[i]).find(".title").text().toLowerCase().indexOf(c.toLowerCase()) > -1 && (selected_patrol === "all" || $(x[i]).attr('data-user-patrol') === selected_patrol)) {
-                    AddClass(x[i], "show");
-                } else {
-                    RemoveClass(x[i], "show");
-                }
-            }
-        }
-
-        // Show filtered elements
-        function AddClass(element, name) {
-            var i, arr1, arr2;
-            arr1 = element.className.split(" ");
-            arr2 = name.split(" ");
-            for (i = 0; i < arr2.length; i++) {
-                if (arr1.indexOf(arr2[i]) === -1) {
-                    element.className += " " + arr2[i];
-                }
-            }
-        }
-
-        // Hide elements that are not selected
-        function RemoveClass(element, name) {
-            var i, arr1, arr2;
-            arr1 = element.className.split(" ");
-            arr2 = name.split(" ");
-            for (i = 0; i < arr2.length; i++) {
-                while (arr1.indexOf(arr2[i]) > -1) {
-                    arr1.splice(arr1.indexOf(arr2[i]), 1);
-                }
-            }
-            element.className = arr1.join(" ");
-        }
+        filterByPatrol("all");
     </script>
     <style>
         .worksheet {

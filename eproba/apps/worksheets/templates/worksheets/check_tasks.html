@@ -7,7 +7,7 @@
             {% for worksheet in worksheets_list %}
                 {% if worksheet.task_list %}
                     <div class="box">
-                        <h1 class="title">{{ worksheet }}</h1>
+                        <h1 class="title has-text-weight-medium">{{ worksheet }}</h1>
                         {% if worksheet.supervisor %}
                             <h2 class="subtitle">Opiekun próby: <a href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a></h2>
                         {% endif %}
@@ -30,7 +30,7 @@
                                               data-tooltip="Zaakceptuj prośbę"><a
                                             onclick="confirm_popup('{% url 'worksheets:accept_task' worksheet.id task.id %}', 'Czy na pewno chcesz zaliczyć zadanie?')"><i
                                             class="far fa-check-circle" style="color:green;"></i></a></span> <span
-                                            class="has-tooltip-arrow has-tooltip-right has-tooltip-danger"
+                                            class="has-tooltip-arrow has-tooltip-left has-tooltip-danger"
                                             data-tooltip="Odrzuć prośbę"><a
                                             onclick="confirm_popup('{% url 'worksheets:reject_task' worksheet.id task.id %}', 'Czy na pewno chcesz odrzucić zadanie?')"><i
                                             class="far fa-times-circle" style="color:red;"></i></a></span></td>

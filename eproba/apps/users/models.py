@@ -108,5 +108,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             else self.get_scout_rank_display()
         )
 
+    @property
     def rank_nickname(self):
         return f"{self.rank()} {self.nickname}"

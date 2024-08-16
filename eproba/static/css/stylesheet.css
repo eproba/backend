@@ -12,6 +12,10 @@
         --bulma-navbar-dropdown-arrow: var(--bulma-navbar-item-color);
     }
 
+    .navbar-dropdown .navbar-item:not(.is-active,.is-selected) {
+     background-color: var(--bulma-navbar-background-color);
+}
+
     .box {
         --bulma-box-background-color: #0d1117;
         --bulma-box-shadow: none;
@@ -56,7 +60,6 @@
     #container {
         padding-top: 20px;
         padding-bottom: 20px;
-        margin: 0 5px;
     }
 
     .navbar {

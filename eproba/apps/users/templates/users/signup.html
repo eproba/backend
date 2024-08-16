@@ -240,7 +240,7 @@ label.toggle-item:before {
 }
 </style>
 {% get_providers as socialaccount_providers %}
-    <h1 class="title">{{ info }}</h1>
+    <h1 class="title has-text-weight-medium">{{ info }}</h1>
     <div class="buttons">
         {% if request.GET.next %}
         {% url 'check_signup' as check_signup_url %}

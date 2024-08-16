@@ -46,5 +46,5 @@ urlpatterns = [
         name="force_reject_task",
     ),
     path("export/", views.export, name="export"),
-    path("export/<uuid:id>", views.export_worksheet, name="export_worksheet"),
+    path("export/<uuid:worksheet_id>", views.export_worksheet, name="export_worksheet"),
 ]

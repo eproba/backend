@@ -39,7 +39,7 @@ class Worksheet(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} - {self.user}"
+        return f"{self.name} - {self.user.rank_nickname}"
 
     class Meta:
         verbose_name = "Próba"

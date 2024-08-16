@@ -189,7 +189,7 @@ class TaskDetails(ModelViewSet):
                 Q(id=self.kwargs["id"])
                 & Q(worksheet__id=self.kwargs["worksheet_id"])
                 & Q(
-                    worksheet__patrol__team__id=self.request.user.patrol.team.id,
+                    worksheet__user__patrol__team__id=self.request.user.patrol.team.id,
                     worksheet__is_template=False,
                     worksheet__is_archived=False,
                 )
@@ -206,6 +206,9 @@ class TaskDetails(ModelViewSet):
         ).filter(id=self.kwargs["id"])
 
     def perform_update(self, serializer):
+        if serializer.validated_data.get("status") in [0, 2]:
+            serializer.instance.approval_date = timezone.now()
+            serializer.instance.approver = self.request.user
         super().perform_update(serializer)
         serializer.instance.worksheet.save()  # update worksheets modification date
         clear_tokens()  # clear old oauth2 tokens

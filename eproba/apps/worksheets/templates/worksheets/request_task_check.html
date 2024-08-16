@@ -4,7 +4,7 @@
 {% load static %}
 {% block content %}
     <div class="box">
-        <h1 class="title">Poproś o zatwierdzenie zadania</h1>
+        <h1 class="title has-text-weight-medium">Poproś o zatwierdzenie zadania</h1>
         <h1 class="subtitle">{{ worksheet }}</h1>
         <form action="{% url 'worksheets:submit_task' worksheet.id %}" method="post" id="form">
             {% csrf_token %}

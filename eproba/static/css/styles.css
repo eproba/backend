@@ -1,3 +1,0 @@
-@charset "utf-8";
-@import "./bulma-dark.min.css" (prefers-color-scheme: dark);
-@import "./bulma.min.css" (prefers-color-scheme: light);

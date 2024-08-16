@@ -5,7 +5,7 @@
 {% load static %}
 {% block content %}
 {% get_providers as socialaccount_providers %}
-<h1 class="title">Zaloguj się</h1>
+<h1 class="title has-text-weight-medium">Zaloguj się</h1>
 <form action="." method="post">
     {% csrf_token %}
     {{ form|crispy }}

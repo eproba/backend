@@ -63,9 +63,20 @@
                 </a>
             {% endif %}
             {% if request.user.function >= 3 %}
-                <a class="navbar-item" href="{% url 'teams:view_teams' %}">
-                    Zarządzaj drużyną
-                </a>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link" href="{% url 'teams:view_teams' %}">
+                        Twoja drużyna
+                    </a>
+
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="{% url 'teams:view_teams' %}">
+                            Zarządzaj drużyną
+                        </a>
+                        <a class="navbar-item" href="#">
+                            Statystyki (wkrótce)
+                        </a>
+                    </div>
+                </div>
             {% endif %}
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">

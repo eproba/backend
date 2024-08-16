@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     "apps.teams.apps.TeamsConfig",
     "crispy_forms",
     "crispy_bulma",
-    "crispy_bootstrap5",
     "fcm_django",
     "oauth2_provider",
     "constance",
@@ -178,15 +177,25 @@ MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
 # MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/api/",
-    r"^/$",
     r"^/about",
     r"^/robots.txt",
     r"^/app-ads.txt",
+    r"^/ads.txt",
     r"^/sitemap.xml",
     r"^/contact",
     r"^/privacy-policy",
+    r"^/gdpr",
     r"^/terms-of-service",
     r"^/site-management",
+    r"^/login",
+    r"^/password-reset",
+    r"^/password-reset-done",
+    r"^/oauth2/authorize",
+    r"^/accounts/google/login",
+    r"^/accounts/google/login/callback",
+    r"^/accounts/facebook/login",
+    r"^/accounts/facebook/login/callback",
+    r"^/static/images/icons/favicon.svg",
 )
 
 # Templates
@@ -268,7 +277,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = "/static/"
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, "static")
-else:
-    STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")

@@ -7,7 +7,7 @@
             {% for worksheet in worksheets_list %}
                 <div class="block worksheet" id="worksheet_{{ worksheet.id }}">
                     <div class="box">
-                        <span class="title">{{ worksheet.name }} </span>
+                        <span class="title has-text-weight-medium">{{ worksheet.name }} </span>
                         <p><br/></p>
                         <table class="table">
                             <thead>
@@ -50,7 +50,12 @@
                             </span>
                             <span>Użyj szablonu</span>
                         </button>
-                        <a href="{% url 'worksheets:print_worksheet' worksheet.id %}">Print</a>
+                        <a class="button is-link"  href="{% url 'worksheets:print_worksheet' worksheet.id %}">
+                            <span class="icon">
+                                <i class="fa-solid fa-print"></i>
+                            </span>
+                            <span>Drukuj szablon</span>
+                        </a>
                     </div>
                 </div>
             {% endfor %}

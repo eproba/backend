@@ -27,7 +27,7 @@ def export(request):
     patrol_worksheets = []
     if user.function >= 2:
         patrol_worksheets = Worksheet.objects.filter(
-            patrol=user.patrol,
+            user__patrol=user.patrol,
             is_template=False,
             deleted=False,
             is_archived=False,
@@ -36,7 +36,7 @@ def export(request):
     team_worksheets = []
     if user.function >= 3:
         team_worksheets = Worksheet.objects.filter(
-            patrol__team=user.patrol.team,
+            user__patrol__team=user.patrol.team,
             is_template=False,
             deleted=False,
             is_archived=False,
@@ -45,7 +45,7 @@ def export(request):
     archived_patrol_worksheets = []
     if user.function >= 2:
         archived_patrol_worksheets = Worksheet.objects.filter(
-            patrol=user.patrol,
+            user__patrol=user.patrol,
             is_template=False,
             deleted=False,
             is_archived=True,
@@ -54,7 +54,7 @@ def export(request):
     archived_team_worksheets = []
     if user.function >= 3:
         archived_team_worksheets = Worksheet.objects.filter(
-            patrol__team=user.patrol.team,
+            user__patrol__team=user.patrol.team,
             is_template=False,
             deleted=False,
             is_archived=True,
@@ -75,23 +75,9 @@ def export(request):
     )
 
 
-def export_worksheet(request, hex):
-    try:
-        worksheet_user_id = int(f"0x{hex.split('0x')[1]}", 0) // 7312
-        worksheet_id = int(f"0x{hex.split('0x')[2]}", 0) // 2137
-    except Exception:
-        messages.add_message(
-            request, messages.INFO, "Podany link do próby jest nieprawidłowy."
-        )
-        return redirect(reverse("frontpage"))
-
+def export_worksheet(request, worksheet_id):
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
 
-    if worksheet.user.id != worksheet_user_id:
-        messages.add_message(
-            request, messages.INFO, "Podany link do próby jest nieprawidłowy."
-        )
-        return redirect(reverse("frontpage"))
 
     # response = HttpResponse(
     #     HTML(

@@ -2,29 +2,39 @@
 
 {% block content %}
     <div class="box">
-        <p>Witaj na stronie Epróba, aby zobaczyć swoje próby wejdź w zakadkę <a href="{% url 'worksheets:worksheets' %}">"Twoje
+        <p>Witaj na stronie Epróba, aby zobaczyć swoje próby wejdź w zakadkę <a
+                href="{% url 'worksheets:worksheets' %}">"Twoje
             próby"</a>.</p>
-        <p>Jeśli jeszcze nie wiesz jak rozpocząć swoją przygodę z epróbą to zapraszamy ciędo skorzystania z przygotowanych przez naszych ekspertów <a href="/news/tutorial">samouczków</a> które pomogą ci założyć swoje nowe konto, utworzyć pierwszą próbę i wiele więcej.</p>
+        <p>Jeśli jeszcze nie wiesz jak rozpocząć swoją przygodę z epróbą to zapraszamy ciędo skorzystania z
+            przygotowanych przez naszych ekspertów <a href="/news/tutorial">samouczków</a> które pomogą ci założyć swoje
+            nowe konto, utworzyć pierwszą próbę i wiele więcej.</p>
     </div>
-    <h1 class="title">Aktualności</h1>
-    <div class="container" id="blog">
-        <div class="row">
-            <div>
-                {% for post in post_list %}
-                    <div class="block card" onclick="location.href='{% url 'blog:post_detail' post.slug %}'"
-                         style="cursor: pointer;">
-                        <div class="card-content">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="title is-4">{{ post.title }}</p>
-                                    <p class="subtitle is-6">{{ post.created_on }}</p>
+    <div class="block mx-4">
+        <h1 class="title has-text-weight-medium">Aktualności</h1>
+        <div class="container" id="blog">
+            <div class="row">
+                <div>
+                    {% for post in post_list %}
+                        <div class="block card" onclick="location.href='{% url 'blog:post_detail' post.slug %}'"
+                             style="cursor: pointer;">
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="title is-4">{{ post.title }}</p>
+                                        <p class="subtitle is-6">{{ post.created_on }}</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="content">{{ post.content | safe }}</div>
+                                <div class="content">{{ post.content | safe }}</div>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                    {% if not post_list %}
+                        <div class="block">
+                            <p>Brak aktualności</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

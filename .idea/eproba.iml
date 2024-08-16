@@ -32,6 +32,7 @@
     <orderEntry type="library" name="jquery-3.6.0" level="application" />
     <orderEntry type="library" name="UAParser.js" level="application" />
     <orderEntry type="library" name="9d1ff57ca68556c805b491b102e1d460" level="application" />
+    <orderEntry type="library" name="sortablejs" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

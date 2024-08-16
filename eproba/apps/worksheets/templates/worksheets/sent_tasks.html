@@ -4,7 +4,7 @@
 {% block content %}
     {% if tasks_list %}
         <div class="box">
-            <h1 class="title">{{ worksheet }}</h1>
+            <h1 class="title has-text-weight-medium">{{ worksheet }}</h1>
             <h2 class="subtitle">Wysłane prośby o zatwierdzenie</h2>
             <table class="table">
                 <thead>
@@ -23,7 +23,7 @@
                         <td>{{ task.task }}</td>
                         <td>{{ task.approver }}</td>
                         <td>{{ task.approval_date }}</td>
-                        <td><span class="has-tooltip-arrow has-tooltip-right has-tooltip-danger"
+                        <td><span class="has-tooltip-arrow has-tooltip-left has-tooltip-danger"
                                   data-tooltip="Anuluj prośbę"><a
                                 onclick="confirm_unsubmit_task('{% url 'worksheets:unsubmit_task' worksheet.id task.id %}')"><i
                                 class="far fa-times-circle" style="color:red;"></i></a></span></td>
