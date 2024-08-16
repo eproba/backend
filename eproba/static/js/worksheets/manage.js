@@ -342,7 +342,6 @@ async function updateTaskStatus(worksheetId, taskId, newStatus, message) {
                 approver: userId,
                 approval_date: new Date()
             }, [], []);
-            console.log(oldStatus, newStatus);
             if (oldStatus !== newStatus) {
                 const completedTasksCount = parseInt(document.getElementById(`worksheet_${worksheetId}`).dataset.completedTasksCount);
                 document.getElementById(`worksheet_${worksheetId}`).dataset.completedTasksCount = completedTasksCount + (oldStatus === 2 ? -1 : 0) + (newStatus === 2 ? 1 : 0);

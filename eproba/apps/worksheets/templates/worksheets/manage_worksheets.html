@@ -4,11 +4,11 @@
 {% load crispy_forms_tags %}
 {% block extrahead %}
     <script>
-        const csrfToken = '{{ csrf_token }}';
         const userFunction = {{ request.user.function }};
         const userId = '{{ request.user.id }}';
     </script>
     <script src="{% static 'js/worksheets/filter.js' %}"></script>
+    <script defer src="{% static 'js/core/helpers.js' %}"></script>
 {% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}

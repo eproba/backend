@@ -4,6 +4,7 @@
 {% load crispy_forms_tags %}
 {% block extrahead %}
     <script src="{% static 'js/worksheets/filter.js' %}"></script>
+    <script defer src="{% static 'js/core/helpers.js' %}"></script>
 {% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
@@ -53,14 +54,54 @@
                                 <span class="icon has-tooltip-bottom has-tooltip-arrow"
                                       id="tooltip_text_{{ worksheet.id }}_print"
                                       data-tooltip="Przywróć próbę"><span
-                                        onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', fun=function(){$.ajax({'url': '{% url 'api-worksheets-list' %}{{ worksheet.id }}/', 'type': 'patch', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'data': {'is_archived': 'false'}, 'success': function () {alert('Próba została przywrócona.'); $('#worksheet_{{ worksheet.id }}').remove();}}) })"><i
-                                        class="fa-solid fa-box-open"></i></span></span>
+                                        onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', function() {
+                                                fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
+                                                method: 'PATCH',
+                                                headers: {
+                                                'X-CSRFToken': '{{ csrf_token }}',
+                                                'Content-Type': 'application/json'
+                                                },
+                                                body: JSON.stringify({ is_archived: 'false' })
+                                                })
+                                                .then(response => {
+                                                if (response.ok) {
+                                                alert('Próba została przywrócona.');
+                                                document.getElementById('worksheet_{{ worksheet.id }}').remove();
+                                                } else {
+                                                alert('Wystąpił błąd podczas przywracania próby.');
+                                                }
+                                                })
+                                                .catch(error => {
+                                                console.error('Error:', error);
+                                                alert('Wystąpił błąd podczas przywracania próby.');
+                                                });
+                                                })"><i class="fa-solid fa-box-open"></i></span></span>
                                 {% if user.function > 2 %}
                                     <span class="icon has-tooltip-bottom has-tooltip-arrow"
                                           id="tooltip_text_{{ worksheet.id }}_print"
                                           data-tooltip="Usuń próbę na zawsze"><span
-                                            onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', fun=function(){$.ajax({'url': '{% url 'api-worksheets-list' %}{{ worksheet.id }}/?archived', 'type': 'delete', 'headers': {'X-CSRFToken': '{{ csrf_token }}'}, 'dataType': 'json', 'success': function () {alert('Próba została usunięta.'); $('#worksheet_{{ worksheet.id }}').remove();}}) })"><i
-                                            class="fa-solid fa-trash"></i></span></span>
+                                            onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', function() {
+                                                    fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
+                                                    method: 'DELETE',
+                                                    headers: {
+                                                    'X-CSRFToken': '{{ csrf_token }}',
+                                                    'Content-Type': 'application/json'
+                                                    }
+                                                    })
+                                                    .then(response => {
+                                                    if (response.ok) {
+                                                    alert('Próba została usunięta.');
+                                                    document.getElementById('worksheet_{{ worksheet.id }}').remove();
+                                                    } else {
+                                                    alert('Wystąpił błąd podczas usuwania próby.');
+                                                    }
+                                                    })
+                                                    .catch(error => {
+                                                    console.error('Error:', error);
+                                                    alert('Wystąpił błąd podczas usuwania próby.');
+                                                    });
+                                                    })">
+                                     <i class="fa-solid fa-trash"></i></span></span>
                                 {% endif %}
                             </div>
                         </div>

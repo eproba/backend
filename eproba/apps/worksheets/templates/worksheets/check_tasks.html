@@ -1,5 +1,9 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Prośby o zatwierdzenie{% endblock %}
+{%  block extrahead %}
+    <script defer src="{% static 'js/core/helpers.js' %}"></script>
+{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
     {% if request.user.is_authenticated %}

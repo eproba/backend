@@ -1,239 +1,34 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Epróba - {{ user.full_name_nickname }}{% endblock %}
-{% block content %}
-    {% if enable_edit %}
+{% if enable_edit %}
+    {% block extrahead %}
         <script>
-            scoutRanks = {
+
+            const scoutRanks = {
                 {% for rank in scout_ranks %}
                     '{{ rank.0 }}': '{{ rank.1 }}',
                 {% endfor %}
             }
 
-            instructorRanks = {
+            const instructorRanks = {
                 {% for rank in instructor_ranks %}
                     '{{ rank.0 }}': '{{ rank.1 }}',
                 {% endfor %}
             }
 
-            functions = {
+            const functions = {
                 {% for function in functions %}
                     '{{ function.0 }}': '{{ function.1 }}',
                 {% endfor %}
             }
 
-            function rankDisplay(scoutRank, instructorRank) {
-                if (instructorRank !== 0) {
-                    return `${scoutRanks[scoutRank]} ${instructorRanks[instructorRank]}`;
-                } else {
-                    return scoutRanks[scoutRank];
-                }
-            }
-
-            function deactivateUser() {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'is_active': false}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        alert('Użytkownik został dezaktywowany');
-                        location.replace({% url 'teams:view_teams' %})
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się dezaktywować użytkownika: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się dezaktywować użytkownika \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function reactivateUser() {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'is_active': true}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        alert('Użytkownik został aktywowany');
-                        location.reload();
-                    },
-                    error: function (data) {
-                        if (data.readyState === "0") {
-                            alert(`Nie udało się aktywować użytkownika: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się aktywować użytkownika \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function transferUser(targetPatrolId) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'patrol': targetPatrolId, 'function': 0}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        alert('Użytkownik został przeniesiony do nowej drużyny');
-                        location.replace({% url 'teams:view_teams' %})
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się przenieść użytkownika: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się przenieść użytkownika \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changePatrol(targetPatrolId) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'patrol': targetPatrolId}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#patrol').html(`${data.patrol_name} <i class="fa-solid fa-pen fa-xs"></i></p>`);
-                        alert('Użytkownik został przeniesiony do innego zastępu');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się przenieść użytkownika: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się przenieść użytkownika \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changeFunction(newFunction) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'function': newFunction}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#function').html(`${functions[data.function]} <i class="fa-solid fa-pen fa-xs"></i></p>`);
-                        alert('Funkcja użytkownika została zmieniona');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się zmienić funkcji: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się zmienić funkcji \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changeRanks(newScoutRank, newInstructorRank) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'scout_rank': newScoutRank, 'instructor_rank': newInstructorRank}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#rank').html(`${rankDisplay(data.scout_rank, data.instructor_rank)} <i class="fa-solid fa-pen fa-xs"></i></p>`);
-                        alert('Stopień użytkownika został zmieniony');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się zmienić stopnia: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się zmienić stopnia \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changeFirstName(newFirstName) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'first_name': newFirstName}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#first-name').html(`${data.first_name}`);
-                        $('#first-name-edit-icon').css('display', 'inline')
-                        $('#first-name-loading-icon').hide()
-                        alert('Imię użytkownika zostało zmienione');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się zmienić imienia: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się zmienić imienia \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changeLastName(newLastName) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'last_name': newLastName}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#last-name').html(`${data.last_name}`);
-                        $('#last-name-edit-icon').css('display', 'inline')
-                        $('#last-name-loading-icon').hide()
-                        alert('Nazwisko użytkownika zostało zmienione');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się zmienić nazwiska: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się zmienić nazwiska \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
-
-            function changeNickname(newNickname) {
-                $.ajax({
-                    url: '{% url 'api-users-list' %}{{ user.id }}/',
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'nickname': newNickname}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function (data) {
-                        $('#nickname').html(`${data.nickname}`);
-                        $('#nickname-edit-icon').css('display', 'inline')
-                        $('#nickname-loading-icon').hide()
-                        alert('Pseudonim użytkownika został zmieniony');
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się zmienić pseudonimu: \nSprawdź swoje połączenie z internetem`)
-                        } else {
-                            alert(`Nie udało się zmienić pseudonimu \n${data.statusText}`)
-                        }
-                    }
-                })
-            }
+            const user = {{ user.to_json|safe }};
         </script>
-    {% endif %}
+        <script src="{% static 'js/teams/manage_user.js' %}"></script>
+    {% endblock %}
+{% endif %}
+{% block content %}
     <div class="box" style="position:relative; width:100%;">
         <h1 class="subtitle"><i class="fa-solid fa-arrow-left" style="cursor: pointer" onclick="history.back()"></i>
             {{ user.full_name_nickname }}{% if not user.is_active %} (nieaktywny){% endif %}</h1>
@@ -245,7 +40,8 @@
                         <div id="first-name" class="is-inline" contentEditable="true">
                             {% if user.first_name %}{{ user.first_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
                         <div id="first-name-edit-icon" style="cursor: pointer; display: inline"
-                             onclick="$('#first-name').focus()"><i class="fa-solid fa-pen fa-xs"></i></div>
+                             onclick="document.getElementById('first-name').focus()"><i
+                                class="fa-solid fa-pen fa-xs"></i></div>
                         <div id="first-name-save-icons" style="display: none">
                             <button id="first-name-confirm-icon"
                                     style="background-color: transparent; border: none; cursor:pointer"><i
@@ -268,7 +64,8 @@
                         <div id="last-name" class="is-inline" contentEditable="true">
                             {% if user.last_name %}{{ user.last_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
                         <div id="last-name-edit-icon" style="cursor: pointer; display: inline"
-                             onclick="$('#last-name').focus()"><i class="fa-solid fa-pen fa-xs"></i></div>
+                             onclick="document.getElementById('last-name').focus()"><i
+                                class="fa-solid fa-pen fa-xs"></i></div>
                         <div id="last-name-save-icons" style="display: none">
                             <button id="last-name-confirm-icon"
                                     style="background-color: transparent; border: none; cursor:pointer"><i
@@ -291,7 +88,8 @@
                         <div id="nickname" class="is-inline" contentEditable="true">
                             {% if user.nickname %}{{ user.nickname }}{% else %}<i>Nie podano</i>{% endif %}</div>
                         <div id="nickname-edit-icon" style="cursor: pointer; display: inline"
-                             onclick="$('#nickname').focus()"><i class="fa-solid fa-pen fa-xs"></i></div>
+                             onclick="document.getElementById('nickname').focus()"><i class="fa-solid fa-pen fa-xs"></i>
+                        </div>
                         <div id="nickname-save-icons" style="display: none">
                             <button id="nickname-confirm-icon"
                                     style="background-color: transparent; border: none; cursor:pointer"><i
@@ -386,11 +184,11 @@
                 <section class="modal-card-body">
                     <div class="is-inline-flex">
                         <div class="field" style="margin-inline-end: 1em">
-                            <label class="label">Stopień harcerski</label>
+                            <label class="label" for="scout-rank-select">Stopień harcerski</label>
                             <div class="control">
                                 <div class="select">
                                     <select id="scout-rank-select" class="select"
-                                            onchange="if(this.value>=5) {$('#instructor-rank-field').show()} else {$('#instructor-rank-field').hide(); $('#instructor-rank-select').val(0)}">
+                                            onchange="if(this.value >= 5) { document.getElementById('instructor-rank-field').style.display = 'block'; } else { document.getElementById('instructor-rank-field').style.display = 'none'; document.getElementById('instructor-rank-select').value = 0; }">
                                         {% for rank in scout_ranks %}
                                             <option value="{{ rank.0 }}">{{ rank.1 }}</option>
                                         {% endfor %}
@@ -399,7 +197,7 @@
                             </div>
                         </div>
                         <div id="instructor-rank-field" class="field" style="display: none">
-                            <label class="label">Stopień instruktorski</label>
+                            <label class="label" for="instructor-rank-select">Stopień instruktorski</label>
                             <div class="control">
                                 <div class="select">
                                     <select id="instructor-rank-select" class="select">
@@ -414,7 +212,7 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-success"
-                            onclick="changeRanks($('#scout-rank-select').val(), $('#instructor-rank-select').val())">
+                            onclick="changeRanks(document.getElementById('scout-rank-select').value, document.getElementById('instructor-rank-select').value)">
                         Zapisz
                     </button>
                     <button class="button">Anuluj</button>
@@ -430,7 +228,7 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field" style="margin-inline-end: 1em">
-                        <label class="label">Zastęp</label>
+                        <label class="label" for="patrol-select">Zastęp</label>
                         <div class="control">
                             <div class="select">
                                 <select id="patrol-select" class="select">
@@ -443,7 +241,9 @@
                     </div>
                 </section>
                 <footer class="modal-card-foot">
-                    <button class="button is-success" onclick="changePatrol($('#patrol-select').val())">Zapisz</button>
+                    <button class="button is-success"
+                            onclick="changePatrol(document.getElementById('patrol-select').value)">Zapisz
+                    </button>
                     <button class="button">Anuluj</button>
                 </footer>
             </div>
@@ -457,7 +257,7 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field" style="margin-inline-end: 1em">
-                        <label class="label">Funkcja</label>
+                        <label class="label" for="function-select">Funkcja</label>
                         <div class="control">
                             <div class="select">
                                 <select id="function-select" class="select">
@@ -470,7 +270,9 @@
                     </div>
                 </section>
                 <footer class="modal-card-foot">
-                    <button class="button is-success" onclick="changeFunction($('#function-select').val())">Zapisz
+                    <button class="button is-success"
+                            onclick="changeFunction(document.getElementById('function-select').value)">
+                        Zapisz
                     </button>
                     <button class="button">Anuluj</button>
                 </footer>
@@ -485,7 +287,7 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field" style="margin-inline-end: 1em">
-                        <label class="label">Drużyna</label>
+                        <label class="label" for="transfer-user-team-select">Drużyna</label>
                         <div class="control">
                             <div class="select">
                                 <select id="transfer-user-team-select" class="select">
@@ -497,7 +299,7 @@
                         </div>
                     </div>
                     <div class="field" style="margin-inline-end: 1em">
-                        <label class="label">Zastęp</label>
+                        <label class="label" for="transfer-user-patrol-select">Zastęp</label>
                         <div class="control">
                             <div class="select">
                                 <select id="transfer-user-patrol-select" class="select">
@@ -511,7 +313,8 @@
                     </div>
                 </section>
                 <footer class="modal-card-foot">
-                    <button class="button is-info" onclick="transferUser($('#transfer-user-patrol-select').val())">
+                    <button class="button is-info"
+                            onclick="transferUser(document.getElementById('transfer-user-patrol-select').value)">
                         Przenieś
                     </button>
                     <button class="button">Anuluj</button>
@@ -552,180 +355,5 @@
                 </div>
             </div>
         {% endif %}
-    {% endif %}
-{% endblock %}
-{% block scripts %}
-    {% if enable_edit %}
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                // Set variables that will be used to discard changes
-                let firstNameField = $('#first-name')
-                let lastNameField = $('#last-name')
-                let nicknameField = $('#nickname')
-                let previousFirstName = firstNameField.text();
-                let previousLastName = lastNameField.text();
-                let previousNickname = nicknameField.text();
-
-                // Set initial values for select elements
-                $('#scout-rank-select').val({{ user.scout_rank }});
-                $('#instructor-rank-select').val({{ user.instructor_rank }});
-                $('#patrol-select').val("{{ user.patrol.id }}");
-                $('#function-select').val({{ user.function }});
-                if ({{ user.scout_rank }} >= 5 ) {
-                    $('#instructor-rank-field').show()
-                }
-
-                document.querySelectorAll("#transfer-user-patrol-select option").forEach((patrol) => {
-                    patrol.style.display = "none";
-                });
-                $('#transfer-user-patrol-select').val(-1);
-                $('#transfer-user-team-select').val(-1);
-
-                // Functions to open and close a modal
-                function openModal($el) {
-                    $el.classList.add('is-active');
-                }
-
-                function closeModal($el) {
-                    $el.classList.remove('is-active');
-                }
-
-                function closeAllModals() {
-                    (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-                        closeModal($modal);
-                    });
-                }
-
-                // Add a click event on buttons to open a specific modal
-                (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
-                    const modal = $trigger.dataset.target;
-                    const $target = document.getElementById(modal);
-
-                    $trigger.addEventListener('click', () => {
-                        openModal($target);
-                    });
-                });
-
-                // Add a click event on various child elements to close the parent modal
-                (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
-                    const $target = $close.closest('.modal');
-
-                    $close.addEventListener('click', () => {
-                        closeModal($target);
-                    });
-                });
-
-                // Add a keyboard event to close all modals
-                document.addEventListener('keydown', (event) => {
-                    if (event.key === "Escape") {
-                        closeAllModals();
-                    }
-                });
-
-                $("#transfer-user-team-select").on("change", function () {
-                    let teamId = $("#transfer-user-team-select").val();
-                    let patrols = document.querySelectorAll("#transfer-user-patrol-select option");
-                    let matchingForeignPatrols = [];
-                    patrols.forEach((patrol) => {
-                        if (patrol.getAttribute("data-team-id") === teamId) {
-                            patrol.style.display = "block";
-                            matchingForeignPatrols.push(patrol);
-                        } else {
-                            patrol.style.display = "none";
-                        }
-                    });
-                    matchingForeignPatrols[0].selected = true;
-                });
-
-
-                firstNameField.on('focusin', function () {
-                    $('#first-name-edit-icon').hide()
-                    $('#first-name-save-icons').css('display', 'inline')
-                });
-
-                firstNameField.on('focusout', function (event) {
-                    if (event.relatedTarget !== null && event.relatedTarget !== undefined && event.relatedTarget.id === "first-name-confirm-icon") {
-                        previousFirstName = firstNameField.text();
-                        $('#first-name-save-icons').hide()
-                        $('#first-name-loading-icon').css('display', 'inline')
-                        changeFirstName(firstNameField.text());
-                        return;
-                    }
-                    $('#first-name-edit-icon').css('display', 'inline')
-                    $('#first-name-save-icons').hide()
-                    firstNameField.text(previousFirstName);
-                });
-
-                firstNameField.on('keydown', function (event) {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        previousFirstName = firstNameField.text();
-                        changeFirstName(firstNameField.text());
-                        $('#first-name-save-icons').hide()
-                        $('#first-name-loading-icon').css('display', 'inline')
-                        firstNameField.blur();
-                    }
-                });
-
-                lastNameField.on('focusin', function () {
-                    $('#last-name-edit-icon').hide()
-                    $('#last-name-save-icons').css('display', 'inline')
-                });
-
-                lastNameField.on('focusout', function (event) {
-                    if (event.relatedTarget !== null && event.relatedTarget.id === "last-name-confirm-icon") {
-                        previousLastName = lastNameField.text();
-                        $('#last-name-save-icons').hide()
-                        $('#last-name-loading-icon').css('display', 'inline')
-                        changeLastName(lastNameField.text());
-                        return;
-                    }
-                    $('#last-name-edit-icon').css('display', 'inline')
-                    $('#last-name-save-icons').hide()
-                    lastNameField.text(previousLastName);
-                });
-
-                lastNameField.on('keydown', function (event) {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        previousLastName = lastNameField.text();
-                        changeLastName(lastNameField.text());
-                        $('#last-name-save-icons').hide()
-                        $('#last-name-loading-icon').css('display', 'inline')
-                        lastNameField.blur();
-                    }
-                });
-
-                nicknameField.on('focusin', function () {
-                    $('#nickname-edit-icon').hide()
-                    $('#nickname-save-icons').css('display', 'inline')
-                });
-
-                nicknameField.on('focusout', function (event) {
-                    if (event.relatedTarget !== null && event.relatedTarget.id === "nickname-confirm-icon") {
-                        previousNickname = nicknameField.text();
-                        $('#nickname-save-icons').hide()
-                        $('#nickname-loading-icon').css('display', 'inline')
-                        changeNickname(nicknameField.text());
-                        return;
-                    }
-                    $('#nickname-edit-icon').css('display', 'inline')
-                    $('#nickname-save-icons').hide()
-                    nicknameField.text(previousNickname);
-                });
-
-                nicknameField.on('keydown', function (event) {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        previousNickname = nicknameField.text();
-                        changeNickname(nicknameField.text());
-                        $('#nickname-save-icons').hide()
-                        $('#nickname-loading-icon').css('display', 'inline')
-                        nicknameField.blur();
-                    }
-                });
-
-            });
-        </script>
     {% endif %}
 {% endblock %}

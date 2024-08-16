@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from apps.teams.models import Patrol
@@ -5,6 +6,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.db import models
 from django.db.models import UUIDField
 from django.utils import timezone
+from users.utils import UUIDEncoder
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -111,3 +113,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def rank_nickname(self):
         return f"{self.rank()} {self.nickname}"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "nickname": self.nickname,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "is_staff": self.is_staff,
+            "is_active": self.is_active,
+            "date_joined": self.date_joined,
+            "patrol": self.patrol.id if self.patrol is not None else None,
+            "scout_rank": self.scout_rank,
+            "instructor_rank": self.instructor_rank,
+            "function": self.function,
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), cls=UUIDEncoder)

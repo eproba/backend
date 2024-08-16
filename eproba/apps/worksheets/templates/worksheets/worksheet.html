@@ -1,5 +1,9 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Twoje próby{% endblock %}
+{% block extrahead %}
+    <script defer src="{% static 'js/core/helpers.js' %}"></script>
+{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
     {% if request.user.is_authenticated or is_shared %}
@@ -106,14 +110,14 @@
                             </div>
                             <div class="buttons">
                             {% if worksheet.show_submit_task_button %}
-                                <button class="button is-success" id="button-desktop"
-                                        onclick="$('#request_task_check_modal_div_{{ worksheet.id }}').load('{% url 'worksheets:submit_task' worksheet.id %} #form'); document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.add('is-active');">
+                                <button class="button is-success submit-task-button button-desktop"
+                                        data-worksheet-id="{{ worksheet.id }}">
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
     </span>
                                     <span>Wyślij prośbę o zatwierdzenie zadania</span>
                                 </button>
-                                <button class="button is-success" id="button-mobile"
+                                <button class="button is-success button-mobile"
                                         onclick="location.href='{% url 'worksheets:submit_task' worksheet.id %}'">
     <span class="icon">
     <i class="fas fa-clipboard-check"></i>
@@ -140,7 +144,14 @@
         </span>
                         <span>Drukuj próbę</span>
                     </button>
-                    <button onclick="document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = ''; new QRCode(document.getElementById('qr_modal_div_{{ worksheet.id }}'), '{{ request.scheme }}://{{ request.get_host }}/worksheets/share/view/{{ worksheet.id }}'); $('#qr_modal_div_{{ worksheet.id }}').children('img').css({'margin': 'auto', 'padding': '10px', 'background': '#ffffff', 'border-radius': '10px'}); document.getElementById('qr_modal_{{ worksheet.id }}').classList.add('is-active');"
+                    <button onclick="document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = '';
+                            new QRCode(document.getElementById('qr_modal_div_{{ worksheet.id }}'), '{{ request.scheme }}://{{ request.get_host }}/worksheets/share/view/{{ worksheet.id }}');
+                            const img = document.querySelector('#qr_modal_div_{{ worksheet.id }} img');
+                            img.style.margin = 'auto';
+                            img.style.padding = '10px';
+                            img.style.background = '#ffffff';
+                            img.style.borderRadius = '10px';
+                            document.getElementById('qr_modal_{{ worksheet.id }}').classList.add('is-active');"
                             class="button is-link">
         <span class="icon">
         <i class="fas fa-qrcode"></i>
@@ -202,13 +213,13 @@
     {% endif %}
     <style>
         @media (min-width: 600px) {
-            #button-mobile {
+            .button-mobile {
                 display: none;
             }
         }
 
         @media (max-width: 599px) {
-            #button-desktop {
+            .button-desktop {
                 display: none;
             }
         }
@@ -229,4 +240,15 @@
             width: 80px;
         }
     </style>
+    <script>
+        document.querySelectorAll('.submit-task-button').forEach(button => {
+            button.addEventListener('click', async () => {
+                const response = await fetch(`/worksheets/${button.dataset.worksheetId}/task/submit/`);
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(await response.text(), 'text/html');
+                document.getElementById(`request_task_check_modal_div_${ button.dataset.worksheetId }`).innerHTML = doc.getElementById('form').outerHTML;
+                document.getElementById(`request_task_check_modal_${ button.dataset.worksheetId }`).classList.add('is-active');
+            });
+        });
+    </script>
 {% endblock %}

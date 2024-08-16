@@ -3,18 +3,16 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
 
-def view_teams(request):
+def view_team(request):
     if request.user.is_authenticated and request.user.function >= 3:
         if not request.user.patrol:
             messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
             return redirect("frontpage")
-        user = request.user
-        teams = [user.patrol.team]
 
         return render(
             request,
             "teams/view_team.html",
-            {"teams": teams},
+            {"team": request.user.patrol.team},
         )
     return redirect("frontpage")
 

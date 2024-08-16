@@ -1,5 +1,12 @@
 {% extends 'core/base.html' %}
+{% load static %}
 {% block title %}Zarządzaj drużyną{% endblock %}
+{% block extrahead %}
+    <script>
+        const teamId = '{{ team.id }}';
+    </script>
+    <script src="{% static 'js/teams/view_team.js' %}"></script>
+{% endblock %}
 {% block content %}
     {#<div class="level">#}
     {#    <div class="level-left">#}
@@ -15,267 +22,94 @@
     {#        </div>#}
     {#    </div>#}
     {#</div>#}
-    {% for team in teams %}
-        <div class="box">
-            <h1 class="title has-text-weight-medium">
-                {% if request.user.function >= 4 %}
-                    <div id="team-name-{{ team.id }}" class="is-inline" contentEditable="true">{{ team }}</div>
-                    <div id="team-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
-                         onclick="$('#team-name-{{ team.id }}').focus()"><i class="fa-solid fa-pen fa-xs"></i></div>
-                    <div id="team-name-{{ team.id }}-save-icons" style="display: none">
-                        <button id="team-name-{{ team.id }}-confirm-icon"
-                                style="background-color: transparent; border: none; cursor:pointer"><i
-                                class="fa-solid fa-check fa-2xl" style="color: green"></i></button>
-                        <button style="background-color: transparent; border: none; cursor:pointer"><i
-                                style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-2xl"></i></button>
-                    </div>
-                    <div id="team-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
-                            class="fas fa-spinner fa-spin"></i></div>
-                {% else %}
-                    <div id="team-name-{{ team.id }}" class="is-inline">{{ team }}</div>
-                {% endif %}
-            </h1>
-            <h1 class="subtitle">
-                {% if request.user.function >= 4 %}
-                    <div id="team-short-name-{{ team.id }}" class="is-inline"
-                         contentEditable="true">{{ team.short_name }}</div>
-                    <div id="team-short-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
-                         onclick="$('#team-short-name-{{ team.id }}').focus()"><i class="fa-solid fa-pen fa-xs"></i>
-                    </div>
-                    <div id="team-short-name-{{ team.id }}-save-icons" style="display: none">
-                        <button id="team-short-name-{{ team.id }}-confirm-icon"
-                                style="background-color: transparent; border: none; cursor:pointer"><i
-                                class="fa-solid fa-check fa-xl" style="color: green"></i></button>
-                        <button style="background-color: transparent; border: none; cursor:pointer"><i
-                                style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-xl"></i></button>
-                    </div>
-                    <div id="team-short-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
-                            class="fas fa-spinner fa-spin"></i></div>
-                {% else %}
-                    <div id="team-short-name-{{ team.id }}" class="is-inline">{{ team.short_name }}</div>
-                {% endif %}
-            </h1>
-            Zastępy:
-            <table class="table">
-                {% for patrol in team.patrol_set.all|dictsort:"name" %}
-                    <tr>
-                        <td><a href="{% url 'teams:view_patrol' patrol.id %}">{{ patrol.name }}</a></td>
-                        <td>
-                            <i data-target="edit-patrol-modal" data-patrol-id="{{ patrol.id }}"
-                               data-patrol-name="{{ patrol.name }}"
-                               id="edit-patrol-trigger" style="margin-right: 0.25rem; cursor:pointer"
-                               class="js-modal-trigger fa-solid fa-pen fa-xs"></i>
-                            <i data-target="delete-patrol-modal" data-patrol-id="{{ patrol.id }}"
-                               data-patrol-name="{{ patrol.name }}" id="delete-patrol-trigger" style="cursor: pointer"
-                               class="js-modal-trigger fa-solid fa-trash fa-xs"></i>
-                        </td>
-                    </tr>
-                {% endfor %}
+    <div class="box">
+        <h1 class="title has-text-weight-medium">
+            {% if request.user.function >= 4 %}
+                <div id="team-name-{{ team.id }}" class="is-inline" contentEditable="true">{{ team }}</div>
+                <div id="team-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
+                     onclick="document.getElementById('team-name-{{ team.id }}').focus()"><i
+                        class="fa-solid fa-pen fa-xs"></i></div>
+                <div id="team-name-{{ team.id }}-save-icons" style="display: none">
+                    <button id="team-name-{{ team.id }}-confirm-icon"
+                            style="background-color: transparent; border: none; cursor:pointer"><i
+                            class="fa-solid fa-check fa-2xl" style="color: green"></i></button>
+                    <button style="background-color: transparent; border: none; cursor:pointer"><i
+                            style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-2xl"></i></button>
+                </div>
+                <div id="team-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
+                        class="fas fa-spinner fa-spin"></i></div>
+            {% else %}
+                <div id="team-name-{{ team.id }}" class="is-inline">{{ team }}</div>
+            {% endif %}
+        </h1>
+        <h1 class="subtitle">
+            {% if request.user.function >= 4 %}
+                <div id="team-short-name-{{ team.id }}" class="is-inline"
+                     contentEditable="true">{{ team.short_name }}</div>
+                <div id="team-short-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
+                     onclick="document.getElementById('team-short-name-{{ team.id }}').focus()"><i
+                        class="fa-solid fa-pen fa-xs"></i>
+                </div>
+                <div id="team-short-name-{{ team.id }}-save-icons" style="display: none">
+                    <button id="team-short-name-{{ team.id }}-confirm-icon"
+                            style="background-color: transparent; border: none; cursor:pointer"><i
+                            class="fa-solid fa-check fa-xl" style="color: green"></i></button>
+                    <button style="background-color: transparent; border: none; cursor:pointer"><i
+                            style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-xl"></i></button>
+                </div>
+                <div id="team-short-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
+                        class="fas fa-spinner fa-spin"></i></div>
+            {% else %}
+                <div id="team-short-name-{{ team.id }}" class="is-inline">{{ team.short_name }}</div>
+            {% endif %}
+        </h1>
+        Zastępy:
+        <table class="table">
+            {% for patrol in team.patrol_set.all|dictsort:"name" %}
                 <tr>
-                    <td><a class="js-modal-trigger" data-target="create-patrol-modal-{{ team.id }}">Utwórz nowy</a></td>
-                    <td><i class="js-modal-trigger fa-solid fa-plus fa-xs" style="cursor: pointer"
-                           data-target="create-patrol-modal-{{ team.id }}"></i></td>
+                    <td><a href="{% url 'teams:view_patrol' patrol.id %}">{{ patrol.name }}</a></td>
+                    <td>
+                        <i data-target="edit-patrol-modal" data-patrol-id="{{ patrol.id }}"
+                           data-patrol-name="{{ patrol.name }}"
+                           id="edit-patrol-trigger" style="margin-right: 0.25rem; cursor:pointer"
+                           class="js-modal-trigger fa-solid fa-pen fa-xs"></i>
+                        <i data-target="delete-patrol-modal" data-patrol-id="{{ patrol.id }}"
+                           data-patrol-name="{{ patrol.name }}" id="delete-patrol-trigger" style="cursor: pointer"
+                           class="js-modal-trigger fa-solid fa-trash fa-xs"></i>
+                    </td>
                 </tr>
-            </table>
-        </div>
-        <div class="modal" id="create-patrol-modal-{{ team.id }}">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Dodaj zastęp</p>
-                    <button class="delete" aria-label="close"></button>
-                </header>
-                <section class="modal-card-body">
-                    <div class="field" style="margin-inline-end: 1em">
-                        <label class="label">Nazwa</label>
-                        <div class="control">
-                            <input id="create-patrol-input-{{ team.id }}" class="input" type="text">
-                        </div>
+            {% endfor %}
+            <tr>
+                <td><a class="js-modal-trigger" data-target="create-patrol-modal-{{ team.id }}">Utwórz nowy</a></td>
+                <td><i class="js-modal-trigger fa-solid fa-plus fa-xs" style="cursor: pointer"
+                       data-target="create-patrol-modal-{{ team.id }}"></i></td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal" id="create-patrol-modal-{{ team.id }}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Dodaj zastęp</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field" style="margin-inline-end: 1em">
+                    <label class="label" for="create-patrol-input-{{ team.id }}">Nazwa</label>
+                    <div class="control">
+                        <input id="create-patrol-input-{{ team.id }}" class="input" type="text">
                     </div>
-                </section>
-                <footer class="modal-card-foot">
-                    <button class="button is-success"
-                            onclick="createPatrol($('#create-patrol-input-{{ team.id }}').val(), '{{ team.id }}'); $('#create-patrol-input-{{ team.id }}').val('')">
-                        Utwórz
-                    </button>
-                    <button class="button">Anuluj</button>
-                </footer>
-            </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success"
+                        onclick="createPatrol(document.getElementById('create-patrol-input-{{ team.id }}').value, '{{ team.id }}'); document.getElementById('create-patrol-input-{{ team.id }}').value = ''">
+                    Utwórz
+                </button>
+                <button class="button">Anuluj</button>
+            </footer>
         </div>
-        <script>
-
-            let teamNameField = $('#team-name-{{ team.id }}');
-            let teamShortNameField = $('#team-short-name-{{ team.id }}');
-            let previousTeamName = teamNameField.text();
-            let previousTeamShortName = teamShortNameField.text();
-
-            teamNameField.on('focusin', function () {
-                $('#team-name-{{ team.id }}-edit-icon').hide()
-                $('#team-name-{{ team.id }}-save-icons').css('display', 'inline')
-            });
-
-            teamNameField.on('focusout', function (event) {
-                if (event.relatedTarget !== null && event.relatedTarget.id === "team-name-{{ team.id }}-confirm-icon") {
-                    previousTeamName = teamNameField.text();
-                    $('#team-name-{{ team.id }}-save-icons').hide()
-                    $('#team-name-{{ team.id }}-loading-icon').css('display', 'inline')
-                    changeTeamName(teamNameField.text());
-                    return;
-                }
-                $('#team-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                $('#team-name-{{ team.id }}-save-icons').hide()
-                teamNameField.text(previousTeamName);
-            });
-
-            teamNameField.on('keydown', function (event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    previousTeamName = teamNameField.text();
-                    changeTeamName(teamNameField.text());
-                    $('#team-name-{{ team.id }}-save-icons').hide()
-                    $('#team-name-{{ team.id }}-loading-icon').css('display', 'inline')
-                    teamNameField.blur();
-                }
-            });
-
-            teamShortNameField.on('focusin', function () {
-                $('#team-short-name-{{ team.id }}-edit-icon').hide()
-                $('#team-short-name-{{ team.id }}-save-icons').css('display', 'inline')
-            });
-
-            teamShortNameField.on('focusout', function (event) {
-                if (event.relatedTarget !== null && event.relatedTarget.id === "team-short-name-{{ team.id }}-confirm-icon") {
-                    previousTeamShortName = teamShortNameField.text();
-                    $('#team-short-name-{{ team.id }}-save-icons').hide()
-                    $('#team-short-name-{{ team.id }}-loading-icon').css('display', 'inline')
-                    changeTeamShortName(teamShortNameField.text());
-                    return;
-                }
-                $('#team-short-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                $('#team-short-name-{{ team.id }}-save-icons').hide()
-                teamShortNameField.text(previousTeamShortName);
-            });
-
-            teamShortNameField.on('keydown', function (event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    previousTeamShortName = teamShortNameField.text();
-                    changeTeamShortName(teamShortNameField.text());
-                    $('#team-short-name-{{ team.id }}-save-icons').hide()
-                    $('#team-short-name-{{ team.id }}-loading-icon').css('display', 'inline')
-                    teamShortNameField.blur();
-                }
-            });
-
-            function changeTeamName(newName) {
-                $.ajax({
-                    url: "{% url 'api-teams-detail' team.id %}",
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'name': newName}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        $('#team-name-{{ team.id }}-loading-icon').hide()
-                        $('#team-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                    },
-                    error: function () {
-                        $('#team-name-{{ team.id }}-loading-icon').hide()
-                        $('#team-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                        teamNameField.text(previousTeamName);
-                    }
-                });
-            }
-
-            function changeTeamShortName(newName) {
-                $.ajax({
-                    url: "{% url 'api-teams-detail' team.id %}",
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'short_name': newName}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        $('#team-short-name-{{ team.id }}-loading-icon').hide()
-                        $('#team-short-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                    },
-                    error: function () {
-                        $('#team-short-name-{{ team.id }}-loading-icon').hide()
-                        $('#team-short-name-{{ team.id }}-edit-icon').css('display', 'inline')
-                        teamShortNameField.text(previousTeamShortName);
-                    }
-                });
-            }
-
-            function createPatrol(patrolName, teamId) {
-                if (patrolName.trim() === "") {
-                    alert("Nazwa zastępu nie może być pusta");
-                    return;
-                }
-                $.ajax({
-                    url: "{% url 'api-patrols-list' %}",
-                    type: 'POST',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'name': patrolName, 'team': teamId}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        location.reload();
-                        alert("Zastęp został utworzony");
-                    },
-                    error: function () {
-                        alert("Nie udało się utworzyć zastępu");
-                    }
-                });
-            }
-
-            function changePatrolName(patrolId, newName) {
-                if (newName === "" || newName === " ") {
-                    alert("Nazwa zastępu nie może być pusta");
-                    return;
-                }
-                $.ajax({
-                    url: "{% url 'api-patrols-detail' 0 %}".replace('0', patrolId),
-                    type: 'PATCH',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: JSON.stringify({'name': newName}),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        location.reload();
-                        alert("Nazwa zastępu została zmieniona");
-                    },
-                    error: function () {
-                        alert("Nie udało się zmienić nazwy zastępu");
-                    }
-                });
-            }
-
-            function deletePatrol(patrolId) {
-                $.ajax({
-                    url: "{% url 'api-patrols-detail' 0 %}".replace('0', patrolId),
-                    type: 'DELETE',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: function () {
-                        location.reload();
-                        alert("Zastęp został usunięty");
-                    },
-                    error: function (data) {
-                        if (data.readyState === 0) {
-                            alert(`Nie udało się usunąć zastępu: \nSprawdź swoje połączenie z internetem`)
-                        } else if (data.status === 409) {
-                            alert("Nie można usunąć zastępu, ponieważ istnieją w nim aktywni harcerze");
-                        } else {
-                            alert("Nie udało się usunąć zastępu");
-                        }
-                    }
-                });
-            }
-
-        </script>
-    {% endfor %}
+    </div>
     <div class="modal" id="edit-patrol-modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -285,7 +119,7 @@
             </header>
             <section class="modal-card-body">
                 <div class="field" style="margin-inline-end: 1em">
-                    <label class="label">Nazwa</label>
+                    <label class="label" for="edit-patrol-modal-input">Nazwa</label>
                     <div class="control">
                         <input id="edit-patrol-modal-input" class="input" type="text">
                     </div>
@@ -293,7 +127,7 @@
             </section>
             <footer class="modal-card-foot">
                 <button class="button is-success"
-                        onclick="changePatrolName($('#edit-patrol-modal').data('patrolId'), $('#edit-patrol-modal-input').val())">
+                        onclick="changePatrolName(document.getElementById('edit-patrol-modal').dataset.patrolId, document.getElementById('edit-patrol-modal-input').value)">
                     Zapisz
                 </button>
                 <button class="button">Anuluj</button>
@@ -311,69 +145,12 @@
                 <h1 id="delete-patrol-message" class="title is-4"></h1>
             </section>
             <footer class="modal-card-foot">
-                <button class="button is-danger" onclick="deletePatrol($('#delete-patrol-modal').data('patrolId'))">
+                <button class="button is-danger"
+                        onclick="deletePatrol(document.getElementById('delete-patrol-modal').dataset.patrolId)">
                     Usuń
                 </button>
                 <button class="button">Anuluj</button>
             </footer>
         </div>
     </div>
-{% endblock %}
-{% block scripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Functions to open and close a modal
-            function openModal($el) {
-                $el.classList.add('is-active');
-            }
-
-            function closeModal($el) {
-                $el.classList.remove('is-active');
-            }
-
-            function closeAllModals() {
-                (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-                    closeModal($modal);
-                });
-            }
-
-            // Add a click event on buttons to open a specific modal
-            (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
-                const modal = $trigger.dataset.target;
-                const $target = document.getElementById(modal);
-
-                $trigger.addEventListener('click', () => {
-                    openModal($target);
-                });
-
-                if ($trigger.id === "edit-patrol-trigger") {
-                    $trigger.addEventListener('click', () => {
-                        $target.dataset.patrolId = $trigger.dataset.patrolId;
-                        $('#edit-patrol-modal-input').val($trigger.dataset.patrolName);
-                    });
-                } else if ($trigger.id === "delete-patrol-trigger") {
-                    $trigger.addEventListener('click', () => {
-                        $target.dataset.patrolId = $trigger.dataset.patrolId;
-                        $('#delete-patrol-message').text(`Czy na pewno chcesz usunąć zastęp "${$trigger.dataset.patrolName}"?`);
-                    });
-                }
-            });
-
-            // Add a click event on various child elements to close the parent modal
-            (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
-                const $target = $close.closest('.modal');
-
-                $close.addEventListener('click', () => {
-                    closeModal($target);
-                });
-            });
-
-            // Add a keyboard event to close all modals
-            document.addEventListener('keydown', (event) => {
-                if (event.key === "Escape") {
-                    closeAllModals();
-                }
-            });
-        });
-    </script>
 {% endblock %}
