@@ -119,7 +119,7 @@ def sent_tasks(request, worksheet_id):
         "worksheets/sent_tasks.html",
         {
             "user": request.user,
-            "worksheets": worksheet,
+            "worksheet": worksheet,
             "tasks_list": Task.objects.filter(status=1, worksheet=worksheet),
         },
     )
