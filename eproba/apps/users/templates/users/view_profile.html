@@ -131,21 +131,6 @@
                     </a>
                 {% endif %}
             {% endif %}
-            {% if "facebook" in socialaccount_providers|ids %}
-                {% if not accounts.facebook %}
-                    <a href="/accounts/facebook/login/?process=connect">
-                        <button class="button is-info is-outlined">
-                            <span class="icon"><i class="fab fa-facebook"></i></span><span>Połącz z Facebook</span>
-                        </button>
-                    </a>
-                {% else %}
-                    <a onclick="confirm_popup('{% url 'disconnect_socials' 'facebook' %}', 'Czy na pewno chcesz odłączyć konto Facebook™?')">
-                        <button class="button is-info is-light">
-                            <span class="icon"><i class="fab fa-facebook"></i></span><span>Połączono z Facebook</span>
-                        </button>
-                    </a>
-                {% endif %}
-            {% endif %}
         </div>
         <div class="box" id="notifications_devices" style="position:relative; width:100%;">
             <div>

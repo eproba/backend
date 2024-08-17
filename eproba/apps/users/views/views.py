@@ -1,3 +1,4 @@
+from apps.users.forms import SiteUserCreationForm
 from apps.users.models import User
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
@@ -7,7 +8,6 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.http import BadHeaderError, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from users.forms import SiteUserCreationForm
 
 
 @transaction.atomic

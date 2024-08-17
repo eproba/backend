@@ -10,6 +10,7 @@ from firebase_admin.messaging import (
     WebpushFCMOptions,
     WebpushNotification,
 )
+from users.utils import min_function, patrol_required
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm
@@ -66,19 +67,10 @@ def view_shared_worksheet(request, id):
     )
 
 
+@patrol_required
+@min_function(2)
 def manage_worksheets(request):
-    if not request.user.is_authenticated:
-        return render(request, "worksheets/manage_worksheets.html")
-    if not request.user.patrol:
-        messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
-        return render(request, "worksheets/manage_worksheets.html")
     user = request.user
-
-    if request.user.function < 2:
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do edycji prób."
-        )
-        return redirect(reverse("worksheets:worksheets"))
 
     patrols = Patrol.objects.filter(team__id=user.patrol.team.id).order_by("name")
     return render(
@@ -112,7 +104,7 @@ def check_tasks(request):
 def sent_tasks(request, worksheet_id):
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
     if request.user != worksheet.user:
-        messages.add_message(request, messages.INFO, "Nie masz dostępu do tej próby.")
+        messages.info(request, "Nie masz dostępu do tej próby.")
         return redirect(reverse("worksheets:worksheets"))
     return render(
         request,
@@ -230,7 +222,7 @@ def force_accept_task(request, worksheet_id, task_id):
 def submit_task(request, worksheet_id):
     worksheet = get_object_or_404(Worksheet, id=worksheet_id, deleted=False)
     if request.user != worksheet.user:
-        messages.add_message(request, messages.INFO, "Nie masz dostępu do tej próby.")
+        messages.info(request, "Nie masz dostępu do tej próby.")
         return redirect(reverse("worksheets:worksheets"))
     if request.method == "POST":
         submit_task_form = SubmitTaskForm(

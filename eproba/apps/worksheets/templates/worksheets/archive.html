@@ -51,8 +51,9 @@
                               data-tooltip="Drukuj próbę"><span
                                 onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'"><i
                                 class="fas fa-print"></i></span></span>
+
                                 <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                                      id="tooltip_text_{{ worksheet.id }}_print"
+                                      id="tooltip_text_{{ worksheet.id }}_restore"
                                       data-tooltip="Przywróć próbę"><span
                                         onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', function() {
                                                 fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
@@ -78,9 +79,9 @@
                                                 })"><i class="fa-solid fa-box-open"></i></span></span>
                                 {% if user.function > 2 %}
                                     <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                                          id="tooltip_text_{{ worksheet.id }}_print"
+                                          id="tooltip_text_{{ worksheet.id }}_delete"
                                           data-tooltip="Usuń próbę na zawsze"><span
-                                            onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę? \nJest to permanentne i nie będziesz w stanie nigdy cofnąć tej akcji (nawet Tony Stark - geniusz, miliarder, playboy i filantrop nie bułby w stanie tego dokonać więc bądź ostrożny 😷).', function() {
+                                            onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę?', function() {
                                                     fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
                                                     method: 'DELETE',
                                                     headers: {
@@ -90,15 +91,15 @@
                                                     })
                                                     .then(response => {
                                                     if (response.ok) {
-                                                    alert('Próba została usunięta.');
+                                                    alert('Szablon został usunięty.');
                                                     document.getElementById('worksheet_{{ worksheet.id }}').remove();
                                                     } else {
-                                                    alert('Wystąpił błąd podczas usuwania próby.');
+                                                    alert('Wystąpił błąd podczas usuwania szablonu.');
                                                     }
                                                     })
                                                     .catch(error => {
                                                     console.error('Error:', error);
-                                                    alert('Wystąpił błąd podczas usuwania próby.');
+                                                    alert('Wystąpił błąd podczas usuwania szablonu.');
                                                     });
                                                     })">
                                      <i class="fa-solid fa-trash"></i></span></span>

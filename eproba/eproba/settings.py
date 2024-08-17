@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.facebook",
     "apps.blog.apps.BlogConfig",
     "apps.core.apps.CoreConfig",
     "apps.worksheets.apps.WorksheetConfig",
@@ -137,26 +136,6 @@ SOCIALACCOUNT_PROVIDERS = {
             "access_type": "online",
         },
     },
-    "facebook": {
-        "METHOD": "oauth2",
-        "SDK_URL": "//connect.facebook.net/{locale}/sdk.js",
-        "SCOPE": ["email", "public_profile"],
-        "INIT_PARAMS": {"cookie": True},
-        "FIELDS": [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "middle_name",
-            "name",
-            "name_format",
-            "verified",
-            "locale",
-            "picture",
-            "short_name",
-        ],
-        "EXCHANGE_TOKEN": True,
-    },
 }
 
 SOCIALACCOUNT_ADAPTER = "apps.users.adapter.SocialAccountAdapter"
@@ -193,8 +172,6 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/oauth2/authorize",
     r"^/accounts/google/login",
     r"^/accounts/google/login/callback",
-    r"^/accounts/facebook/login",
-    r"^/accounts/facebook/login/callback",
     r"^/static/images/icons/favicon.svg",
 )
 

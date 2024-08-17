@@ -1,4 +1,5 @@
 from .archive import archive
+from .create_template import create_template
 from .create_worksheet import create_worksheet
 from .edit_worksheet import edit_worksheet
 from .export import export, export_worksheet
@@ -20,6 +21,7 @@ from .views import (
 
 __all__ = [
     "archive",
+    "create_template",
     "create_worksheet",
     "edit_worksheet",
     "export",

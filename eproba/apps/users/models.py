@@ -2,11 +2,11 @@ import json
 import uuid
 
 from apps.teams.models import Patrol
+from apps.users.utils import UUIDEncoder
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 from django.db.models import UUIDField
 from django.utils import timezone
-from users.utils import UUIDEncoder
 
 
 class User(AbstractBaseUser, PermissionsMixin):

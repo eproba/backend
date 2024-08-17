@@ -22,21 +22,22 @@ def create_worksheet(request):
     ):
         template_id = request.GET.get("template", False)
         template = get_object_or_404(Worksheet, id=template_id, deleted=False)
+        task_form_set = formset_factory(TaskForm, extra=1)
     else:
         template = None
-    TaskFormSet = formset_factory(TaskForm, extra=1)
+        task_form_set = formset_factory(TaskForm, extra=3)
     if request.method == "POST":
         if request.user.function >= 2 and request.user.patrol:
             worksheet = ExtendedWorksheetCreateForm(request.user, request.POST)
         else:
             worksheet = WorksheetCreateForm(request.POST)
         if template:
-            tasks = TaskFormSet(
+            tasks = task_form_set(
                 request.POST,
                 initial=[{"task": task.task} for task in template.tasks.all()],
             )
         else:
-            tasks = TaskFormSet(request.POST)
+            tasks = task_form_set(request.POST)
         if worksheet.is_valid():
             if request.user.function >= 2 and request.user.patrol:
                 worksheet_obj = worksheet.save()
@@ -81,11 +82,11 @@ def create_worksheet(request):
         else:
             worksheet = WorksheetCreateForm()
         if template:
-            tasks = TaskFormSet(
+            tasks = task_form_set(
                 initial=[{"task": task.task} for task in template.tasks.all()]
             )
         else:
-            tasks = TaskFormSet()
+            tasks = task_form_set()
 
     return render(
         request,

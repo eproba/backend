@@ -1,15 +1,14 @@
-from django.contrib import messages
 from django.shortcuts import render
+from users.utils import min_function, patrol_required
 
 from ..models import Worksheet
 
 
+@patrol_required
+@min_function(2)
 def templates(request):
     worksheets = []
     if request.user.is_authenticated:
-        if not request.user.patrol:
-            messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
-            return render(request, "worksheets/templates.html")
         worksheets = Worksheet.objects.filter(
             is_template=True,
             user__patrol__team=request.user.patrol.team,

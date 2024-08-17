@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from users.utils import min_function
 
 from ..forms import TaskForm, WorksheetCreateForm
 from ..models import Task, Worksheet
@@ -13,14 +14,8 @@ def remove_duplicates(seq):
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 
+@min_function(2)
 def edit_worksheet(request, worksheet_id):
-    if not request.user.is_authenticated:
-        return render(request, "worksheets/manage_worksheets.html")
-    if request.user.function < 2:
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do edycji prób."
-        )
-        return redirect(reverse("worksheets:worksheets"))
     if not Worksheet.objects.filter(id=worksheet_id, deleted=False).exists():
         messages.add_message(request, messages.ERROR, "Nie ma takiej próby.")
         return redirect(reverse("worksheets:manage_worksheets"))
@@ -36,10 +31,10 @@ def edit_worksheet(request, worksheet_id):
             )
             return redirect(reverse("worksheets:worksheets"))
     worksheet = Worksheet.objects.get(id=worksheet_id, deleted=False)
-    TaskFormSet = formset_factory(TaskForm, extra=1)
+    task_form_set = formset_factory(TaskForm, extra=1)
     if request.method == "POST":
         worksheet_form = WorksheetCreateForm(request.POST, instance=worksheet)
-        tasks = TaskFormSet(request.POST)
+        tasks = task_form_set(request.POST)
         if worksheet_form.is_valid():
             worksheet_obj = worksheet_form.save()
             if tasks.is_valid():
@@ -57,14 +52,19 @@ def edit_worksheet(request, worksheet_id):
                     else:
                         t = Task(task=task, worksheet=worksheet_obj)
                         t.save()
-                messages.add_message(request, messages.INFO, "Próba została zapisana.")
+                if worksheet_obj.is_template:
+                    messages.info(request, "Szablon został zapisany.")
+                else:
+                    messages.info(request, "Próba została zapisana.")
             else:
                 messages.add_message(request, messages.ERROR, "Błąd w zadaniach.")
+            if worksheet_obj.is_template:
+                return redirect(reverse("worksheets:templates"))
             return redirect(reverse("worksheets:manage_worksheets"))
 
     else:
         worksheet_form = WorksheetCreateForm(instance=worksheet)
-        tasks = TaskFormSet(
+        tasks = task_form_set(
             initial=[{"task": task.task} for task in worksheet.tasks.all()]
         )
 

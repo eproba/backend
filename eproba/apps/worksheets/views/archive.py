@@ -1,25 +1,16 @@
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.shortcuts import render
+from users.utils import min_function, patrol_required
 
 from ...teams.models import Patrol
 from ..models import Worksheet
 from .utils import prepare_worksheet
 
 
+@patrol_required
+@min_function(2)
 def archive(request):
-    if not request.user.is_authenticated:
-        return render(request, "worksheets/archive.html")
-    if not request.user.patrol:
-        messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
-        return render(request, "worksheets/archive.html")
     user = request.user
     worksheets = []
-    if request.user.function in [0, 1]:
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do edycji prób."
-        )
-        return redirect(reverse("worksheets:worksheets"))
     if request.user.function == 2:
         worksheets.extend(
             prepare_worksheet(worksheet)

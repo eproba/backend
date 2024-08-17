@@ -55,7 +55,7 @@ def contactView(request):
                 )
             except BadHeaderError:
                 return HttpResponse("Invalid header found.")
-            messages.add_message(request, messages.INFO, "Wiadomość została wysłana.")
+            messages.info(request, "Wiadomość została wysłana.")
             return redirect(reverse("frontpage"))
     return render(request, "sites/contact/email.html", {"form": form})
 

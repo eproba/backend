@@ -1,13 +1,56 @@
 {% extends 'core/base.html' %}
 {% block title %}Szablony{% endblock %}
 {% load crispy_forms_tags %}
+{% load static %}
+{% block extrahead %}
+    <script src="{% static 'js/core/helpers.js' %}"></script>
+{% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
         {% if worksheets_list %}
             {% for worksheet in worksheets_list %}
                 <div class="block worksheet" id="worksheet_{{ worksheet.id }}">
                     <div class="box">
-                        <span class="title has-text-weight-medium">{{ worksheet.name }} </span>
+                        <div class="level is-align-items-flex-start">
+                            <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }} </span>
+                            <div>
+                        <span class="icon has-tooltip-bottom has-tooltip-arrow"
+                              id="tooltip_text_{{ worksheet.id }}_print"
+                              data-tooltip="Drukuj szablon"><span
+                                onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'"><i
+                                class="fas fa-print"></i></span></span>
+                                <span class="icon has-tooltip-bottom has-tooltip-arrow"
+                                      id="tooltip_text_{{ worksheet.id }}_edit"
+                                      data-tooltip="Edytuj szablon"><span
+                                        onclick="location.href='{% url 'worksheets:edit_worksheet' worksheet.id %}'">
+                                    <i class="fa-solid fa-edit"></i></span></span>
+                                <span class="icon has-tooltip-bottom has-tooltip-arrow"
+                                      id="tooltip_text_{{ worksheet.id }}_delete"
+                                      data-tooltip="Usuń szablon"><span
+                                        onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć ten szablon?', () => {
+                                                fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
+                                                method: 'DELETE',
+                                                headers: {
+                                                'X-CSRFToken': '{{ csrf_token }}',
+                                                'Content-Type': 'application/json'
+                                                }
+                                                })
+                                                .then(response => {
+                                                if (response.ok) {
+                                                alert('Próba została usunięta.');
+                                                document.getElementById('worksheet_{{ worksheet.id }}').remove();
+                                                } else {
+                                                alert('Wystąpił błąd podczas usuwania próby.');
+                                                }
+                                                })
+                                                .catch(error => {
+                                                console.error('Error:', error);
+                                                alert('Wystąpił błąd podczas usuwania próby.');
+                                                });
+                                                })">
+                                     <i class="fa-solid fa-trash"></i></span></span>
+                            </div>
+                        </div>
                         <p><br/></p>
                         <table class="table">
                             <thead>
@@ -44,18 +87,13 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <button class="button is-info" onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}&source=templates&template={{ worksheet.id }}'">
+                        <button class="button is-info"
+                                onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}&source=templates&template={{ worksheet.id }}'">
                             <span class="icon">
                                 <i class="fa-solid fa-object-group"></i>
                             </span>
                             <span>Użyj szablonu</span>
                         </button>
-                        <a class="button is-link"  href="{% url 'worksheets:print_worksheet' worksheet.id %}">
-                            <span class="icon">
-                                <i class="fa-solid fa-print"></i>
-                            </span>
-                            <span>Drukuj szablon</span>
-                        </a>
                     </div>
                 </div>
             {% endfor %}
@@ -64,6 +102,16 @@
                 W systemie nie ma jeszcze żadnych szablonów.
             </div>
         {% endif %}
+        <div class="block">
+        <div class="container has-text-centered">
+            <button class="button is-outlined is-primary"
+                    onclick="location.href='{% url 'worksheets:create_template' %}'">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                <span>Utwórz nowy szablon</span>
+            </button>
+        </div>
     {% else %}
         <div class="box">
             Aby użyć szablonów musisz się najpierw zalogować.
