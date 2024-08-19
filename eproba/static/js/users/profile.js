@@ -28,19 +28,36 @@ function update_device_list() {
         }
     });
 
-    document.querySelectorAll('#notifications_devices > div > div > div').forEach(function (element) {
-        const device_token = element.dataset.registration_id;
-        if (device_token === window.firebaseToken) {
-            element.querySelector('.card-content .media .media-content #that-device').innerHTML += '<span class="tag is-primary">To urządzenie</span>';
+}
+
+function mark_current_device() {
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    function checkToken() {
+        if (window.firebaseToken) {
+            document.querySelectorAll('#notifications_devices > div > div > div').forEach(function (element) {
+                const device_token = element.dataset.registration_id;
+                if (device_token === window.firebaseToken) {
+                    element.querySelector('.card-content .media .media-content #that-device').innerHTML += '<span class="tag is-info">To urządzenie</span>';
+                }
+            });
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(checkToken, 1000);
+        } else {
+            console.log('window.firebaseToken not found within 10 seconds.');
         }
-    });
+    }
+
+    checkToken();
 }
 
 function getCookie(name) {
     let cookieArr = document.cookie.split(';');
     for (let i = 0; i < cookieArr.length; i++) {
         let cookiePair = cookieArr[i].split('=');
-        if (name == cookiePair[0].trim()) {
+        if (name === cookiePair[0].trim()) {
             return decodeURIComponent(cookiePair[1]);
         }
     }
@@ -63,19 +80,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.button').forEach(button => {
         button.addEventListener('click', function () {
-            const deviceId = this.id.split('-')[2];
+            const deviceId = this.dataset.deviceId;
             const action = this.id.split('-')[0];
 
             if (action === 'active') {
-                fetch(url, {
+                fetch(`/api/fcm/devices/${deviceId}/`, {
                     method: 'PATCH',
                     headers: {
                         'X-CSRFToken': csrfToken,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        registration_id: deviceId,
-                        active: '{{ device.active|invert }}'
+                        active: this.dataset.active !== 'True'
                     })
                 })
                     .then(response => response.json())
@@ -85,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         location.reload();
                     });
             } else if (action === 'delete') {
-                fetch(url, {
+                fetch(`/api/fcm/devices/${deviceId}/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': csrfToken
@@ -102,4 +118,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    mark_current_device();
 });

@@ -147,9 +147,9 @@
 
                             <div class="content" id="content">
                                 <p class="subtitle is-7">Status:</p>
-                                <span class="has-tooltip-left has-tooltip-arrow" data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button class="button is-primary" style="margin-bottom: 1rem" id="active-button-{{ device.id }}" >{% if device.active %}Włączone{% else %}Wyłączone{% endif %}</button></span><br>
+                                <span class="has-tooltip-left has-tooltip-arrow" data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button class="button is-primary" style="margin-bottom: 1rem" id="active-button-{{ device.id }}" data-device-id="{{ device.registration_id }}" data-active="{{ device.active }}">{% if device.active %}Włączone{% else %}Wyłączone{% endif %}</button></span><br>
                                 <p class="subtitle is-7">Akcje:</p>
-                                <span class="has-tooltip-left has-tooltip-arrow has-tooltip-danger" data-tooltip="Usuń to urządzenie"><button class="button is-danger" id="delete-button-{{ device.id }}">Usuń</button></span><br>
+                                <span class="has-tooltip-left has-tooltip-arrow has-tooltip-danger" data-tooltip="Usuń to urządzenie"><button class="button is-danger" id="delete-button-{{ device.id }}" data-device-id="{{ device.registration_id }}"><span class="icon"><i class="fas fa-trash"></i></span><span>Usuń</span></button></span>
                             </div>
                           </div>
                         </div>

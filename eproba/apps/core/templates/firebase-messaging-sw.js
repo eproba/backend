@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/9.8.3/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.8.3/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js');
 const firebaseConfig = {
     apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
     authDomain: "scouts-exams.firebaseapp.com",

@@ -71,6 +71,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.email} ({self.nickname})"
 
+    def get_short_name(self):
+        return self.full_name() or self.email.split("@")[0]
+
     def get_nickname(self):
         return self.nickname or self.full_name() or self.email.split("@")[0]
 

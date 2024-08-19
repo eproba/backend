@@ -37,8 +37,7 @@
                         <a class="navbar-item" href="{% url 'worksheets:archive' %}">
                             Archiwum
                         </a>
-                        <a class="navbar-item"
-                           onclick="location.href='{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}'">
+                        <a class="navbar-item" href="{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}">
                             Utwórz nową próbę
                         </a>
                         <a class="navbar-item" onclick="location.href='{% url 'worksheets:templates' %}'">

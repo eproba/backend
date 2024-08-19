@@ -1,6 +1,6 @@
-import {initializeApp} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import {getAnalytics} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-analytics.js";
-import {getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-messaging.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"
+import {getAnalytics} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+import {getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBKVP78_xDjRNNs9VBk2fEvLOvhxRL2kng",
@@ -16,7 +16,7 @@ const firebaseConfig = {
 document.addEventListener('DOMContentLoaded', () => {
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    const messaging = getMessaging();
+    const messaging = getMessaging(app);
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
