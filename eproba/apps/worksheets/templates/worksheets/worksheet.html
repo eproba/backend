@@ -73,7 +73,7 @@
                     </table>
                     {% if not is_shared or user == worksheet.user %}
                         <div class="modal" id="qr_modal_{{ worksheet.id }}">
-                            <div class="modal-background"></div>
+                            <div class="modal-background" onclick="document.getElementById('qr_modal_{{ worksheet.id }}').classList.remove('is-active'); document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = '';"></div>
                             <div class="modal-card">
                                 <header class="modal-card-head">
                                     <p class="modal-card-title">Kod QR</p>
@@ -91,7 +91,7 @@
                         </div>
                         {% if worksheet.percent != "100%" and not worksheet.is_archived %}
                             <div class="modal" id="request_task_check_modal_{{ worksheet.id }}">
-                                <div class="modal-background"></div>
+                                <div class="modal-background" onclick="document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.remove('is-active');"></div>
                                 <div class="modal-card">
                                     <header class="modal-card-head">
                                         <p class="modal-card-title">Wyślij prośbę o zatwierdzenie zadania</p>
@@ -110,38 +110,38 @@
                             </div>
                             <div class="buttons">
                             {% if worksheet.show_submit_task_button %}
-                                <button class="button is-success submit-task-button button-desktop"
+                                <button class="button is-success submit-task-button button-desktop is-soft"
                                         data-worksheet-id="{{ worksheet.id }}">
-    <span class="icon">
-    <i class="fas fa-clipboard-check"></i>
-    </span>
+                                    <span class="icon">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </span>
                                     <span>Wyślij prośbę o zatwierdzenie zadania</span>
                                 </button>
-                                <button class="button is-success button-mobile"
+                                <button class="button is-success button-mobile is-soft"
                                         onclick="location.href='{% url 'worksheets:submit_task' worksheet.id %}'">
-    <span class="icon">
-    <i class="fas fa-clipboard-check"></i>
-    </span>
+                                    <span class="icon">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </span>
                                     <span>Wyślij prośbę o zatwierdzenie zadania</span>
                                 </button>
                             {% endif %}
                             {% if worksheet.show_sent_tasks_button %}
-                                <button class="button is-primary"
+                                <button class="button is-primary is-soft"
                                         onclick="location.href='{% url 'worksheets:sent_tasks' worksheet.id %}'">
-    <span class="icon">
-    <i class="fas fa-paper-plane"></i>
-    </span>
+                                    <span class="icon">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </span>
                                     <span>Wysłane prośby o zatwierdzenie</span>
                                 </button>
                             {% endif %}
                         {% else %}
                             <div class="buttons">
                         {% endif %}
-                    <button class="button is-warning"
+                    <button class="button is-warning is-soft"
                             onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'">
-        <span class="icon">
-        <i class="fas fa-print"></i>
-        </span>
+                        <span class="icon">
+                            <i class="fas fa-print"></i>
+                        </span>
                         <span>Drukuj próbę</span>
                     </button>
                     <button onclick="document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = '';
@@ -152,21 +152,19 @@
                             img.style.background = '#ffffff';
                             img.style.borderRadius = '10px';
                             document.getElementById('qr_modal_{{ worksheet.id }}').classList.add('is-active');"
-                            class="button is-link">
-        <span class="icon">
-        <i class="fas fa-qrcode"></i>
-        </span>
-                        <span>Wygeneruj kod QR</span>
+                            class="button is-link is-soft">
+                        <span class="icon">
+                        <i class="fas fa-qrcode"></i>
+                        </span>
                     </button>
                     <span class="has-tooltip-info has-tooltip-top has-tooltip-arrow"
                           id="tooltip_text_{{ worksheet.id }}"
                           data-tooltip="Naciśnij aby skopiować link">
         <button onclick="copy_to_clipboard('tooltip_text_{{ worksheet.id }}', '{{ request.get_host }}{% url 'worksheets:view_shared_worksheets' worksheet.id %}')"
-                class="button is-link">
+                class="button is-link is-soft">
         <span class="icon">
         <i class="fas fa-share-alt"></i>
         </span>
-        <span>Udostępnij próbę</span>
         </button>
         </span>
                     </div>

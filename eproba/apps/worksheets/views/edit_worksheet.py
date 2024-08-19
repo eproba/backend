@@ -1,8 +1,8 @@
+from apps.users.utils import min_function
 from django.contrib import messages
 from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from users.utils import min_function
 
 from ..forms import TaskForm, WorksheetCreateForm
 from ..models import Task, Worksheet

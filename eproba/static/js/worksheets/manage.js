@@ -133,7 +133,7 @@ async function renderMissingUsers(missingUsers, users) {
 
 function updateUserElement(user, {element_id, type}) {
     const element = document.getElementById(element_id);
-    const userInfo = `${user.rank} ${user.nickname}`;
+    const userInfo = `${user.rank} ${user.nickname || user.first_name + ' ' + user.last_name}`;
     if (type === 'worksheet_title' || type === 'worksheet_supervisor') {
         element.innerHTML = element.innerHTML.replace(/Nieznany użytkownik #\d+/, userInfo);
         if (type === 'worksheet_title') {
@@ -189,7 +189,7 @@ function renderWorksheet(worksheet, missingUsers) {
 
 function renderUserInfo(userId, missingUsers, worksheetId, type = 'worksheet_title') {
     const user = findUser(userId, missingUsers, `${type}_${worksheetId}`, type);
-    return `${user.rank} ${user.nickname}`;
+    return `${user.rank} ${user.nickname || user.first_name + ' ' + user.last_name}`;
 }
 
 function findUser(userId, missingUsers, element_id, type) {

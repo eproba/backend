@@ -3,7 +3,7 @@
 {% load static %}
 {% block content %}
     <div class="box">
-        <h1 class="title has-text-weight-medium">Zgłoś błąd na stronie</h1>
+        <h1 class="title has-text-weight-bold">Zgłoś błąd na stronie</h1>
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}

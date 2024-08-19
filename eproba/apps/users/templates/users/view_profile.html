@@ -6,7 +6,6 @@
 {% endblock %}
 {% block title %}Profil - {{ user.nickname }} - Epróba{% endblock %}
 {% block content %}
-    {% load socialaccount %}
     <div class="box" style="position:relative; width:100%;">
         <h1 class="subtitle">Informacje publiczne</h1>
         <table class="table">
@@ -35,6 +34,12 @@
                 {% endif %}
             </tr>
             <tr>
+                <td>Płeć</td>
+                <td>
+                    <p>{{ user.get_gender_display|default_if_none:"<i>Nie podano</i>" }}</p>
+                </td>
+            </tr>
+            <tr>
                 <td>Pseudonim</td>
                 <td>
                     <p>
@@ -46,7 +51,7 @@
                 <td>Stopień</td>
                 <td>
                     <p>
-                        {{ user.rank }}
+                        {{ user.full_rank }}
                     </p>
                 </td>
             </tr>
@@ -63,8 +68,8 @@
                 <td>
                     <p>
                         {{ user.patrol.team }}
-                        {% if user.function == 4 %} - <b>Drużynowy(-a)</b>{% endif %}
-                        {% if user.function == 3 %} - <b>Przyboczny(-a)</b>{% endif %}
+                        {% if user.function == 4 %} - <b>{% if user.gender == 0 %}Drużynowy{% elif user.gender == 1 %}Drużynowa{% else %}Drużynowy(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 3 %} - <b>{% if user.gender == 0 %}Przyboczny{% elif user.gender == 1 %}Przyboczna{% else %}Przyboczny(-a){% endif %}</b>{% endif %}
                     </p>
                 </td>
             </tr>
@@ -72,9 +77,9 @@
                 <td>Zastęp</td>
                 <td>
                     <p>
-                        {{ user.patrol }}
-                        {% if user.function == 2 %} - <b>Zastępowy(-a)</b>{% endif %}
-                        {% if user.function == 1 %} - <b>Podzastępowy(-a)</b>{% endif %}
+                        {{ user.patrol|default_if_none:"<i>Nie przypisano</i>" }}
+                        {% if user.function == 2 %} - <b>{% if user.gender == 0 %}Zasępowy{% elif user.gender == 1 %}Zastępowa{% else %}Zastępowy(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 1 %} - <b>{% if user.gender == 0 %}Podzastępowy{% elif user.gender == 1 %}Podzastępowa{% else %}Podzastępowy(-a){% endif %}</b>{% endif %}
                     </p>
                 </td>
             </tr>
@@ -97,39 +102,22 @@
 
         <div class="box" style="position:relative; width:100%;">
             <a href="{% url 'edit_profile' user.id %}">
-                <button class="button is-primary is-light">
+                <button class="button is-primary is-soft">
                     <span class="icon"><i class="fas fa-user-edit"></i></span><span>Edytuj profil</span>
                 </button>
             </a>
             {% if user.has_usable_password %}
                 <a href="{% url 'change_password' user.id %}">
-                    <button class="button is-success is-light">
+                    <button class="button is-success is-soft">
                         <span class="icon"><i class="fas fa-key"></i></span><span>Zmień hasło</span>
                     </button>
                 </a>
             {% else %}
                 <a href="{% url 'set_password' user.id %}">
-                    <button class="button is-success is-light">
+                    <button class="button is-success is-soft">
                         <span class="icon"><i class="fas fa-key"></i></span><span>Ustaw hasło</span>
                     </button>
                 </a>
-            {% endif %}
-            {% get_social_accounts user as accounts %}
-            {% get_providers as socialaccount_providers %}
-            {% if "google" in socialaccount_providers|ids %}
-                {% if not accounts.google %}
-                    <a href="/accounts/google/login/?process=connect">
-                        <button class="button is-danger is-outlined">
-                            <span class="icon"><i class="fab fa-google"></i></span><span>Połącz z Google</span>
-                        </button>
-                    </a>
-                {% else %}
-                    <a onclick="confirm_popup('{% url 'disconnect_socials' 'google' %}', 'Czy na pewno chcesz odłączyć konto Google™?')">
-                        <button class="button is-danger is-light">
-                            <span class="icon"><i class="fab fa-google"></i></span><span>Połączono z Google</span>
-                        </button>
-                    </a>
-                {% endif %}
             {% endif %}
         </div>
         <div class="box" id="notifications_devices" style="position:relative; width:100%;">

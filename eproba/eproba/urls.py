@@ -15,24 +15,20 @@ Including another URLconf
 """
 
 from apps.blog.sitemaps import PostSitemap
-from apps.core.views import (
-    FrontPageView,
-    IssueContactView,
-    contactView,
-    fcm_sw,
-    site_management,
-)
-from apps.users.views import change_password
-from apps.users.views import check_signup_complete as check_signup
+from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
 from apps.users.views import (
-    disconnect_socials,
+    change_password,
     duplicated_accounts,
     edit_profile,
     finish_signup,
+    google_auth_receiver,
     password_reset_complete,
     password_reset_done,
+    select_patrol,
+    send_verification_email,
     set_password,
     signup,
+    verify_email,
     view_profile,
 )
 
@@ -105,10 +101,6 @@ urlpatterns = [
         TemplateView.as_view(template_name="sites/terms_of_service.html"),
         name="terms",
     ),
-    path("accounts/", include("allauth.urls")),
-    path(
-        "account/disconnect/<provider>", disconnect_socials, name="disconnect_socials"
-    ),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/app_config/", AppConfigView.as_view()),
@@ -126,7 +118,6 @@ urlpatterns = [
         UnsubmitTask.as_view(),
     ),
     path("contact/", contactView, name="contact"),
-    path("contact/issue", IssueContactView, name="issue_contact"),
     path("worksheets/", include("apps.worksheets.urls")),
     path("login/", LoginView.as_view(template_name="users/login.html"), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
@@ -151,13 +142,13 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     path("password-reset-done/", password_reset_done, name="password_reset_done"),
-    path("profile/edit/<uuid:user_id>", edit_profile, name="edit_profile"),
+    path("profile/edit/<uuid:user_id>/", edit_profile, name="edit_profile"),
     path(
-        "profile/edit/<uuid:user_id>/password", change_password, name="change_password"
+        "profile/edit/<uuid:user_id>/password/", change_password, name="change_password"
     ),
-    path("profile/set/<uuid:user_id>/password", set_password, name="set_password"),
+    path("profile/set/<uuid:user_id>/password/", set_password, name="set_password"),
     path("profile/view/", view_profile, name="view_profile", kwargs={"user_id": None}),
-    path("profile/view/<uuid:user_id>", view_profile, name="view_profile"),
+    path("profile/view/<uuid:user_id>/", view_profile, name="view_profile"),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
@@ -169,8 +160,7 @@ urlpatterns = [
         name="django.contrib.sitemaps.views.sitemap",
     ),
     path("signup/", signup, name="signup"),
-    path("signup/check", check_signup, name="check_signup"),
-    path("signup/finish", finish_signup, name="finish_signup"),
+    path("signup/finalize/", finish_signup, name="finish_signup"),
     path("team/", include("apps.teams.urls")),
     path(
         "oauth2/",
@@ -188,8 +178,22 @@ urlpatterns = [
         RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
     ),
     path(
-        "duplicated-accounts/<uuid:user_id_1>/<uuid:user_id_2>",
+        "duplicated-accounts/<uuid:user_id_1>/<uuid:user_id_2>/",
         duplicated_accounts,
         name="duplicated_accounts",
+    ),
+    path(
+        "google-auth-receiver/",
+        google_auth_receiver,
+        name="google_auth_receiver",
+    ),
+    path("select-patrol/", select_patrol, name="select_patrol"),
+    path(
+        "send-verification-email/",
+        send_verification_email,
+        name="send_verification_email",
+    ),
+    path(
+        "verify-email/<uuid:user_id>/<uuid:token>/", verify_email, name="verify_email"
     ),
 ]

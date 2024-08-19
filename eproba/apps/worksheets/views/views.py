@@ -1,3 +1,4 @@
+from apps.users.utils import min_function, patrol_required
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,7 +11,6 @@ from firebase_admin.messaging import (
     WebpushFCMOptions,
     WebpushNotification,
 )
-from users.utils import min_function, patrol_required
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm

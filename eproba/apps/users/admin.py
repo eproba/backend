@@ -23,7 +23,17 @@ class CustomUserAdmin(UserAdmin):
     normal_fieldsets = (
         (
             None,
-            {"fields": ("email", "password", "nickname", "first_name", "last_name")},
+            {
+                "fields": (
+                    "email",
+                    "email_verified",
+                    "password",
+                    "nickname",
+                    "first_name",
+                    "last_name",
+                    "gender",
+                )
+            },
         ),
         (
             "Scout",

@@ -5,7 +5,7 @@ from apps.teams.permissions import (
     IsAllowedToManagePatrolOrReadOnly,
     IsAllowedToManageTeamOrReadOnly,
 )
-from apps.teams.serializers import PatrolSerializer, TeamSerializer
+from apps.teams.serializers import PatrolSerializer, TeamListSerializer, TeamSerializer
 from apps.users.models import User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
@@ -106,9 +106,17 @@ class UserInfo(viewsets.ModelViewSet):
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    serializer_class = TeamSerializer
     permission_classes = (IsAllowedToManageTeamOrReadOnly,)
-    queryset = Team.objects.all()
+
+    def get_queryset(self):
+        if self.request.GET.get("district") is not None:
+            return Team.objects.filter(district=self.request.GET.get("district"))
+        return Team.objects.filter()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TeamListSerializer
+        return TeamSerializer
 
 
 class PatrolViewSet(

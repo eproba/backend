@@ -1,7 +1,13 @@
+import logging
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from firebase_admin import credentials, initialize_app
+
+logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,6 +28,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://130.162.49.113",
 ]
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
@@ -50,10 +58,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
     "rest_framework",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
     "apps.blog.apps.BlogConfig",
     "apps.core.apps.CoreConfig",
     "apps.worksheets.apps.WorksheetConfig",
@@ -79,7 +83,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
@@ -102,18 +105,14 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "worksheets:worksheets"
 LOGOUT_REDIRECT_URL = "frontpage"
 AUTH_USER_MODEL = "users.User"
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_SIGNUP_REDIRECT_URL = "finish_signup"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
+
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+if not GOOGLE_OAUTH_CLIENT_ID:
+    logger.warning("GOOGLE_OAUTH_CLIENT_ID not set, Google login is disabled.")
+
+
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
@@ -124,22 +123,6 @@ OAUTH2_PROVIDER = {
     "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
 }
 
-
-# Social accounts
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    },
-}
-
-SOCIALACCOUNT_ADAPTER = "apps.users.adapter.SocialAccountAdapter"
-SOCIALACCOUNT_LOGIN_ON_GET = True
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
@@ -170,8 +153,6 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/password-reset",
     r"^/password-reset-done",
     r"^/oauth2/authorize",
-    r"^/accounts/google/login",
-    r"^/accounts/google/login/callback",
     r"^/static/images/icons/favicon.svg",
 )
 
@@ -187,6 +168,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core.context_processors.google_auth_enabled",
             ],
         },
     },
@@ -231,8 +213,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Emails
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = "Epróba <eproba@zhr.pl>"
-EMAIL_HOST = "smtp.sendgrid.net"
-EMAIL_HOST_USER = "apikey"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

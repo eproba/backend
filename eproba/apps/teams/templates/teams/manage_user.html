@@ -153,18 +153,18 @@
     {% if enable_edit %}
         <div class="box" style="position:relative; width:100%;">
             <div class="buttons">
-                <button class="button is-info is-light js-modal-trigger" data-target="transfer-user-modal">
+                <button class="button is-info is-soft js-modal-trigger" data-target="transfer-user-modal">
                     <span class="icon"><i
                             class="fa-solid fa-right-left"></i></span><span>Przenieś do innej drużyny</span>
                 </button>
                 {% if request.user.id != user.id %}
                     {% if user.is_active %}
-                        <button class="button is-danger is-light js-modal-trigger" data-target="deactivate-user-modal">
+                        <button class="button is-danger is-soft js-modal-trigger" data-target="deactivate-user-modal">
                             <span class="icon"><i
                                     class="fa-solid fa-user-slash"></i></span><span>Dezaktywuj użytkownika</span>
                         </button>
                     {% else %}
-                        <button class="button is-success is-light js-modal-trigger" data-target="reactivate-user-modal">
+                        <button class="button is-success is-soft js-modal-trigger" data-target="reactivate-user-modal">
                             <span class="icon"><i
                                     class="fa-solid fa-user-check"></i></span><span>Reaktywuj użytkownika</span>
                         </button>

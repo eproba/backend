@@ -1,0 +1,86 @@
+[
+  {
+    "model": "teams.district",
+    "pk": "083d9744-e95e-4d96-bb4c-2dfff329b7f4",
+    "fields": {
+      "name": "Okręg Wielkopolski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "0aec5932-850a-4126-8582-594057a20b88",
+    "fields": {
+      "name": "Okręg Pomorski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "222c31ca-0b53-4a35-b13c-200be22ce278",
+    "fields": {
+      "name": "Okręg Dolnośląski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "24728d66-a723-4589-b1e0-85b81ba0045d",
+    "fields": {
+      "name": "Okręg Północno-Zachodni"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "4033858b-4625-4869-a536-679fc5602ae0",
+    "fields": {
+      "name": "Okręg Lubelski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "40af03a2-1404-46c6-bf87-a3b056a8083a",
+    "fields": {
+      "name": "Okręg Małopolski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "67d2b950-0e28-4ea6-a568-e53d18a92748",
+    "fields": {
+      "name": "Okręg Łódzki"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "6f79955f-5c58-4222-a08a-c6f1e3f719df",
+    "fields": {
+      "name": "Okręg Mazowiecki"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "ac84ffca-aa25-4def-b865-a8c8ccd11a21",
+    "fields": {
+      "name": "Okręg Górnośląski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "acbe2499-2211-4e24-8049-15f45cabba9c",
+    "fields": {
+      "name": "Okręg Staropolski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "c5909bf6-812d-486d-b702-8a5ca116215f",
+    "fields": {
+      "name": "Okręg Kujawsko-Pomorski"
+    }
+  },
+  {
+    "model": "teams.district",
+    "pk": "ff7a9bcd-d095-4199-a7b3-d6d26fde337e",
+    "fields": {
+      "name": "Okręg Podkarpacki"
+    }
+  }
+]

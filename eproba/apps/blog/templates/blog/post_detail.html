@@ -7,7 +7,7 @@
                     <div class="media">
                         <div class="media-content">
                             <p class="title is-4">{{ post.title }}</p>
-                            <p class="subtitle is-6">{{ post.author.nickname }} | {{ post.created_on }}</p>
+                            <p class="subtitle is-6">{{ post.author.get_nickname }} | {{ post.created_on }}</p>
                         </div>
                     </div>
                     <div class="content"><p class="">{{ object.content | safe }}</p></div>

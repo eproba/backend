@@ -9,9 +9,16 @@ class PatrolSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "team"]
 
 
+class TeamListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Team
+        fields = ["id", "name", "short_name", "district"]
+
+
 class TeamSerializer(serializers.ModelSerializer):
     patrols = PatrolSerializer(many=True, source="patrol_set")
 
     class Meta:
         model = Team
-        fields = ["id", "name", "short_name", "patrols"]
+        fields = ["id", "name", "short_name", "district", "patrols"]

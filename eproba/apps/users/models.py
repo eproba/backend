@@ -10,13 +10,14 @@ from django.utils import timezone
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    GENDER_CHOICES = [(0, "Mężczyzna"), (1, "Kobieta"), (2, "Inna")]
     SCOUT_RANK_CHOICES = [
         (0, "brak stopnia"),
         (1, '"biszkopt"'),
-        (2, "mł."),
-        (3, "wyw."),
-        (4, "ćwik"),
-        (5, "HO"),
+        (2, "mł./och."),
+        (3, "wyw./trop."),
+        (4, "ćwik/sam."),
+        (5, "HO/węd."),
         (6, "HR"),
     ]
     INSTRUCTOR_RANK_CHOICES = [
@@ -27,19 +28,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
     FUNCTION_CHOICES = [
         (0, "Druh"),
-        (1, "Podzastępowy"),
-        (2, "Zastępowy"),
-        (3, "Przyboczny"),
-        (4, "Drużynowy"),
+        (1, "Podzastępowy(-a)"),
+        (2, "Zastępowy(-a)"),
+        (3, "Przyboczny(-a)"),
+        (4, "Drużynowy(-a)"),
         (5, "Wyższa funkcja"),
     ]
 
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField("email address", unique=True)
-    nickname = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=20, blank=True, null=True)
     first_name = models.CharField(max_length=20, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)
+    gender = models.IntegerField(choices=GENDER_CHOICES, null=True, blank=True)
 
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -57,7 +61,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     function = models.IntegerField(choices=FUNCTION_CHOICES, default=0)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["nickname", "patrol", "scout_rank", "instructor_rank"]
 
     objects = UserManager()
 
@@ -67,6 +70,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.email} ({self.nickname})"
+
+    def get_nickname(self):
+        return self.nickname or self.full_name() or self.email.split("@")[0]
 
     def full_name(self):
         return (
@@ -104,15 +110,85 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.patrol.team.short_name if self.patrol is not None else None
 
     def rank(self):
-        return (
-            f"{self.get_instructor_rank_display()} {self.get_scout_rank_display()}"
+        rank = (
+            f"{self.get_instructor_rank_display()} "
             if self.instructor_rank != 0
-            else self.get_scout_rank_display()
+            else ""
         )
+
+        scout_rank_male = {
+            1: "biszkopt",
+            2: "mł.",
+            3: "wyw.",
+            4: "ćwik",
+            5: "HO",
+            6: "HR",
+        }
+
+        scout_rank_female = {
+            1: "biszkopt",
+            2: "och.",
+            3: "trop.",
+            4: "sam.",
+            5: "węd.",
+            6: "HR",
+        }
+
+        if self.gender == 0:
+            scout_rank = scout_rank_male.get(self.scout_rank, "")
+        elif self.gender == 1:
+            scout_rank = scout_rank_female.get(self.scout_rank, "")
+        else:
+            scout_rank = self.get_scout_rank_display()
+
+        return f"{rank}{scout_rank}"
+
+    def full_rank(self):
+
+        instructor_rank_male = {1: "przewodnik", 2: "podharcmistrz", 3: "harcmistrz"}
+
+        instructor_rank_female = {
+            1: "przewodniczka",
+            2: "podharcmistrzyni",
+            3: "harcmistrzyni",
+        }
+
+        scout_rank_male = {
+            1: "biszkopt",
+            2: "młodzik",
+            3: "wywiadowca",
+            4: "ćwik",
+            5: "harcerz orli",
+            6: "harcerz Rzeczypospolitej",
+        }
+
+        scout_rank_female = {
+            1: "biszkopt",
+            2: "ochotniczka",
+            3: "tropicielka",
+            4: "samarytanka",
+            5: "wędrowniczka",
+            6: "harcerka Rzeczypospolitej",
+        }
+
+        if self.gender == 0:
+            instructor_rank = instructor_rank_male.get(self.instructor_rank, "")
+            scout_rank = scout_rank_male.get(self.scout_rank, "")
+        elif self.gender == 1:
+            instructor_rank = instructor_rank_female.get(self.instructor_rank, "")
+            scout_rank = scout_rank_female.get(self.scout_rank, "")
+        else:
+            instructor_rank = self.get_instructor_rank_display()
+            scout_rank = self.get_scout_rank_display()
+
+        if instructor_rank:
+            instructor_rank = f"{instructor_rank} "
+
+        return f"{instructor_rank}{scout_rank}"
 
     @property
     def rank_nickname(self):
-        return f"{self.rank()} {self.nickname}"
+        return f"{self.rank()} {self.get_nickname()}"
 
     def to_dict(self):
         return {
@@ -121,6 +197,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             "nickname": self.nickname,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "email_verified": self.email_verified,
             "is_staff": self.is_staff,
             "is_active": self.is_active,
             "date_joined": self.date_joined,

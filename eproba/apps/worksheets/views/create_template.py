@@ -1,9 +1,9 @@
+from apps.users.utils import min_function, patrol_required
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from users.utils import min_function, patrol_required
 
 from ..forms import TaskForm, WorksheetCreateForm
 from ..models import Task

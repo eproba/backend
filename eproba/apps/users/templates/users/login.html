@@ -1,42 +1,40 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
-{% load socialaccount %}
-{% load provider_ids %}
 {% load static %}
 {% block content %}
-{% get_providers as socialaccount_providers %}
-<h1 class="title has-text-weight-medium">Zaloguj się</h1>
-<form action="." method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <div class="field">
-        <div class="block">
-        </div>
+    <h1 class="title has-text-weight-bold">Zaloguj się</h1>
+    {% if google_auth_enabled %}
         <div class="buttons">
-            <div class="control">
-            {% if request.GET.next %}
-            <input type="hidden" name="next" value="{{ request.GET.next }}">
-            {% url 'check_signup' as check_signup_url %}
-            {% with request.GET.next|urlencode as next_urlencoded %}
-            {% with check_signup_url|add:"?next="|add:next_urlencoded as next_url %}
-                <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
-                <button onclick="window.location.href='{% url 'signup' %}?next={{ request.GET.next }}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
-                {% if "google" in socialaccount_providers|ids %}
-                <button onclick="window.location.href='{% provider_login_url "google" next=next_url %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
-                {% endif %}
-                <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-link is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
-            {% endwith %}
-            {% endwith %}
-            {% else %}
-                <button class="button is-success  is-outlined" type="submit"><span class="icon"><i class="fas fa-key"></i></span><span>Zaloguj się</span></button>
-                <button onclick="window.location.href='{% url 'signup' %}'" class="button is-info is-outlined" type="button"><span class="icon"><i class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
-                {% if "google" in socialaccount_providers|ids %}
-                <button onclick="window.location.href='{% provider_login_url "google" %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zaloguj się z Google</span></button>
-                {% endif %}
-                <button onclick="window.location.href='{% url 'password_reset' %}'" class="button is-link is-outlined" type="button"><span class="icon"><i class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
-            {% endif %}
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="color-scheme: light">
             </div>
         </div>
-    </div>
-</form>
+    {% endif %}
+    <form action="." method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="field">
+            <div class="block">
+            </div>
+            <div class="buttons">
+                <div class="control">
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    <button class="button is-success  is-outlined" type="submit"><span class="icon"><i
+                            class="fas fa-key"></i></span><span>Zaloguj się</span></button>
+                    <button onclick="window.location.href='{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
+                            class="button is-info is-outlined" type="button"><span class="icon"><i
+                            class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
+                    <button onclick="window.location.href='{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
+                            class="button is-link is-outlined" type="button"><span class="icon"><i
+                            class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}

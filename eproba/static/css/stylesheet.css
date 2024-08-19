@@ -44,10 +44,7 @@
 
 @media (min-width: 600px) {
     #container {
-        padding-top: 20px;
-        padding-bottom: 20px;
-        margin-right: 5rem;
-        margin-left: 5rem;
+        padding: 20px 5rem;
         min-width: -webkit-fill-available;
     }
 

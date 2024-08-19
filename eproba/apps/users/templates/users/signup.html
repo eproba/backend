@@ -1,52 +1,44 @@
 {% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
-{% load socialaccount %}
-{% load provider_ids %}
 {% load static %}
-
+{% block title %}Załóż konto - Epróba{% endblock %}
+{% block extrahead %}
+    <script defer src="{% static 'js/users/predict_gender.js' %}"></script>
+{% endblock %}
 {% block content %}
-{% get_providers as socialaccount_providers %}
-    <h1 class="title has-text-weight-medium">{{ info }}</h1>
-    <div class="buttons">
-        {% if request.GET.next %}
-        {% url 'check_signup' as check_signup_url %}
-        {% with check_signup_url|add:"?next="|add:request.GET.next as next_url %}
-            {% if "google" in socialaccount_providers|ids %}
-            <button onclick="window.location.href='{% provider_login_url "google" next=next_url %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zarejestruj się z Google</span></button>
-            {% endif %}
+    <h1 class="title has-text-weight-bold">Załóż konto</h1>
+    {% if google_auth_enabled %}
+        <div class="buttons">
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="signup_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="color-scheme: light">
+            </div>
             <p><br/></p>
-        {% endwith %}
-        {% else %}
-            {% if "google" in socialaccount_providers|ids %}
-            <button onclick="window.location.href='{% provider_login_url "google" %}'" class="button is-danger is-outlined" type="button"><span class="icon"><i class="fab fa-google"></i></span><span>Zarejestruj się z Google</span></button>
-            {% endif %}
-            <p><br/></p>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
-        <div class="toggle-wrapper">
-          <div class="toggle dog-rollover">
-            <input id="doggo" type="checkbox" required/>
-            <label class="toggle-item" for="doggo">
-              <div class="dog">
-                <div class="ear"></div>
-                <div class="ear right"></div>
-                <div class="face">
-                  <div class="eyes"></div>
-                  <div class="mouth"></div>
-                </div>
-              </div>
-            </label>
-          </div>
-          <div class="name">Potwierdzam że zapoznałem się z <a href="{% url 'terms' %}">regulaminem</a> oraz <a href="{% url 'privacy-policy' %}">polityką prywatności</a> i akceptuję je.</div>
-        </div>
+        {{ terms_of_service_form|crispy }}
         <div class="field">
             <div class="control">
                 <button class="button is-primary" type="submit">Zarejestruj się</button>
             </div>
         </div>
     </form>
+    <style>
+        .select {
+            width: 100%;
+        }
 
+        .select select {
+            width: 100%;
+        }
+
+    </style>
 {% endblock %}
