@@ -139,7 +139,6 @@ MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
 # MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/api/",
-    r"^/about",
     r"^/robots.txt",
     r"^/app-ads.txt",
     r"^/ads.txt",
@@ -150,9 +149,6 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/terms-of-service",
     r"^/site-management",
     r"^/login",
-    r"^/password-reset",
-    r"^/password-reset-done",
-    r"^/oauth2/authorize",
     r"^/static/images/icons/favicon.svg",
 )
 
