@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Q
-from django.forms import ModelForm, Select, TextInput
+from django.forms import ModelForm, Select, Textarea, TextInput
 
 from ..users.models import User
 from .models import Task, Worksheet
@@ -37,12 +37,16 @@ class ExtendedWorksheetCreateForm(ModelForm):
 class TaskForm(ModelForm):
     class Meta:
         model = Task
-        fields = ["task"]
+        fields = ["task", "description"]
         labels = {
             "task": "Zadanie",
+            "description": "Opis zadania",
         }
         widgets = {
             "task": TextInput(attrs={"class": "input"}),
+            "description": Textarea(
+                attrs={"class": "textarea tasks-description is-hidden", "rows": 3}
+            ),
         }
 
 

@@ -9,16 +9,33 @@
     <link rel="stylesheet" href="{% static 'css/worksheets/editor.css' %}">
 {% endblock %}
 {% block content %}
-    {% if request.user.is_authenticated %}
-        <div class="box">
-            <form method="POST">
-                {% csrf_token %}
-                {{ worksheet|crispy }}
-                {{ tasks.management_form }}
-                <h1>Zadania:</h1>
-                <div class="box" id="tasks">
-                    {% for form in tasks %}
-                        <div class="form-row field has-addons">
+    <div class="box">
+        <form method="POST">
+            {% csrf_token %}
+            {{ worksheet|crispy }}
+            {{ tasks.management_form }}
+            <div class="level m-0">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1>Zadania:</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-small is-outlined is-primary" type="button"
+                                id="tasks-descriptions-button">
+                        <span class="icon">
+                            <i class="fa-solid fa-align-left"></i>
+                        </span>
+                            <span>Opisy zadań</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="box" id="tasks">
+                {% for form in tasks %}
+                    <div class="form-row field">
+                        <div class="field has-addons">
                             <div class="field-label is-unselectable"
                                  style="display: flex; align-items: center; flex-grow: 0">{{ forloop.counter }}.
                             </div>
@@ -46,27 +63,27 @@
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-                <div class="block">
-                    <div class="container has-text-centered">
-                        <button type="submit" class="button is-outlined is-primary">
+                        <div class="field">
+                            <div class="control">
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="block">
+                <div class="container has-text-centered">
+                    <button type="submit" class="button is-outlined is-primary">
                             <span class="icon">
                                 <i class="fas fa-pen"></i>
                             </span>
-                            <span>Zapisz</span>
-                        </button>
-                    </div>
+                        <span>Zapisz</span>
+                    </button>
                 </div>
-            </form>
-        </div>
-        <script>
-            document.querySelector('#id_form-INITIAL_FORMS').value = 0; // To allow for removing the old tasks, probably not the best way to do it
-        </script>
-    {% else %}
-        <div class="box">
-            Nie powinno cię tu być, zaloguj się i wtedy do nas zajrzyj.
-        </div>
-        <meta http-equiv="refresh" content="3;url={% url 'frontpage' %}"/>
-    {% endif %}
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelector('#id_form-INITIAL_FORMS').value = 0; // To allow for removing the old tasks, probably not the best way to do it
+    </script>
 {% endblock %}

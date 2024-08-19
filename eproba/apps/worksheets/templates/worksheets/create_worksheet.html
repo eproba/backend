@@ -14,34 +14,58 @@
             {% csrf_token %}
             {{ worksheet|crispy }}
             {{ tasks.management_form }}
-            <h1>Zadania:</h1>
+            <div class="level m-0">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1>Zadania:</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-small is-outlined is-primary" type="button"
+                                id="tasks-descriptions-button">
+                        <span class="icon">
+                            <i class="fa-solid fa-align-left"></i>
+                        </span>
+                            <span>Opisy zadań</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <div class="box" id="tasks">
                 {% for form in tasks %}
-                    <div class="form-row field has-addons">
-                        <div class="field-label is-unselectable"
-                             style="display: flex; align-items: center; flex-grow: 0">{{ forloop.counter }}.
+                    <div class="form-row field">
+                        <div class="field has-addons">
+                            <div class="field-label is-unselectable"
+                                 style="display: flex; align-items: center; flex-grow: 0">{{ forloop.counter }}.
+                            </div>
+                            <div class="field-body is-flex" id="field-body-{{ forloop.counter|add:"-1" }}"
+                                 style="width: 100%">
+                                <div class="control" id="input" style="width: 100%">
+                                    {{ form.task }}
+                                </div>
+                                <div class="control" id="action-button">
+                                    <button class="button add-form-row {% if not forloop.counter == tasks|length %}is-hidden{% endif %}"
+                                            id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
+                                            class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="button remove-form-row {% if forloop.counter == tasks|length %}is-hidden{% endif %}"
+                                            id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"
+                                            tabindex="-1"><i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                                <div class="control" id="move-button">
+                                    <button class="button draggable"
+                                            style="cursor: move; user-select: none; background-color: transparent; touch-action: none"
+                                            onclick="this.blur();" type="button" tabindex="-1">
+                                        <i class="fa-solid fa-grip-vertical"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="field-body is-flex" id="field-body-{{ forloop.counter|add:"-1" }}"
-                             style="width: 100%">
-                            <div class="control" id="input" style="width: 100%">
-                                {{ form.task }}
-                            </div>
-                            <div class="control" id="action-button">
-                                <button class="button add-form-row {% if not forloop.counter == tasks|length %}is-hidden{% endif %}"
-                                        id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
-                                        class="fas fa-plus"></i>
-                                </button>
-                                <button class="button remove-form-row {% if forloop.counter == tasks|length %}is-hidden{% endif %}"
-                                        id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"
-                                        tabindex="-1"><i class="fas fa-minus"></i>
-                                </button>
-                            </div>
-                            <div class="control" id="move-button">
-                                <button class="button draggable"
-                                        style="cursor: move; user-select: none; background-color: transparent; touch-action: none"
-                                        onclick="this.blur();" type="button" tabindex="-1">
-                                    <i class="fa-solid fa-grip-vertical"></i>
-                                </button>
+                        <div class="field">
+                            <div class="control">
+                                {{ form.description }}
                             </div>
                         </div>
                     </div>

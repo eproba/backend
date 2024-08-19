@@ -6,7 +6,7 @@ function updateElementIndex(el, prefix, ndx) {
     if (el.name) el.name = el.name.replace(idRegex, replacement);
 }
 
-function addForm(selector, prefix) {
+function addFormRow(selector, prefix) {
     const newElement = selector.cloneNode(true);
     const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
     let total = parseInt(totalForms.value, 10);
@@ -17,6 +17,13 @@ function addForm(selector, prefix) {
         input.id = `id_${name}`;
         input.value = '';
         input.checked = false;
+    });
+
+    newElement.querySelectorAll('textarea').forEach(textarea => {
+        const name = textarea.name.replace(`-${total - 1}-`, `-${total}-`);
+        textarea.name = name;
+        textarea.id = `id_${name}`;
+        textarea.value = '';
     });
 
     newElement.querySelectorAll('button:not([type=submit]):not([type=reset])').forEach(button => {
@@ -49,7 +56,7 @@ function addForm(selector, prefix) {
     return false;
 }
 
-function deleteForm(prefix, button) {
+function deleteFormRow(prefix, button) {
     const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
     let total = parseInt(totalForms.value, 10);
 
@@ -78,10 +85,10 @@ document.addEventListener('click', event => {
 
     if (addButton) {
         event.preventDefault();
-        addForm(document.querySelector('.form-row:last-child'), 'form');
+        addFormRow(document.querySelector('.form-row:last-child'), 'form');
     } else if (removeButton) {
         event.preventDefault();
-        deleteForm('form', removeButton);
+        deleteFormRow('form', removeButton);
     }
 });
 
@@ -92,6 +99,10 @@ function handleFormChange() {
         // update index of input elements
         form.querySelectorAll('input').forEach(input => {
             updateElementIndex(input, 'form', index);
+        });
+        // update index of description elements
+        form.querySelectorAll('textarea').forEach(textarea => {
+            updateElementIndex(textarea, 'form', index);
         });
         if (index === forms.length - 1) {
             form.querySelector('.button.add-form-row').classList.remove('is-hidden');
@@ -105,7 +116,7 @@ function handleFormChange() {
 
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
             event.preventDefault();
         }
     });
@@ -117,4 +128,34 @@ document.addEventListener('DOMContentLoaded', () => {
         onEnd: handleFormChange,
         onChange: handleFormChange,
     });
+
+    try {
+        const tasksDescriptionsButton = document.getElementById('tasks-descriptions-button');
+        tasksDescriptionsButton.addEventListener('click', () => {
+            tasksDescriptionsButton.classList.toggle('is-outlined');
+            const enabled = !tasksDescriptionsButton.classList.contains('is-outlined');
+
+            const tasksDescriptions = document.querySelectorAll('.tasks-description');
+            tasksDescriptions.forEach(description => {
+                if (enabled) {
+                    description.classList.remove('is-hidden');
+                    const label = description.closest('.form-row').querySelector('.field-label');
+                    description.parentElement.style.marginLeft = label.offsetWidth + parseFloat(getComputedStyle(label).marginRight) + 'px';
+                } else {
+                    description.classList.add('is-hidden');
+                }
+            });
+        });
+        let shouldEnableDescriptionsAutomatically = false;
+        document.querySelectorAll('.tasks-description').forEach(description => {
+            if (description.value) {
+                shouldEnableDescriptionsAutomatically = true;
+            }
+        });
+        if (shouldEnableDescriptionsAutomatically && tasksDescriptionsButton.classList.contains('is-outlined')) {
+            tasksDescriptionsButton.click();
+        }
+    } catch (error) {
+        // pass - tasks descriptions button is not present and this feature is not needed
+    }
 });

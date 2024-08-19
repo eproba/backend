@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -16,6 +17,7 @@ from ..models import Task, Worksheet
 
 
 @login_required
+@transaction.atomic
 def create_worksheet(request):
     if request.GET.get("source", False) == "templates" and request.GET.get(
         "template", False
@@ -49,7 +51,11 @@ def create_worksheet(request):
                 tasks_data = tasks.cleaned_data
                 for task in tasks_data:
                     if "task" in task:
-                        Task.objects.create(worksheet=worksheet_obj, task=task["task"])
+                        Task.objects.create(
+                            worksheet=worksheet_obj,
+                            task=task["task"],
+                            description=task["description"],
+                        )
 
             FCMDevice.objects.filter(user=worksheet_obj.user).send_message(
                 Message(

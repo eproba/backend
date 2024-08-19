@@ -1,5 +1,6 @@
 from apps.users.utils import min_function
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -14,6 +15,7 @@ def remove_duplicates(seq):
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 
+@login_required
 @min_function(2)
 def edit_worksheet(request, worksheet_id):
     if not Worksheet.objects.filter(id=worksheet_id, deleted=False).exists():
@@ -43,14 +45,23 @@ def edit_worksheet(request, worksheet_id):
                     task.delete()
                     old_tasks.append(task)
                 for task in remove_duplicates(
-                    [t["task"] for t in tasks.cleaned_data if "task" in t]
+                    [
+                        (t["task"], t["description"])
+                        for t in tasks.cleaned_data
+                        if "task" in t
+                    ]
                 ):
                     if any(x.task == task for x in old_tasks):
-                        t = next((x for x in old_tasks if x.task == task), None)
+                        t = next(
+                            (x for x in old_tasks if (x.task, x.description) == task),
+                            None,
+                        )
                         t.id = None
                         t.save()
                     else:
-                        t = Task(task=task, worksheet=worksheet_obj)
+                        t = Task(
+                            task=task[0], worksheet=worksheet_obj, description=task[1]
+                        )
                         t.save()
                 if worksheet_obj.is_template:
                     messages.info(request, "Szablon został zapisany.")
@@ -65,7 +76,10 @@ def edit_worksheet(request, worksheet_id):
     else:
         worksheet_form = WorksheetCreateForm(instance=worksheet)
         tasks = task_form_set(
-            initial=[{"task": task.task} for task in worksheet.tasks.all()]
+            initial=[
+                {"task": task.task, "description": task.description}
+                for task in worksheet.tasks.all()
+            ]
         )
 
     return render(
