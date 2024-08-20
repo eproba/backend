@@ -41,14 +41,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 
-class AppConfigView(APIView):
+class ApiConfigView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
         return Response(
             {
                 "ads": config.ADS_MOBILE,
-                "maintenance": True,  # this id for backwards compatibility
                 "api_maintenance": config.API_MAINTENANCE_MODE,
                 "min_version": config.MINIMUM_APP_VERSION,
             }
@@ -234,7 +233,7 @@ class SubmitTask(APIView):
         if task.status == 2:
             return Response({"message": "Task already approved"})
         task.status = 1
-        task.approver = User.objects.get(user_id=request.data["approver"])
+        task.approver = User.objects.get(id=request.data["approver"])
         task.approval_date = timezone.now()
         task.save()
         FCMDevice.objects.filter(user=task.approver).send_message(
@@ -328,14 +327,14 @@ class WorksheetViewSet(ModelViewSet):
         ):
             serializer.save(
                 user=self.request.user,
-                supervisor=serializer.validated_data.get("supervisor")["user"],
+                supervisor=serializer.validated_data.get("supervisor"),
             )
             return
         if serializer.validated_data.get("user") is None:
             serializer.save(user=self.request.user)
             return
         if (
-            serializer.validated_data.get("user")["user"] != self.request.user
+            serializer.validated_data.get("user") != self.request.user
             and self.request.user.function < 2
         ):
             raise PermissionDenied("You can't create worksheets for other user")

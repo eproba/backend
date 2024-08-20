@@ -23,10 +23,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             genderSelect.parentElement.classList.add('is-loading');
             const name = firstNameInput.value;
+            if (name.trim() === "") {
+                genderSelect.parentElement.classList.remove('is-loading');
+                genderSelect.value = "";
+                return;
+            }
             try {
                 const gender = await predict_gender(name);
                 if (!genderManuallySet) { // Check again, because it could have been set while waiting for the response
-                    genderSelect.value = gender === "male" ? "0" : "1";
+                    switch (gender) {
+                        case "male":
+                            genderSelect.value = 0;
+                            break;
+                        case "female":
+                            genderSelect.value = 1;
+                            break;
+                        default:
+                            genderSelect.value = "";
+                    }
                 }
             } catch (e) {
                 console.error(e);

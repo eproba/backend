@@ -51,7 +51,7 @@ from rest_framework import routers
 
 from .sitemaps import Sitemap
 from .utils import (
-    AppConfigView,
+    ApiConfigView,
     PatrolViewSet,
     SubmitTask,
     TaskDetails,
@@ -103,7 +103,7 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
-    path("api/app_config/", AppConfigView.as_view()),
+    path("api/api-config/", ApiConfigView.as_view()),
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",
