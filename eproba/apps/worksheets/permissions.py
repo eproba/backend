@@ -8,6 +8,7 @@ class IsAllowedToManageWorksheetOrReadOnlyForOwner(permissions.BasePermission):
                 (
                     request.user.function >= 2
                     and request.user.function >= worksheet.user.function
+                    and request.user.patrol.team == worksheet.user.patrol.team
                 )
                 or worksheet.user == request.user
                 or worksheet.supervisor == request.user
@@ -16,7 +17,8 @@ class IsAllowedToManageWorksheetOrReadOnlyForOwner(permissions.BasePermission):
         return (
             request.user.function >= 2
             and request.user.function >= worksheet.user.function
-        )
+            and request.user.patrol.team == worksheet.user.patrol.team
+        ) or worksheet.supervisor == request.user
 
 
 class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
@@ -26,6 +28,7 @@ class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
                 (
                     request.user.function >= 2
                     and request.user.function >= task.worksheet.user.function
+                    and request.user.patrol.team == task.worksheet.user.patrol.team
                 )
                 or task.worksheet.user == request.user
                 or task.worksheet.supervisor == request.user
@@ -34,7 +37,8 @@ class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
         return (
             request.user.function >= 2
             and request.user.function >= task.worksheet.user.function
-        )
+            and request.user.patrol.team == task.worksheet.user.patrol.team
+        ) or task.worksheet.supervisor == request.user
 
 
 class IsTaskOwner(permissions.BasePermission):

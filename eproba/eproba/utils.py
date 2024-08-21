@@ -58,7 +58,7 @@ class UserViewSet(
     mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
     serializer_class = PublicUserSerializer
-    permission_classes = (IsAuthenticated, IsAllowedToManageUserOrReadOnly)
+    permission_classes = [IsAuthenticated, IsAllowedToManageUserOrReadOnly]
 
     def get_queryset(self):
         if self.request.query_params.get("team") is not None:
@@ -105,7 +105,7 @@ class UserInfo(viewsets.ModelViewSet):
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAllowedToManageTeamOrReadOnly,)
+    permission_classes = [IsAuthenticated, IsAllowedToManageTeamOrReadOnly]
 
     def get_queryset(self):
         if self.request.GET.get("district") is not None:
@@ -126,7 +126,7 @@ class PatrolViewSet(
     mixins.DestroyModelMixin,
 ):
     serializer_class = PatrolSerializer
-    permission_classes = (IsAllowedToManagePatrolOrReadOnly,)
+    permission_classes = [IsAuthenticated, IsAllowedToManagePatrolOrReadOnly]
     queryset = Patrol.objects.all()
 
     def perform_destroy(self, instance):
@@ -175,8 +175,8 @@ class TasksToBeChecked(generics.ListAPIView):
 
 class TaskDetails(ModelViewSet):
     permission_classes = [
-        IsAllowedToManageTaskOrReadOnlyForOwner,
         permissions.IsAuthenticated,
+        IsAllowedToManageTaskOrReadOnlyForOwner,
     ]
     serializer_class = TaskSerializer
     lookup_field = "id"
@@ -271,7 +271,7 @@ class UnsubmitTask(APIView):
 
 
 class WorksheetViewSet(ModelViewSet):
-    permission_classes = [IsAllowedToManageWorksheetOrReadOnlyForOwner, IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAllowedToManageWorksheetOrReadOnlyForOwner]
     serializer_class = WorksheetSerializer
 
     def get_object(self):

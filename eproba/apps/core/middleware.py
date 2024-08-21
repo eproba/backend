@@ -13,8 +13,13 @@ class APIMaintenanceMiddleware:
     def __call__(self, request):
         path = request.path_info.lstrip("/")
 
-        if config.API_MAINTENANCE_MODE and path.startswith("api") and not any(
-                path.startswith(f"api/{excluded_path}") for excluded_path in EXCLUDED_API_PATHS
+        if (
+            config.API_MAINTENANCE_MODE
+            and path.startswith("api")
+            and not any(
+                path.startswith(f"api/{excluded_path}")
+                for excluded_path in EXCLUDED_API_PATHS
+            )
         ):
             return JsonResponse(
                 {"error": "API is under maintenance, please try again later."},
