@@ -3,6 +3,7 @@ services:
     depends_on:
       - db
     image: antonicz/eproba:latest
+    restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
       - ./secrets/firebase-admin-sdk.json:/home/app/web/firebase-admin-sdk.json
@@ -14,6 +15,7 @@ services:
       - ./.env
   db:
     image: postgres:16
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
@@ -28,6 +30,7 @@ services:
     depends_on:
       - web
     image: nginx:1.27.1-alpine
+    restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
       - ./nginx-conf:/etc/nginx/conf.d
