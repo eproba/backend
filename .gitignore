@@ -11,12 +11,10 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 medi
-eproba/eproba_uwsgi.ini
-eproba/eproba/static
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
-eproba/staticfiles/
+#eproba/staticfiles/
 
 ### Django.Python Stack ###
 # Byte-compiled / optimized / DLL files
@@ -159,3 +157,4 @@ dmypy.json
 /eproba/apps/users/templates/users/login_hub.html
 /eproba/apps/users/views/login_hub.py
 /eproba/eproba/maintenance_mode_state.txt
+/secrets/

@@ -12,41 +12,34 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
-
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "xp^6=5g0y=^mwy$+jx7^bf!5s&zr$slvz=0lvy4)n55i#0+ib2"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
 
-
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
-CSRF_TRUSTED_ORIGINS = [
-    "https://eproba.zhr.pl",
-    "http://localhost:8000",
-    "http://130.162.49.113",
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGINS", "http://localhost:8000 http://localhost"
+).split(" ")
 SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
-
 CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
 
 CRISPY_TEMPLATE_PACK = "bulma"
 
-
 # Firebase
-FIREBASE_APP = initialize_app(
-    credentials.Certificate(
-        BASE_DIR / "scouts-exams-firebase-adminsdk-43fka-cf32dfa703.json"
-    )
-)
+try:
+    FIREBASE_APP = initialize_app(credentials.Certificate("firebase-admin-sdk.json"))
+except FileNotFoundError:
+    logger.warning("Firebase credentials file not found. Some features WILL NOT work.")
 FCM_DJANGO_SETTINGS = {"APP_VERBOSE_NAME": "Powiadomienia (FCM)"}
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -71,7 +64,6 @@ INSTALLED_APPS = [
     "maintenance_mode",
 ]
 
-
 # Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -86,7 +78,6 @@ MIDDLEWARE = [
     "apps.core.middleware.APIMaintenanceMiddleware",
 ]
 
-
 # API
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -100,18 +91,15 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 # Accounts and authentication
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "worksheets:worksheets"
 LOGOUT_REDIRECT_URL = "frontpage"
 AUTH_USER_MODEL = "users.User"
 
-
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 if not GOOGLE_OAUTH_CLIENT_ID:
     logger.warning("GOOGLE_OAUTH_CLIENT_ID not set, Google login is disabled.")
-
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
@@ -123,7 +111,6 @@ OAUTH2_PROVIDER = {
     },
     "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
 }
-
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
@@ -171,16 +158,28 @@ TEMPLATES = [
     },
 ]
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.environ.get("DATABASE", "sqlite") == "sqlite":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
-
+elif os.environ.get("DATABASE", "sqlite") == "postgres":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DATABASE_NAME"),
+            "USER": os.environ.get("DATABASE_USER"),
+            "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+            "HOST": os.environ.get("DATABASE_HOST"),
+            "PORT": os.environ.get("DATABASE_PORT"),
+        }
+    }
+else:
+    raise ValueError("Invalid database type.")
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -206,7 +205,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Emails
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = "Epróba <eproba@zhr.pl>"
@@ -215,7 +213,6 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -228,7 +225,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
