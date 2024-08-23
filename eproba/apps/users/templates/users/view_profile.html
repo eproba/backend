@@ -42,9 +42,9 @@
             <tr>
                 <td>Pseudonim</td>
                 <td>
-                    <p>
-                        {{ user.nickname }}
-                    </p>
+                    {% if user.nickname != null %}
+                        <p>{{ user.nickname }}</p>
+                    {% endif %}
                 </td>
             </tr>
             <tr>

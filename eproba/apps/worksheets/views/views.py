@@ -2,6 +2,7 @@ from apps.users.utils import min_function, patrol_required
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from fcm_django.models import FCMDevice
@@ -11,13 +12,13 @@ from firebase_admin.messaging import (
     WebpushFCMOptions,
     WebpushNotification,
 )
+from unidecode import unidecode
+from weasyprint import HTML
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm
 from ..models import Task, Worksheet
 from .utils import prepare_worksheet
-
-# from weasyprint import HTML
 
 
 def view_worksheets(request):
@@ -45,16 +46,19 @@ def view_worksheets(request):
 def print_worksheet(request, id):
     worksheet = get_object_or_404(Worksheet, id=id)
 
-    # response = HttpResponse(
-    #     HTML(string=render_to_string("worksheets/worksheet_pdf.html", {"worksheet": worksheet})).write_pdf(),
-    #     content_type="application/pdf",
-    # )
-    # response["Content-Disposition"] = (
-    #     f'inline; filename="{unidecode(str(worksheets))} (Epróba).pdf"'
-    # )
-    #
-    # return response
-    return HttpResponse("Not implemented", status=501)
+    response = HttpResponse(
+        HTML(
+            string=render_to_string(
+                "worksheets/worksheet_pdf.html", {"worksheet": worksheet}
+            )
+        ).write_pdf(),
+        content_type="application/pdf",
+    )
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
+    )
+
+    return response
 
 
 def view_shared_worksheet(request, id):

@@ -58,7 +58,6 @@ def google_auth_receiver(request):
     if "credential" not in request.POST:
         return HttpResponse(status=400)
 
-    print("Inside")
     token = request.POST["credential"]
 
     try:

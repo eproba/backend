@@ -181,8 +181,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             instructor_rank = instructor_rank_female.get(self.instructor_rank, "")
             scout_rank = scout_rank_female.get(self.scout_rank, "")
         else:
-            instructor_rank = self.get_instructor_rank_display()
-            scout_rank = self.get_scout_rank_display()
+            instructor_rank = (
+                self.get_instructor_rank_display() if self.instructor_rank != 0 else ""
+            )
+            scout_rank = self.get_scout_rank_display() if self.scout_rank != 0 else ""
 
         if instructor_rank:
             instructor_rank = f"{instructor_rank} "

@@ -1,9 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
+from unidecode import unidecode
+from weasyprint import HTML
 
 from ..models import Worksheet
-
-# from weasyprint import HTML
 
 
 def export(request):
@@ -76,17 +77,17 @@ def export(request):
 def export_worksheet(request, worksheet_id):
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
 
-    # response = HttpResponse(
-    #     HTML(
-    #         string=render_to_string(
-    #             "worksheets/worksheet_pdf.html", {"worksheet": worksheet, "should_replace_stars": True}
-    #         )
-    #     ).write_pdf(),
-    #     content_type="application/pdf",
-    # )
-    # response["Content-Disposition"] = (
-    #     f'inline; filename="{unidecode(str(worksheets))} (Epróba).pdf"'
-    # )
-    #
-    # return response
-    return HttpResponse("Not implemented", status=501)
+    response = HttpResponse(
+        HTML(
+            string=render_to_string(
+                "worksheets/worksheet_pdf.html",
+                {"worksheet": worksheet, "should_replace_stars": True},
+            )
+        ).write_pdf(),
+        content_type="application/pdf",
+    )
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
+    )
+
+    return response
