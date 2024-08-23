@@ -44,6 +44,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import include, path
 from django.views.generic import RedirectView, TemplateView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
@@ -195,5 +196,11 @@ urlpatterns = [
     ),
     path(
         "verify-email/<uuid:user_id>/<uuid:token>/", verify_email, name="verify_email"
+    ),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
     ),
 ]
