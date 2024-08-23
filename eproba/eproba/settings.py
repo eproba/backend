@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "constance",
     "maintenance_mode",
+    "drf_spectacular",
 ]
 
 # Middleware
@@ -89,6 +90,7 @@ REST_FRAMEWORK = {
         "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # Accounts and authentication
@@ -231,3 +233,24 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "API-eproba",
+    "DESCRIPTION": "API for Eproba",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": "/api",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SECURITY": [
+        {"CookieAuth": []},
+    ],
+    "COMPONENTS": {
+        "SECURITY_SCHEMES": {
+            "CookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "eproba",  # Nazwa ciasteczka do logowania
+            },
+        },
+    },
+}

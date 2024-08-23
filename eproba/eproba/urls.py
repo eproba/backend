@@ -62,7 +62,10 @@ from .utils import (
     UserViewSet,
     WorksheetViewSet,
 )
-
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+)
 handler404 = "apps.core.views.handler404"
 handler500 = "apps.core.views.handler500"
 
@@ -196,4 +199,6 @@ urlpatterns = [
     path(
         "verify-email/<uuid:user_id>/<uuid:token>/", verify_email, name="verify_email"
     ),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
