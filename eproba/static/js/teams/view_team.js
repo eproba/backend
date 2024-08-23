@@ -242,5 +242,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 closeAllModals();
             }
         });
+
+        // Add a click event to switch to graph view
+        document.getElementById('graph-view-button').addEventListener('click', () => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('graph', 'true');
+            location.href = url;
+        });
     }
 );

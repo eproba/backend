@@ -8,20 +8,20 @@
     <script src="{% static 'js/teams/view_team.js' %}"></script>
 {% endblock %}
 {% block content %}
-    {#<div class="level">#}
-    {#    <div class="level-left">#}
-    {#    </div>#}
-    {#    <div class="level-right">#}
-    {#        <div class="level-item">#}
-    {#            <button class="button is-dark">#}
-    {#                <span class="icon is-small">#}
-    {#                    <i class="fa-solid fa-diagram-project"></i>#}
-    {#                </span>#}
-    {#                <span>Zmień widok</span>#}
-    {#            </button>#}
-    {#        </div>#}
-    {#    </div>#}
-    {#</div>#}
+    <div class="level is-hidden-mobile">
+        <div class="level-left">
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <button class="button is-info is-soft" id="graph-view-button">
+                    <span class="icon is-small">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </span>
+                    <span>Zmień widok</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="box">
         <h1 class="title has-text-weight-bold">
             {% if request.user.function >= 4 %}

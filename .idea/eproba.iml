@@ -33,6 +33,8 @@
     <orderEntry type="library" name="UAParser.js" level="application" />
     <orderEntry type="library" name="9d1ff57ca68556c805b491b102e1d460" level="application" />
     <orderEntry type="library" name="sortablejs" level="application" />
+    <orderEntry type="library" name="apextree" level="application" />
+    <orderEntry type="library" name="apexcharts" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

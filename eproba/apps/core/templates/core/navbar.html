@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="navbar" role="navigation" aria-label="main navigation" style="padding: 0.5rem 1rem">
+<nav class="navbar" id="navbar" role="navigation" aria-label="main navigation" style="padding: 0.5rem 1rem">
     <div class="navbar-brand">
         <a class="navbar-item" href="{% url 'frontpage' %}">
             <svg viewBox="2.344402499999999 4.60938125 157.86092312499997 35.39154375"
@@ -73,8 +73,8 @@
                         <a class="navbar-item" href="{% url 'teams:view_teams' %}">
                             Zarządzaj drużyną
                         </a>
-                        <a class="navbar-item" href="#">
-                            Statystyki (wkrótce)
+                        <a class="navbar-item" href="{% url 'teams:team_statistics' %}">
+                            Statystyki
                         </a>
                     </div>
                 </div>

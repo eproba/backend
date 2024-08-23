@@ -9,6 +9,12 @@ def view_team(request):
             messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
             return redirect("frontpage")
 
+        if request.GET.get("graph"):
+            return render(
+                request,
+                "teams/view_team_graph.html",
+            )
+
         return render(
             request,
             "teams/view_team.html",

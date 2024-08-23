@@ -37,6 +37,12 @@
 
 }
 
+@media (prefers-color-scheme: light) {
+    .navbar {
+        box-shadow: var(--bulma-shadow);
+    }
+}
+
 .navbar {
     border-radius: .4em;
 }
@@ -75,11 +81,7 @@ body {
     flex-direction: column;
 }
 
-.inner {
-    min-width: 200px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
+
 
 .bounce {
     display: inline-block;

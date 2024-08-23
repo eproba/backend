@@ -64,3 +64,16 @@ def manage_user(request, user_id):
             },
         )
     return redirect("frontpage")
+
+
+def team_statistics(request):
+    if (
+        request.user.is_authenticated
+        and request.user.function >= 3
+        and request.user.patrol
+    ):
+        return render(
+            request,
+            "teams/team_statistics.html",
+        )
+    return redirect("frontpage")

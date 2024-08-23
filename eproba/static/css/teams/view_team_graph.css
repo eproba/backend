@@ -1,0 +1,11 @@
+#list-view-button {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2;
+}
+
+#team-graph {
+    position: relative;
+    min-height: 8rem;
+}
