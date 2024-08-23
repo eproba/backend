@@ -235,22 +235,15 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "API-eproba",
+    "TITLE": "Epoba API",
     "DESCRIPTION": "API for Eproba",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api",
     "COMPONENT_SPLIT_REQUEST": True,
-    "SECURITY": [
-        {"CookieAuth": []},
-    ],
-    "COMPONENTS": {
-        "SECURITY_SCHEMES": {
-            "CookieAuth": {
-                "type": "apiKey",
-                "in": "cookie",
-                "name": "eproba",  # Nazwa ciasteczka do logowania
-            },
-        },
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
     },
 }
