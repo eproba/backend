@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Zgłoszenia drużyn{% endblock %}
+{% block extrahead %}
+    <script src="{% static 'js/teams/team_requests.js' %}"></script>
+    <style>
+    @media (prefers-color-scheme: dark) {
+        .card {
+            --bulma-card-background-color: #0d1117;
+        }
+    }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">Zgłoszenia drużyn</h1>
+    <div id="team-requests">
+    </div>
+{% endblock %}

@@ -53,6 +53,7 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     ApiConfigView,
+    DistrictViewSet,
     PatrolViewSet,
     SubmitTask,
     TaskDetails,
@@ -72,6 +73,7 @@ api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
 api.register(r"worksheets", WorksheetViewSet, "api-worksheets")
 api.register(r"users", UserViewSet, "api-users")
+api.register(r"districts", DistrictViewSet, "api-districts")
 api.register(r"teams", TeamViewSet, "api-teams")
 api.register(r"patrols", PatrolViewSet, "api-patrols")
 

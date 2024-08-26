@@ -31,6 +31,7 @@ class Team(models.Model):
     district = models.ForeignKey(
         District, on_delete=models.RESTRICT, null=True, blank=True
     )
+    is_verified = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Drużyna"

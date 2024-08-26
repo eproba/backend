@@ -1,11 +1,16 @@
 from datetime import datetime
 
-from apps.teams.models import Patrol, Team
+from apps.teams.models import District, Patrol, Team
 from apps.teams.permissions import (
     IsAllowedToManagePatrolOrReadOnly,
     IsAllowedToManageTeamOrReadOnly,
 )
-from apps.teams.serializers import PatrolSerializer, TeamListSerializer, TeamSerializer
+from apps.teams.serializers import (
+    DistrictSerializer,
+    PatrolSerializer,
+    TeamListSerializer,
+    TeamSerializer,
+)
 from apps.users.models import User
 from apps.users.permissions import IsAllowedToManageUserOrReadOnly
 from apps.users.serializers import PublicUserSerializer, UserSerializer
@@ -104,16 +109,31 @@ class UserInfo(viewsets.ModelViewSet):
         return Response(self.get_serializer(request.user).data)
 
 
+class DistrictViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DistrictSerializer
+    queryset = District.objects.all()
+
+
 class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsAllowedToManageTeamOrReadOnly]
 
     def get_queryset(self):
         if self.request.GET.get("district") is not None:
+            if self.request.GET.get("is_verified") is not None:
+                return Team.objects.filter(
+                    district=self.request.GET.get("district"),
+                    is_verified=self.request.GET.get("is_verified").lower() == "true",
+                )
             return Team.objects.filter(district=self.request.GET.get("district"))
-        return Team.objects.filter()
+        if self.request.GET.get("is_verified") is not None:
+            return Team.objects.filter(
+                is_verified=self.request.GET.get("is_verified").lower() == "true"
+            )
+        return Team.objects.all()
 
     def get_serializer_class(self):
-        if self.action == "list":
+        if self.action == "list" and self.request.GET.get("with_patrols") != "true":
             return TeamListSerializer
         return TeamSerializer
 

@@ -1,3 +1,4 @@
+from .team_requests import team_requests
 from .view_list import view_patrol, view_team
 from .views import manage_user, team_statistics
 
@@ -6,4 +7,5 @@ __all__ = [
     "view_patrol",
     "manage_user",
     "team_statistics",
+    "team_requests",
 ]

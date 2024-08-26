@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const districtId = districtSelect.value;
         submitButton.disabled = true;
         try {
-            const teams = await fetchData(`/api/teams/?district=${districtId}`);
+            const teams = await fetchData(`/api/teams/?district=${districtId}&is_verified=true`);
             updateSelectOptions(teamSelect, teams, 'Wybierz drużynę');
             patrolSelect.innerHTML = '<option value="" selected disabled hidden>Wybierz zastęp</option>';
             patrolSelect.disabled = true;

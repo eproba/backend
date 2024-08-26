@@ -7,10 +7,16 @@ class IsAllowedToManageTeamOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.function >= 4
-            and request.user.patrol
-            and request.user.patrol.team == team
-        ) or request.user.function >= 5
+            (
+                request.user.function >= 4
+                and request.user.patrol
+                and request.user.patrol.team == team
+                and team.is_verified
+            )
+            or (request.user.function >= 5 and team.is_verified)
+            or (request.user.is_staff and request.user.has_perm("teams.change_team"))
+            or request.user.is_superuser
+        )
 
 
 class IsAllowedToManagePatrolOrReadOnly(permissions.BasePermission):

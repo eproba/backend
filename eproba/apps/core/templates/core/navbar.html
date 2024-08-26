@@ -37,7 +37,8 @@
                         <a class="navbar-item" href="{% url 'worksheets:archive' %}">
                             Archiwum
                         </a>
-                        <a class="navbar-item" href="{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}">
+                        <a class="navbar-item"
+                           href="{% url 'worksheets:create_worksheet' %}?next={% url 'worksheets:manage_worksheets' %}">
                             Utwórz nową próbę
                         </a>
                         <a class="navbar-item" onclick="location.href='{% url 'worksheets:templates' %}'">
@@ -56,12 +57,20 @@
                         <a class="navbar-item" href="{% url 'site_management' %}">
                             Zarządzaj stroną
                         </a>
+                        <a class="navbar-item" href="{% url 'teams:team_requests' %}">
+                            Zgłoszenia drużyn
+                        </a>
                     </div>
                 </div>
             {% elif request.user.is_staff %}
                 <a class="navbar-item" href="/admin">
                     Admin
                 </a>
+                {% if perms.teams.add_team or perms.teams.change_team %}
+                    <a class="navbar-item" href="{% url 'teams:team_requests' %}">
+                        Zgłoszenia drużyn
+                    </a>
+                {% endif %}
             {% endif %}
             {% if request.user.function >= 3 %}
                 <div class="navbar-item has-dropdown is-hoverable">
@@ -148,7 +157,7 @@
 {% endif %}
 
 {% if request.user.is_authenticated %}
-    {% if not request.user.email_verified  or not request.user.patrol %}
+    {% if not request.user.email_verified or not request.user.patrol or not request.user.patrol.is_active or not request.user.patrol.team.is_active %}
         {% if  request.path != '/select-patrol/' and request.path != '/signup/finalize/' %}
             <div class="notification my-2 p-4 mx-3 is-warning">
                 {% if not request.user.email_verified %}
@@ -162,6 +171,12 @@
                     <p>
                         Nie jesteś jeszcze przypisany do żadnej jednostki. <a href="{% url 'select_patrol' %}">Kliknij
                         tutaj</a> aby wybrać jednostkę i uzyskać dostęp do wszystkich funkcji Epróby.
+                    </p>
+                {% endif %}
+                {% if request.user.patrol and not request.user.patrol.is_active or request.user.patrol and not request.user.patrol.team.is_active %}
+                    <p>
+                        Twoja jednostka nie jest aktywna. Jeśli dopiero co zgłośiłeś drużynę, poczekaj na akceptację
+                        administratora. Jeśli uwazasz, że to błąd, skontaktuj się z administratorem.
                     </p>
                 {% endif %}
             </div>

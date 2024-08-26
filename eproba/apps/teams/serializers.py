@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Patrol, Team
+from .models import District, Patrol, Team
 
 
 class PatrolSerializer(serializers.ModelSerializer):
@@ -10,10 +10,9 @@ class PatrolSerializer(serializers.ModelSerializer):
 
 
 class TeamListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Team
-        fields = ["id", "name", "short_name", "district"]
+        fields = ["id", "name", "short_name", "district", "is_verified"]
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -21,4 +20,10 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "name", "short_name", "district", "patrols"]
+        fields = ["id", "name", "short_name", "district", "is_verified", "patrols"]
+
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = ["id", "name"]
