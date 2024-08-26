@@ -157,7 +157,7 @@
 {% endif %}
 
 {% if request.user.is_authenticated %}
-    {% if not request.user.email_verified or not request.user.patrol or not request.user.patrol.is_active or not request.user.patrol.team.is_active %}
+    {% if not request.user.email_verified or not request.user.patrol or not request.user.patrol.team.is_verified %}
         {% if  request.path != '/select-patrol/' and request.path != '/signup/finalize/' %}
             <div class="notification my-2 p-4 mx-3 is-warning">
                 {% if not request.user.email_verified %}
@@ -173,10 +173,11 @@
                         tutaj</a> aby wybrać jednostkę i uzyskać dostęp do wszystkich funkcji Epróby.
                     </p>
                 {% endif %}
-                {% if request.user.patrol and not request.user.patrol.is_active or request.user.patrol and not request.user.patrol.team.is_active %}
+                {% if request.user.patrol and not request.user.patrol.team.is_verified %}
                     <p>
-                        Twoja jednostka nie jest aktywna. Jeśli dopiero co zgłośiłeś drużynę, poczekaj na akceptację
-                        administratora. Jeśli uwazasz, że to błąd, skontaktuj się z administratorem.
+                        Twoja jednostka nie jest zweryfikowana. Jeśli dopiero co zgłośiłeś drużynę, poczekaj na akceptację
+                        administratora. Jeśli uwazasz, że to błąd, skontaktuj się z administratorem. Część funkcji nie
+                        będzie dostępna do czasu weryfikacji.
                     </p>
                 {% endif %}
             </div>
