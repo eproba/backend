@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "constance",
     "maintenance_mode",
     "drf_spectacular",
+    "dbbackup",
 ]
 
 # Middleware
@@ -114,6 +115,7 @@ OAUTH2_PROVIDER = {
     "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
 }
 
+# Constance
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
@@ -124,6 +126,7 @@ CONSTANCE_CONFIG = {
     "MINIMUM_APP_VERSION": (20240900, "Minimum app version"),
 }
 
+# Maintenance mode
 MAINTENANCE_MODE_TEMPLATE = "errors/503.html"
 MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
 # MAINTENANCE_MODE_IGNORE_SUPERUSER = True
@@ -234,6 +237,7 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 
+# API Documentation
 SPECTACULAR_SETTINGS = {
     "TITLE": "Epoba API",
     "DESCRIPTION": "API for Eproba",
@@ -246,4 +250,10 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,
         "displayOperationId": True,
     },
+}
+
+# Database backup
+DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
+DBBACKUP_STORAGE_OPTIONS = {
+    "location": os.environ.get("DBBACKUP_STORAGE_LOCATION", BASE_DIR / "backups"),
 }

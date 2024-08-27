@@ -6,6 +6,7 @@ services:
     restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - backup_volume:/home/app/web/backups
       - ./secrets/firebase-admin-sdk.json:/home/app/web/firebase-admin-sdk.json
     networks:
       - app-network
@@ -55,6 +56,7 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  backup_volume:
 #  certbot-etc:
 
 networks:

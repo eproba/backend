@@ -159,3 +159,4 @@ dmypy.json
 /eproba/eproba/maintenance_mode_state.txt
 /secrets/
 eproba/firebase-admin-sdk.json
+eproba/backups/
