@@ -13,8 +13,8 @@
     }
 
     .navbar-dropdown .navbar-item:not(.is-active,.is-selected) {
-     background-color: var(--bulma-navbar-background-color);
-}
+        background-color: var(--bulma-navbar-background-color);
+    }
 
     .box {
         --bulma-box-background-color: #0d1117;
@@ -80,7 +80,6 @@ body {
     display: flex;
     flex-direction: column;
 }
-
 
 
 .bounce {
