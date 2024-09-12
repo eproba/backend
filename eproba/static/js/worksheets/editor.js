@@ -122,12 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const el = document.getElementById('tasks');
-    new Sortable(el, {
-        handle: '.draggable',
-        animation: 150,
-        onEnd: handleFormChange,
-        onChange: handleFormChange,
-    });
+    try {
+        new Sortable(el, {
+            handle: '.draggable',
+            animation: 150,
+            onEnd: handleFormChange,
+            onChange: handleFormChange,
+        });
+    } catch (error) {
+        alert('Could not initialize Sortable library. You will not be able to reorder tasks.');
+    }
 
     try {
         const tasksDescriptionsButton = document.getElementById('tasks-descriptions-button');

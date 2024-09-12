@@ -3,8 +3,10 @@ services:
     depends_on:
       - db
     build: ./eproba
+    restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
+      - backup_volume:/home/app/web/backups
       - ./secrets/firebase-admin-sdk.json:/home/app/web/firebase-admin-sdk.json
     networks:
       - app-network
@@ -14,6 +16,7 @@ services:
       - ./.env
   db:
     image: postgres:16
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
@@ -22,16 +25,21 @@ services:
       - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_DB=${DATABASE_NAME}
+      - TZ=${TZ}
+      - PGTZ=${TZ}
   nginx:
     depends_on:
       - web
     image: nginx:1.27.1-alpine
+    restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
       - ./nginx-conf:/etc/nginx/conf.d
 #      - certbot-etc:/etc/letsencrypt
     networks:
       - app-network
+    environment:
+      - TZ=${TZ}
     ports:
       - "80:80"
 #      - "443:443"
@@ -48,6 +56,7 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  backup_volume:
 #  certbot-etc:
 
 networks:

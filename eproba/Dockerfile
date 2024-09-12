@@ -46,13 +46,15 @@ WORKDIR $APP_HOME
 
 # install dependencies
 RUN apk update && \
-    apk add weasyprint fontconfig font-roboto
+    apk add weasyprint fontconfig font-roboto dcron postgresql-client
+
+# copy wheels from the builder stage
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
-# copy project
+# copy project files
 COPY . $APP_HOME
 
 # ensure entrypoint.sh has UNIX line endings
@@ -64,8 +66,14 @@ RUN chmod +x  $APP_HOME/entrypoint.sh
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
 
-# change to the app user
-USER app
+# create cron log directory
+RUN mkdir /var/log/cron && chown -R app:app /var/log/cron
 
-# run entrypoint.sh
-ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+# copy the cron file (to define the cron jobs)
+COPY ./crontab /etc/crontabs/app
+
+# make sure cron job file has appropriate permissions
+RUN chmod 0644 /etc/crontabs/app
+
+# start cron in the background and gunicorn as the main process
+CMD ["sh", "-c", "crond -b && su -s /bin/ash app -c \"/home/app/web/entrypoint.sh\""]
