@@ -160,3 +160,4 @@ dmypy.json
 /secrets/
 eproba/firebase-admin-sdk.json
 eproba/backups/
+/eproba/staticfiles/

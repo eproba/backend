@@ -23,19 +23,13 @@ from apps.worksheets.permissions import (
 )
 from apps.worksheets.serializers import TaskSerializer, WorksheetSerializer
 from apps.worksheets.tasks import remove_expired_deleted_worksheets
+from apps.worksheets.views.utils import send_notification
 from constance import config
 from constance.signals import config_updated
 from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from fcm_django.models import FCMDevice
-from firebase_admin.messaging import (
-    Message,
-    Notification,
-    WebpushConfig,
-    WebpushFCMOptions,
-)
 from maintenance_mode.core import set_maintenance_mode
 from rest_framework import generics, mixins, permissions, viewsets
 from rest_framework.exceptions import APIException, PermissionDenied
@@ -238,7 +232,7 @@ class TaskDetails(ModelViewSet):
             serializer.instance.approver = self.request.user
         super().perform_update(serializer)
         serializer.instance.worksheet.save()  # update worksheets modification date
-        clear_tokens()  # clear old oauth2 tokens
+        clear_tokens()  # clear old oauth2 tokens, it's here for now but should be moved to a celery task or something similar later
 
 
 class SubmitTask(APIView):
@@ -256,20 +250,11 @@ class SubmitTask(APIView):
         task.approver = User.objects.get(id=request.data["approver"])
         task.approval_date = timezone.now()
         task.save()
-        FCMDevice.objects.filter(user=task.approver).send_message(
-            Message(
-                notification=Notification(
-                    title="Nowe zadanie do sprawdzenia",
-                    body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}.",
-                ),
-                webpush=WebpushConfig(
-                    fcm_options=WebpushFCMOptions(
-                        link="https://"
-                        + request.get_host()
-                        + reverse("worksheets:check_tasks")
-                    ),
-                ),
-            )
+        send_notification(
+            targets=task.approver,
+            title="Nowe zadanie do sprawdzenia",
+            body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
+            link=reverse("worksheets:check_tasks"),
         )
         return Response({"message": "Task submitted"})
 

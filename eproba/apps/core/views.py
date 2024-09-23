@@ -7,11 +7,6 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.views import generic
 
-try:
-    import uwsgi
-except ImportError:
-    uwsgi = None
-
 from .forms import ContactForm
 
 

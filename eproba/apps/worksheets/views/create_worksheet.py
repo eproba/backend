@@ -4,16 +4,10 @@ from django.db import transaction
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from fcm_django.models import FCMDevice
-from firebase_admin.messaging import (
-    Message,
-    WebpushConfig,
-    WebpushFCMOptions,
-    WebpushNotification,
-)
 
 from ..forms import ExtendedWorksheetCreateForm, TaskForm, WorksheetCreateForm
 from ..models import Task, Worksheet
+from .utils import send_notification
 
 
 @login_required
@@ -57,26 +51,18 @@ def create_worksheet(request):
                             description=task["description"],
                         )
 
-            FCMDevice.objects.filter(user=worksheet_obj.user).send_message(
-                Message(
-                    webpush=WebpushConfig(
-                        notification=WebpushNotification(
-                            title="Nowa próba",
-                            body="Została utworzona nowa próba dla ciebie.",
-                        ),
-                        fcm_options=WebpushFCMOptions(
-                            link="https://"
-                            + request.get_host()
-                            + reverse(
-                                "worksheets:worksheet_detail",
-                                kwargs={
-                                    "id": worksheet_obj.id,
-                                },
-                            )
-                        ),
+            if request.user != worksheet_obj.user:
+                send_notification(
+                    targets=worksheet_obj.user,
+                    title="Nowa próba",
+                    body="Została utworzona nowa próba dla ciebie.",
+                    link=reverse(
+                        "worksheets:worksheet_detail",
+                        kwargs={
+                            "id": worksheet_obj.id,
+                        },
                     ),
                 )
-            )
             messages.success(request, "Próba została utworzona")
             if request.GET.get("next", False):
                 return redirect(request.GET.get("next"))

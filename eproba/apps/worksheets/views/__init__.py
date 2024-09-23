@@ -7,8 +7,6 @@ from .templates import templates
 from .views import (
     accept_task,
     check_tasks,
-    force_accept_task,
-    force_reject_task,
     manage_worksheets,
     print_worksheet,
     reject_task,
@@ -36,7 +34,5 @@ __all__ = [
     "unsubmit_task",
     "reject_task",
     "accept_task",
-    "force_reject_task",
-    "force_accept_task",
     "submit_task",
 ]

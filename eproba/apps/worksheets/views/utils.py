@@ -1,3 +1,18 @@
+import urllib.parse
+
+from apps.users.models import User
+from django.conf import settings
+from fcm_django.admin import FCMDevice
+from firebase_admin.messaging import (
+    Message,
+    WebpushConfig,
+    WebpushFCMOptions,
+    WebpushNotification,
+)
+
+logger = settings.LOGGER
+
+
 def prepare_worksheet(worksheet):
     _all = 0
     _done = 0
@@ -21,3 +36,28 @@ def prepare_worksheet(worksheet):
         worksheet.percent = "Nie masz jeszcze dodanych żadnych zadań"
 
     return worksheet
+
+
+def send_notification(targets: list[User] | User, title: str, body: str, link: str):
+    if settings.FIREBASE_APP is None:
+        logger.warning("Firebase app is not initialized, notifications are disabled.")
+        return
+    if not isinstance(targets, list):
+        targets = [targets]
+    try:
+        FCMDevice.objects.filter(user__in=targets).send_message(
+            Message(
+                webpush=WebpushConfig(
+                    notification=WebpushNotification(
+                        title=title,
+                        body=body,
+                    ),
+                    fcm_options=WebpushFCMOptions(
+                        link=urllib.parse.urljoin("https://eproba.zhr.pl", link)
+                    ),
+                ),
+            )
+        )
+    except Exception as e:
+        logger.error(f"Error while sending notification: {e}")
+        pass

@@ -3,12 +3,15 @@ from datetime import datetime
 from functools import wraps
 from uuid import UUID
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import strip_tags
+
+logger = settings.LOGGER
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -56,7 +59,6 @@ def patrol_required(function):
 
 
 def send_verification_email_to_user(user):
-
     name = (
         user.first_name
         if user.first_name
@@ -71,4 +73,9 @@ def send_verification_email_to_user(user):
             "verification_link": f"https://eproba.zhr.pl{reverse('verify_email', kwargs={'user_id': user.id, 'token': user.email_verification_token})}",
         },
     )
-    send_mail(subject, strip_tags(message), None, [user.email], html_message=message)
+    try:
+        send_mail(
+            subject, strip_tags(message), None, [user.email], html_message=message
+        )
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")

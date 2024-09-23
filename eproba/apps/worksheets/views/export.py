@@ -1,8 +1,14 @@
+from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from unidecode import unidecode
-from weasyprint import HTML
+
+try:
+    from weasyprint import HTML
+except OSError:
+    pass
 
 from ..models import Worksheet
 
@@ -77,15 +83,21 @@ def export(request):
 def export_worksheet(request, worksheet_id):
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
 
-    response = HttpResponse(
-        HTML(
-            string=render_to_string(
-                "worksheets/worksheet_pdf.html",
-                {"worksheet": worksheet, "should_replace_stars": True},
-            )
-        ).write_pdf(),
-        content_type="application/pdf",
-    )
+    try:
+        response = HttpResponse(
+            HTML(
+                string=render_to_string(
+                    "worksheets/worksheet_pdf.html",
+                    {"worksheet": worksheet, "should_replace_stars": True},
+                )
+            ).write_pdf(),
+            content_type="application/pdf",
+        )
+    except NameError:
+        messages.add_message(
+            request, messages.ERROR, "Weasyprint nie jest zainstalowany."
+        )
+        return redirect(reverse("worksheets:worksheets"))
     response["Content-Disposition"] = (
         f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
     )

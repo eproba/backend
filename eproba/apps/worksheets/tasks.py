@@ -1,7 +1,8 @@
-import logging
 from time import time
 
-logger = logging.getLogger(__name__)
+from django.conf import settings
+
+logger = settings.LOGGER
 
 
 def remove_expired_deleted_worksheets():

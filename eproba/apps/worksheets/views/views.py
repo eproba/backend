@@ -5,20 +5,17 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from fcm_django.models import FCMDevice
-from firebase_admin.messaging import (
-    Message,
-    WebpushConfig,
-    WebpushFCMOptions,
-    WebpushNotification,
-)
 from unidecode import unidecode
-from weasyprint import HTML
+
+try:
+    from weasyprint import HTML
+except OSError:
+    pass
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm
 from ..models import Task, Worksheet
-from .utils import prepare_worksheet
+from .utils import prepare_worksheet, send_notification
 
 
 def view_worksheets(request):
@@ -46,14 +43,20 @@ def view_worksheets(request):
 def print_worksheet(request, id):
     worksheet = get_object_or_404(Worksheet, id=id)
 
-    response = HttpResponse(
-        HTML(
-            string=render_to_string(
-                "worksheets/worksheet_pdf.html", {"worksheet": worksheet}
-            )
-        ).write_pdf(),
-        content_type="application/pdf",
-    )
+    try:
+        response = HttpResponse(
+            HTML(
+                string=render_to_string(
+                    "worksheets/worksheet_pdf.html", {"worksheet": worksheet}
+                )
+            ).write_pdf(),
+            content_type="application/pdf",
+        )
+    except NameError:
+        messages.add_message(
+            request, messages.ERROR, "Weasyprint nie jest zainstalowany."
+        )
+        return redirect(reverse("worksheets:worksheets"))
     response["Content-Disposition"] = (
         f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
     )
@@ -138,89 +141,53 @@ def unsubmit_task(request, worksheet_id, task_id):
 
 
 def reject_task(request, worksheet_id, task_id):
+    """Rejects a task that was submitted for approval."""
     worksheet = get_object_or_404(Worksheet, id=worksheet_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
-    if task.status != 1 or task.worksheet != worksheet or task.approver != request.user:
+    if task.status != 1:
+        messages.add_message(
+            request, messages.INFO, "To zadanie nie jest już do sprawdzenia."
+        )
+        return redirect(reverse("worksheets:check_tasks"))
+    if task.worksheet != worksheet or task.approver != request.user:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
         )
         return redirect(reverse("worksheets:check_tasks"))
     Task.objects.filter(id=task.id).update(status=3)
     worksheet.save()  # update worksheets's last modification date
+    send_notification(
+        targets=task.worksheet.user,
+        title="Zadanie odrzucone",
+        body=f"Twoje zadanie w próbie {worksheet} zostało odrzucone.",
+        link=reverse("worksheets:worksheets"),
+    )
     return redirect(reverse("worksheets:check_tasks"))
 
 
 def accept_task(request, worksheet_id, task_id):
+    """Accepts a task that was submitted for approval."""
     worksheet = get_object_or_404(Worksheet, id=worksheet_id, deleted=False)
     task = get_object_or_404(Task, id=task_id)
-    if task.status != 1 or task.worksheet != worksheet or task.approver != request.user:
+    if task.status != 1:
+        messages.add_message(
+            request, messages.INFO, "To zadanie nie jest już do sprawdzenia."
+        )
+        return redirect(reverse("worksheets:check_tasks"))
+    if task.worksheet != worksheet or task.approver != request.user:
         messages.add_message(
             request, messages.INFO, "Nie masz uprawnień do akceptacji tego zadania."
         )
         return redirect(reverse("worksheets:check_tasks"))
     Task.objects.filter(id=task.id).update(status=2, approval_date=timezone.now())
     worksheet.save()  # update worksheets's last modification date
-    return redirect(reverse("worksheets:check_tasks"))
-
-
-def force_reject_task(request, worksheet_id, task_id):
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id, deleted=False)
-    task = get_object_or_404(Task, id=task_id)
-    if request.method == "POST":
-        if (
-            task.worksheet != worksheet
-            or request.user.function < 2
-            or request.user.function < worksheet.user.function
-        ):
-            return HttpResponse("401 Unauthorized", status=401)
-        Task.objects.filter(id=task.id).update(status=3, approver=request.user)
-        worksheet.save()  # update worksheets's last modification date
-        return HttpResponse("OK", status=200)
-    if (
-        task.worksheet != worksheet
-        or request.user.function < 2
-        or request.user.function < worksheet.user.function
-    ):
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do odrzucenia tego zadania."
-        )
-        return redirect(reverse("worksheets:edit_worksheets"))
-    Task.objects.filter(id=task.id).update(status=3, approver=None)
-    return redirect(reverse("worksheets:edit_worksheets"))
-
-
-def force_accept_task(request, worksheet_id, task_id):
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id, deleted=False)
-    task = get_object_or_404(Task, id=task_id)
-    if request.method == "POST":
-        if (
-            task.worksheet != worksheet
-            or request.user.function < 2
-            or request.user.function < worksheet.user.function
-        ):
-            return HttpResponse("401 Unauthorized", status=401)
-        Task.objects.filter(id=task.id).update(
-            status=2,
-            approver=request.user,
-            approval_date=timezone.now(),
-        )
-        worksheet.save()  # update worksheets's last modification date
-        return HttpResponse("OK", status=200)
-    if (
-        task.worksheet != worksheet
-        or request.user.function < 2
-        or request.user.function < worksheet.user.function
-    ):
-        messages.add_message(
-            request, messages.INFO, "Nie masz uprawnień do zaliczenia tego zadania."
-        )
-        return redirect(reverse("worksheets:edit_worksheets"))
-    Task.objects.filter(id=task.id).update(
-        status=2,
-        approver=request.user,
-        approval_date=timezone.now(),
+    send_notification(
+        targets=task.worksheet.user,
+        title="Zadanie zaakceptowane",
+        body=f"Twoje zadanie w próbie {worksheet} zostało zaakceptowane.",
+        link=reverse("worksheets:worksheets"),
     )
-    return redirect(reverse("worksheets:edit_worksheets"))
+    return redirect(reverse("worksheets:check_tasks"))
 
 
 def submit_task(request, worksheet_id):
@@ -237,26 +204,16 @@ def submit_task(request, worksheet_id):
         )
         if submit_task_form.is_valid():
             submitted_task = submit_task_form.save(commit=False)
-            submitted_task.user = request.user
             submitted_task.worksheet = worksheet
             submitted_task.approval_date = timezone.now()
             submitted_task.status = 1
             submitted_task.save()
 
-            FCMDevice.objects.filter(user=submitted_task.approver.user).send_message(
-                Message(
-                    webpush=WebpushConfig(
-                        notification=WebpushNotification(
-                            title="Nowe zadanie do sprawdzenia",
-                            body=f"Pojawił się nowy punkt do sprawdzenia dla {submitted_task.user}.",
-                        ),
-                        fcm_options=WebpushFCMOptions(
-                            link="https://"
-                            + request.get_host()
-                            + reverse("worksheets:check_tasks")
-                        ),
-                    ),
-                )
+            send_notification(
+                targets=submitted_task.approver,
+                title="Nowe zadanie do sprawdzenia",
+                body=f"Pojawił się nowy punkt do sprawdzenia dla {worksheet.user}",
+                link=reverse("worksheets:check_tasks"),
             )
             messages.success(
                 request, "Prośba o zaakceptowanie zadania została wysłana."

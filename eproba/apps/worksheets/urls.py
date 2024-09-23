@@ -36,16 +36,6 @@ urlpatterns = [
         views.unsubmit_task,
         name="unsubmit_task",
     ),
-    path(
-        "<uuid:worksheet_id>/task/<uuid:task_id>/force/accept/",
-        views.force_accept_task,
-        name="force_accept_task",
-    ),
-    path(
-        "<uuid:worksheet_id>/task/<uuid:task_id>/force/reject/",
-        views.force_reject_task,
-        name="force_reject_task",
-    ),
     path("export/", views.export, name="export"),
     path(
         "export/<uuid:worksheet_id>/", views.export_worksheet, name="export_worksheet"

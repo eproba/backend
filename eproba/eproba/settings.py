@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from firebase_admin import credentials, initialize_app
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -38,7 +38,8 @@ CRISPY_TEMPLATE_PACK = "bulma"
 try:
     FIREBASE_APP = initialize_app(credentials.Certificate("firebase-admin-sdk.json"))
 except FileNotFoundError:
-    logger.warning("Firebase credentials file not found. Some features WILL NOT work.")
+    LOGGER.warning("Firebase credentials file not found. Notifications are disabled.")
+    FIREBASE_APP = None
 FCM_DJANGO_SETTINGS = {"APP_VERBOSE_NAME": "Powiadomienia (FCM)"}
 
 # Application definition
@@ -102,7 +103,7 @@ AUTH_USER_MODEL = "users.User"
 
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 if not GOOGLE_OAUTH_CLIENT_ID:
-    logger.warning("GOOGLE_OAUTH_CLIENT_ID not set, Google login is disabled.")
+    LOGGER.warning("GOOGLE_OAUTH_CLIENT_ID not set, Google login is disabled.")
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
