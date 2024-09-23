@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% block title %}Drużyna zgłoszona - Epróba{% endblock %}
+{% block content %}
+    <div class="box">
+        <div class="content">
+            <h1 class="title has-text-weight-bold">Zgłoszenie drużyny</h1>
+            <p>Twoja drużyna została zgłoszona do Epróby. Po weryfikacji zgłoszenia, drużyna zostanie dodana do bazy
+                danych i będzie widoczna na stronie.</p>
+
+            <div class="buttons is-centered">
+                <a href="{% url 'frontpage' %}" class="button is-primary">Powrót na stronę główną</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

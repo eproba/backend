@@ -158,7 +158,7 @@
 
 {% if request.user.is_authenticated %}
     {% if not request.user.email_verified or not request.user.patrol or not request.user.patrol.team.is_verified %}
-        {% if  request.path != '/select-patrol/' and request.path != '/signup/finalize/' %}
+        {% if  request.path != '/select-patrol/' and request.path != '/signup/finalize/' and request.path != '/team/request/' %}
             <div class="notification my-2 p-4 mx-3 is-warning">
                 {% if not request.user.email_verified %}
                     <p>
