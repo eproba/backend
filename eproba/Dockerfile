@@ -75,5 +75,8 @@ COPY ./crontab /etc/crontabs/app
 # make sure cron job file has appropriate permissions
 RUN chmod 0644 /etc/crontabs/app
 
+# expose port 8000
+EXPOSE 8000
+
 # start cron in the background and gunicorn as the main process
 CMD ["sh", "-c", "crond -b && su -s /bin/ash app -c \"/home/app/web/entrypoint.sh\""]
