@@ -1,0 +1,11 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Statystyki drużyny{% endblock %}
+{% block extrahead %}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'js/teams/team_statistics.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <div class="box" id="chart">
+    </div>
+{% endblock %}

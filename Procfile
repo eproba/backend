@@ -1,0 +1,1 @@
+web: cd eproba && gunicorn eproba.wsgi

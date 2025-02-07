@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="google-site-verification" content="hqExY0-89Z7do_am4dIRpmex0MqXwOfO_BtkOrCWG_A"/>
+    <title>{% block title %}Epróba{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="preload" href="{% static 'css/bulma-tooltip.min.css' %}" as="style"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
+    </noscript>
+    <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
+    <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.32/ua-parser.min.js"
+            integrity="sha512-QyFNWdGOdhSDvdDfS8tzVVg+UgnwLYmPybDSityYxHUg7mTVrw5dWRYdiUHNUOWVtLkJqTB8/LhrUCRPfkrEFg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/core/navbar.js' %}"></script>
+    <script defer type="text/javascript" charset="UTF-8"
+            src="https://cdn.cookie-script.com/s/9d1ff57ca68556c805b491b102e1d460.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'images/icons/favicon.svg' %}" type="image/svg+xml">
+    {% if config.ADS_WEB %}
+        <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127294792989521"
+                crossorigin="anonymous"></script>
+    {% else %}
+        <!--ADS are disabled-->
+    {% endif %}
+    {% block extrahead %}
+    {% endblock %}
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+    </script>
+    {% if request.user.is_authenticated %}
+        <script async type="module" src="{% static 'js/core/firebase.js' %}"></script>
+    {% endif %}
+</head>
+<body>
+{% if not request.user.is_authenticated and google_auth_enabled %}
+    <div id="g_id_onload"
+         data-client_id="897419344971-f2uj5udmpk698ur529di5ens7ufogclg.apps.googleusercontent.com"
+         data-context="use"
+         data-ux_mode="redirect"
+         data-login_uri="{% if request.is_secure %}https://{{ request.get_host }}{% endif %}{% url 'google_auth_receiver' %}{% if request.GET.next %}?next={{ request.GET.next }}{% elif request.path != '/' and request.path != '/login/' and request.path != '/signup/' %}?next={{ request.path }}{% endif %}"
+         data-itp_support="true">
+    </div>
+{% endif %}
+<div class="container" id="container" style="display: flex; flex-direction: column;">
+    {% include "core/navbar.html" %}
+    <br>
+    {% block subnavbarcontent %}
+    {% endblock %}
+    <div class="container px-3"
+         style="position: relative; margin-bottom: 10vh;display: flex; flex-direction: column;width: 100%;">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+<div id="notifications" style="z-index: 50; position: fixed; bottom: 10px; right: 10px"></div>
+{% block footer %}
+    <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
+        <div style="border-top: 1px solid #dee2e6; padding-bottom: 0.5rem"></div>
+        <p class="has-text-centered">
+            <strong>Epróba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code
+            is available on <a href="https://github.com/eproba">Github</a>.
+        </p>
+    </div>
+{% endblock %}
+</body>
+</html>

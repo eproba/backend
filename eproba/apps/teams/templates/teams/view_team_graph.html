@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Zarządzaj drużyną{% endblock %}
+{% block extrahead %}
+    <script src="https://cdn.jsdelivr.net/npm/apextree"></script>
+    <script src="{% static 'js/teams/view_team_graph.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/teams/view_team_graph.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="box" id="team-graph">
+        <button class="button is-info is-soft" id="list-view-button">
+            <span class="icon is-small">
+                <i class="fa-solid fa-list"></i>
+            </span>
+            <span>Zmień widok</span>
+        </button>
+        <div id="svg-tree"></div>
+    </div>
+{% endblock %}

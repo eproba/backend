@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}{{ info }} - Epróba{% endblock %}
+{% block extrahead %}
+    <script src="{% static 'js/users/predict_gender.js' %}" async></script>
+{% endblock %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">{{ info }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for form in forms %}
+            {{ form|crispy }}
+        {% endfor %}
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit">{{ button_text|default:"Zapisz" }}</button>
+            </div>
+        </div>
+    </form>
+    <style>
+        .select {
+            width: 100%;
+        }
+
+        .select select {
+            width: 100%;
+        }
+
+    </style>
+{% endblock %}

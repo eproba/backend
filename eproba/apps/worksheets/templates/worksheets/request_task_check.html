@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% block title %}Wyślij prośbę o zatwierdzenie{% endblock %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="box">
+        <h1 class="title has-text-weight-medium">Poproś o zatwierdzenie zadania</h1>
+        <h1 class="subtitle">{{ worksheet }}</h1>
+        <form action="{% url 'worksheets:submit_task' worksheet.id %}" method="post" id="form">
+            {% csrf_token %}
+            {% for form in forms %}
+                {{ form|crispy }}
+            {% endfor %}
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary" type="submit">Prześlij</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Załóż konto - Epróba{% endblock %}
+{% block extrahead %}
+    <script defer src="{% static 'js/users/predict_gender.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">Załóż konto</h1>
+    {% if google_auth_enabled %}
+        <div class="buttons">
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="signup_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="color-scheme: light">
+            </div>
+            <p><br/></p>
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        {{ terms_of_service_form|crispy }}
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit">Zarejestruj się</button>
+            </div>
+        </div>
+    </form>
+    <style>
+        .select {
+            width: 100%;
+        }
+
+        .select select {
+            width: 100%;
+        }
+
+    </style>
+{% endblock %}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="django" name="Django">
+      <configuration>
+        <option name="rootFolder" value="$MODULE_DIR$/eproba" />
+        <option name="settingsModule" value="eproba/settings.py" />
+        <option name="manageScript" value="manage.py" />
+        <option name="environment" value="&lt;map/&gt;" />
+        <option name="doNotUseTestRunner" value="false" />
+        <option name="trackFilePattern" value="" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/eproba/apps" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.12 (web)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="js-cookie" level="application" />
+    <orderEntry type="library" name="a00f1140b1" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+    <orderEntry type="library" name="UAParser.js" level="application" />
+    <orderEntry type="library" name="885b512168b0f9e771984917f48c7251" level="application" />
+    <orderEntry type="library" name="qrcode" level="application" />
+    <orderEntry type="library" name="js-cookie" level="application" />
+    <orderEntry type="library" name="a00f1140b1" level="application" />
+    <orderEntry type="library" name="qrcode" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+    <orderEntry type="library" name="UAParser.js" level="application" />
+    <orderEntry type="library" name="9d1ff57ca68556c805b491b102e1d460" level="application" />
+    <orderEntry type="library" name="sortablejs" level="application" />
+    <orderEntry type="library" name="apextree" level="application" />
+    <orderEntry type="library" name="apexcharts" level="application" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_CONFIGURATION" value="Django" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/eproba/apps/core/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/blog/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/users/templates" />
+        <option value="$MODULE_DIR$/eproba/apps/exam/templates" />
+      </list>
+    </option>
+  </component>
+</module>

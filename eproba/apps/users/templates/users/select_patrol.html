@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Wybierz jednostkę - Epróba{% endblock %}
+{% block extrahead %}
+    <script src="{% static 'js/users/select_patrol.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">Wybierz swoją jednostkę</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label class="label" for="district-select">Okręg</label>
+            <div class="control">
+                <div class="select">
+                    <select id="district-select" required>
+                        <option value="" disabled selected hidden>Wybierz okręg</option>
+                        {% for district in districts|dictsort:"name" %}
+                            <option value="{{ district.id }}">{{ district.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label" for="team-select">Drużyna</label>
+            <div class="control">
+                <div class="select">
+                    <select id="team-select" required disabled>
+                        <option value="" selected disabled hidden>Wybierz drużynę</option>
+                    </select>
+                </div>
+            </div>
+            <p class="help" id="team-select-help">Najpierw wybierz okręg</p>
+        </div>
+        <div class="field">
+            <label class="label" for="patrol-select">Zastęp</label>
+            <div class="control">
+                <div class="select">
+                    <select id="patrol-select" name="patrol" required disabled>
+                        <option value="" selected disabled hidden>Wybierz zastęp</option>
+                    </select>
+                </div>
+            </div>
+            <p class="help" id="patrol-select-help">Najpierw wybierz drużynę</p>
+        </div>
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit" disabled id="submit-button">Zapisz</button>
+            </div>
+        </div>
+    </form>
+    <style>
+        .select {
+            width: 100%;
+        }
+
+        .select select {
+            width: 100%;
+        }
+
+    </style>
+{% endblock %}

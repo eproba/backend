@@ -1,0 +1,4 @@
+.dockerignore
+db.sqlite3
+.git
+/firebase-admin-sdk.json

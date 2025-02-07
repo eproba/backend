@@ -1,0 +1,156 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Zarządzaj drużyną{% endblock %}
+{% block extrahead %}
+    <script>
+        const teamId = '{{ team.id }}';
+    </script>
+    <script src="{% static 'js/teams/view_team.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <div class="level is-hidden-mobile">
+        <div class="level-left">
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                <button class="button is-info is-soft" id="graph-view-button">
+                    <span class="icon is-small">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </span>
+                    <span>Zmień widok</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <h1 class="title has-text-weight-bold">
+            {% if request.user.function >= 4 %}
+                <div id="team-name-{{ team.id }}" class="is-inline" contentEditable="true">{{ team }}</div>
+                <div id="team-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
+                     onclick="document.getElementById('team-name-{{ team.id }}').focus()"><i
+                        class="fa-solid fa-pen fa-xs"></i></div>
+                <div id="team-name-{{ team.id }}-save-icons" style="display: none">
+                    <button id="team-name-{{ team.id }}-confirm-icon"
+                            style="background-color: transparent; border: none; cursor:pointer"><i
+                            class="fa-solid fa-check fa-2xl" style="color: green"></i></button>
+                    <button style="background-color: transparent; border: none; cursor:pointer"><i
+                            style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-2xl"></i></button>
+                </div>
+                <div id="team-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
+                        class="fas fa-spinner fa-spin"></i></div>
+            {% else %}
+                <div id="team-name-{{ team.id }}" class="is-inline">{{ team }}</div>
+            {% endif %}
+        </h1>
+        <h1 class="subtitle">
+            {% if request.user.function >= 4 %}
+                <div id="team-short-name-{{ team.id }}" class="is-inline"
+                     contentEditable="true">{{ team.short_name }}</div>
+                <div id="team-short-name-{{ team.id }}-edit-icon" style="cursor: pointer; display: inline"
+                     onclick="document.getElementById('team-short-name-{{ team.id }}').focus()"><i
+                        class="fa-solid fa-pen fa-xs"></i>
+                </div>
+                <div id="team-short-name-{{ team.id }}-save-icons" style="display: none">
+                    <button id="team-short-name-{{ team.id }}-confirm-icon"
+                            style="background-color: transparent; border: none; cursor:pointer"><i
+                            class="fa-solid fa-check fa-xl" style="color: green"></i></button>
+                    <button style="background-color: transparent; border: none; cursor:pointer"><i
+                            style="cursor: pointer; color: red" class="fa-solid fa-xmark fa-xl"></i></button>
+                </div>
+                <div id="team-short-name-{{ team.id }}-loading-icon" style="cursor: progress; display: none"><i
+                        class="fas fa-spinner fa-spin"></i></div>
+            {% else %}
+                <div id="team-short-name-{{ team.id }}" class="is-inline">{{ team.short_name }}</div>
+            {% endif %}
+        </h1>
+        Zastępy:
+        <table class="table">
+            {% for patrol in team.patrol_set.all|dictsort:"name" %}
+                <tr>
+                    <td><a href="{% url 'teams:view_patrol' patrol.id %}">{{ patrol.name }}</a></td>
+                    <td>
+                        <i data-target="edit-patrol-modal" data-patrol-id="{{ patrol.id }}"
+                           data-patrol-name="{{ patrol.name }}"
+                           id="edit-patrol-trigger" style="margin-right: 0.25rem; cursor:pointer"
+                           class="js-modal-trigger fa-solid fa-pen fa-xs"></i>
+                        <i data-target="delete-patrol-modal" data-patrol-id="{{ patrol.id }}"
+                           data-patrol-name="{{ patrol.name }}" id="delete-patrol-trigger" style="cursor: pointer"
+                           class="js-modal-trigger fa-solid fa-trash fa-xs"></i>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td><a class="js-modal-trigger" data-target="create-patrol-modal-{{ team.id }}">Utwórz nowy</a></td>
+                <td><i class="js-modal-trigger fa-solid fa-plus fa-xs" style="cursor: pointer"
+                       data-target="create-patrol-modal-{{ team.id }}"></i></td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal" id="create-patrol-modal-{{ team.id }}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Dodaj zastęp</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field" style="margin-inline-end: 1em">
+                    <label class="label" for="create-patrol-input-{{ team.id }}">Nazwa</label>
+                    <div class="control">
+                        <input id="create-patrol-input-{{ team.id }}" class="input" type="text">
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success"
+                        onclick="createPatrol(document.getElementById('create-patrol-input-{{ team.id }}').value, '{{ team.id }}'); document.getElementById('create-patrol-input-{{ team.id }}').value = ''">
+                    Utwórz
+                </button>
+                <button class="button">Anuluj</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" id="edit-patrol-modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Edytuj zastęp</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field" style="margin-inline-end: 1em">
+                    <label class="label" for="edit-patrol-modal-input">Nazwa</label>
+                    <div class="control">
+                        <input id="edit-patrol-modal-input" class="input" type="text">
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success"
+                        onclick="changePatrolName(document.getElementById('edit-patrol-modal').dataset.patrolId, document.getElementById('edit-patrol-modal-input').value)">
+                    Zapisz
+                </button>
+                <button class="button">Anuluj</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" id="delete-patrol-modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Usuń zastęp</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <h1 id="delete-patrol-message" class="title is-4"></h1>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-danger"
+                        onclick="deletePatrol(document.getElementById('delete-patrol-modal').dataset.patrolId)">
+                    Usuń
+                </button>
+                <button class="button">Anuluj</button>
+            </footer>
+        </div>
+    </div>
+{% endblock %}

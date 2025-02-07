@@ -1,0 +1,359 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Epróba - {{ user.full_name_nickname }}{% endblock %}
+{% if enable_edit %}
+    {% block extrahead %}
+        <script>
+
+            const scoutRanks = {
+                {% for rank in scout_ranks %}
+                    '{{ rank.0 }}': '{{ rank.1 }}',
+                {% endfor %}
+            }
+
+            const instructorRanks = {
+                {% for rank in instructor_ranks %}
+                    '{{ rank.0 }}': '{{ rank.1 }}',
+                {% endfor %}
+            }
+
+            const functions = {
+                {% for function in functions %}
+                    '{{ function.0 }}': '{{ function.1 }}',
+                {% endfor %}
+            }
+
+            const user = {{ user.to_json|safe }};
+        </script>
+        <script src="{% static 'js/teams/manage_user.js' %}"></script>
+    {% endblock %}
+{% endif %}
+{% block content %}
+    <div class="box" style="position:relative; width:100%;">
+        <h1 class="subtitle"><i class="fa-solid fa-arrow-left" style="cursor: pointer" onclick="history.back()"></i>
+            {{ user.full_name_nickname }}{% if not user.is_active %} (nieaktywny){% endif %}</h1>
+        <table class="table">
+            <tr>
+                <td>Imię</td>
+                <td>
+                    {% if enable_edit %}
+                        <div id="first-name" class="is-inline" contentEditable="true">
+                            {% if user.first_name %}{{ user.first_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                        <div id="first-name-edit-icon" style="cursor: pointer; display: inline"
+                             onclick="document.getElementById('first-name').focus()"><i
+                                class="fa-solid fa-pen fa-xs"></i></div>
+                        <div id="first-name-save-icons" style="display: none">
+                            <button id="first-name-confirm-icon"
+                                    style="background-color: transparent; border: none; cursor:pointer"><i
+                                    class="fa-solid fa-check" style="color: green"></i></button>
+                            <button style="background-color: transparent; border: none; cursor:pointer"><i
+                                    style="cursor: pointer; color: red" class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="first-name-loading-icon" style="cursor: progress; display: none"><i
+                                class="fas fa-spinner fa-spin"></i></div>
+                    {% else %}
+                        <div id="first-name" class="is-inline">
+                            {% if user.first_name %}{{ user.first_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Nazwisko</td>
+                <td>
+                    {% if enable_edit %}
+                        <div id="last-name" class="is-inline" contentEditable="true">
+                            {% if user.last_name %}{{ user.last_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                        <div id="last-name-edit-icon" style="cursor: pointer; display: inline"
+                             onclick="document.getElementById('last-name').focus()"><i
+                                class="fa-solid fa-pen fa-xs"></i></div>
+                        <div id="last-name-save-icons" style="display: none">
+                            <button id="last-name-confirm-icon"
+                                    style="background-color: transparent; border: none; cursor:pointer"><i
+                                    class="fa-solid fa-check" style="color: green"></i></button>
+                            <button style="background-color: transparent; border: none; cursor:pointer"><i
+                                    style="cursor: pointer; color: red" class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="last-name-loading-icon" style="cursor: progress; display: none"><i
+                                class="fas fa-spinner fa-spin"></i></div>
+                    {% else %}
+                        <div id="last-name" class="is-inline">
+                            {% if user.last_name %}{{ user.last_name }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Pseudonim</td>
+                <td>
+                    {% if enable_edit %}
+                        <div id="nickname" class="is-inline" contentEditable="true">
+                            {% if user.nickname %}{{ user.nickname }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                        <div id="nickname-edit-icon" style="cursor: pointer; display: inline"
+                             onclick="document.getElementById('nickname').focus()"><i class="fa-solid fa-pen fa-xs"></i>
+                        </div>
+                        <div id="nickname-save-icons" style="display: none">
+                            <button id="nickname-confirm-icon"
+                                    style="background-color: transparent; border: none; cursor:pointer"><i
+                                    class="fa-solid fa-check" style="color: green"></i></button>
+                            <button style="background-color: transparent; border: none; cursor:pointer"><i
+                                    style="cursor: pointer; color: red" class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="nickname-loading-icon" style="cursor: progress; display: none"><i
+                                class="fas fa-spinner fa-spin"></i></div>
+                    {% else %}
+                        <div id="nickname" class="is-inline">
+                            {% if user.nickname %}{{ user.nickname }}{% else %}<i>Nie podano</i>{% endif %}</div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Stopień</td>
+                <td>
+                    {% if enable_edit %}
+                        <p id="rank" class="js-modal-trigger" style="cursor: pointer"
+                           data-target="rank-modal">{{ user.rank }} <i class="fa-solid fa-pen fa-xs"></i></p>
+                    {% else %}
+                        <p id="rank">{{ user.rank }}</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if request.user.patrol.team.id != user.patrol.team.id %}
+                <tr>
+                    <td>Drużyna</td>
+                    <td>
+                        <p id="team">{{ user.patrol.team.name }}</p>
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>Zastęp</td>
+                <td>
+                    {% if enable_edit %}
+                        <p id="patrol" class="js-modal-trigger" style="cursor: pointer"
+                           data-target="patrol-modal">{{ user.patrol.name }} <i class="fa-solid fa-pen fa-xs"></i>
+                        </p>
+                    {% else %}
+                        <p id="patrol">{{ user.patrol.name }}</p>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Funkcja</td>
+                <td>
+                    {% if enable_edit %}
+                        <p id="function" class="js-modal-trigger" style="cursor: pointer" data-target="function-modal">
+                            {{ user.get_function_display }} <i class="fa-solid fa-pen fa-xs"></i>
+                        </p>
+                    {% else %}
+                        <p id="function">{{ user.get_function_display }}</p>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% if enable_edit %}
+        <div class="box" style="position:relative; width:100%;">
+            <div class="buttons">
+                <button class="button is-info is-soft js-modal-trigger" data-target="transfer-user-modal">
+                    <span class="icon"><i
+                            class="fa-solid fa-right-left"></i></span><span>Przenieś do innej drużyny</span>
+                </button>
+                {% if request.user.id != user.id %}
+                    {% if user.is_active %}
+                        <button class="button is-danger is-soft js-modal-trigger" data-target="deactivate-user-modal">
+                            <span class="icon"><i
+                                    class="fa-solid fa-user-slash"></i></span><span>Dezaktywuj użytkownika</span>
+                        </button>
+                    {% else %}
+                        <button class="button is-success is-soft js-modal-trigger" data-target="reactivate-user-modal">
+                            <span class="icon"><i
+                                    class="fa-solid fa-user-check"></i></span><span>Reaktywuj użytkownika</span>
+                        </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {% if enable_edit %}
+        <div class="modal" id="rank-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Zmień stopień</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="is-inline-flex">
+                        <div class="field" style="margin-inline-end: 1em">
+                            <label class="label" for="scout-rank-select">Stopień harcerski</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="scout-rank-select" class="select"
+                                            onchange="if(this.value >= 5) { document.getElementById('instructor-rank-field').style.display = 'block'; } else { document.getElementById('instructor-rank-field').style.display = 'none'; document.getElementById('instructor-rank-select').value = 0; }">
+                                        {% for rank in scout_ranks %}
+                                            <option value="{{ rank.0 }}">{{ rank.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="instructor-rank-field" class="field" style="display: none">
+                            <label class="label" for="instructor-rank-select">Stopień instruktorski</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select id="instructor-rank-select" class="select">
+                                        {% for rank in instructor_ranks %}
+                                            <option value="{{ rank.0 }}">{{ rank.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success"
+                            onclick="changeRanks(document.getElementById('scout-rank-select').value, document.getElementById('instructor-rank-select').value)">
+                        Zapisz
+                    </button>
+                    <button class="button">Anuluj</button>
+                </footer>
+            </div>
+        </div>
+        <div class="modal" id="patrol-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Zmień zastęp</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field" style="margin-inline-end: 1em">
+                        <label class="label" for="patrol-select">Zastęp</label>
+                        <div class="control">
+                            <div class="select">
+                                <select id="patrol-select" class="select">
+                                    {% for patrol in patrols|dictsort:'name' %}
+                                        <option value="{{ patrol.id }}">{{ patrol.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success"
+                            onclick="changePatrol(document.getElementById('patrol-select').value)">Zapisz
+                    </button>
+                    <button class="button">Anuluj</button>
+                </footer>
+            </div>
+        </div>
+        <div class="modal" id="function-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Zmień funkcję</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field" style="margin-inline-end: 1em">
+                        <label class="label" for="function-select">Funkcja</label>
+                        <div class="control">
+                            <div class="select">
+                                <select id="function-select" class="select">
+                                    {% for function in functions %}
+                                        <option value="{{ function.0 }}">{{ function.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success"
+                            onclick="changeFunction(document.getElementById('function-select').value)">
+                        Zapisz
+                    </button>
+                    <button class="button">Anuluj</button>
+                </footer>
+            </div>
+        </div>
+        <div class="modal" id="transfer-user-modal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Przenieś do innej drużyny</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field" style="margin-inline-end: 1em">
+                        <label class="label" for="transfer-user-team-select">Drużyna</label>
+                        <div class="control">
+                            <div class="select">
+                                <select id="transfer-user-team-select" class="select">
+                                    {% for team in foreign_teams|dictsort:"name" %}
+                                        <option value="{{ team.id }}">{{ team }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field" style="margin-inline-end: 1em">
+                        <label class="label" for="transfer-user-patrol-select">Zastęp</label>
+                        <div class="control">
+                            <div class="select">
+                                <select id="transfer-user-patrol-select" class="select">
+                                    {% for patrol in foreign_patrols|dictsort:"name" %}
+                                        <option value="{{ patrol.id }}"
+                                                data-team-id="{{ patrol.team.id }}">{{ patrol }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-info"
+                            onclick="transferUser(document.getElementById('transfer-user-patrol-select').value)">
+                        Przenieś
+                    </button>
+                    <button class="button">Anuluj</button>
+                </footer>
+            </div>
+        </div>
+        {% if request.user.id != user.id %}
+            <div class="modal" id="deactivate-user-modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Dezaktywuj użytkownika</p>
+                        <button class="delete" aria-label="close"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        <h1 class="title is-4">Czy na pewno chcesz dezaktywować użytkownika?</h1>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button class="button is-danger" onclick="deactivateUser()">Tak</button>
+                        <button class="button">Anuluj</button>
+                    </footer>
+                </div>
+            </div>
+            <div class="modal" id="reactivate-user-modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Reaktywuj użytkownika</p>
+                        <button class="delete" aria-label="close"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        <h1 class="title is-4">Czy na pewno chcesz reaktywować użytkownika?</h1>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button class="button is-success" onclick="reactivateUser()">Tak</button>
+                        <button class="button">Anuluj</button>
+                    </footer>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

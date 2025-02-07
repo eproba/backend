@@ -1,0 +1,176 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+        --bulma-scheme-main: #06090f;
+        --logo-color: #FFFFFF;
+        --bulma-link-text: #1abc9c;
+    }
+
+    .navbar {
+        --bulma-navbar-background-color: #161b22;
+        --bulma-navbar-dropdown-background-color: #161b22;
+        --bulma-navbar-dropdown-arrow: var(--bulma-navbar-item-color);
+    }
+
+    .navbar-dropdown .navbar-item:not(.is-active,.is-selected) {
+        background-color: var(--bulma-navbar-background-color);
+    }
+
+    .box {
+        --bulma-box-background-color: #0d1117;
+        --bulma-box-shadow: none;
+    }
+
+    @media screen and (min-width: 1024px) {
+        .navbar-dropdown a.navbar-item:not(.is-active,.is-selected) {
+            background-color: #161b22;
+        }
+    }
+
+    .input, .select select, .textarea {
+        background-color: #161B22;
+    }
+
+    .table {
+        --bulma-table-background-color: transparent;
+    }
+
+}
+
+@media (prefers-color-scheme: light) {
+    .navbar {
+        box-shadow: var(--bulma-shadow);
+    }
+}
+
+.navbar {
+    border-radius: .4em;
+}
+
+
+@media (min-width: 600px) {
+    #container {
+        padding: 20px 5rem;
+        min-width: -webkit-fill-available;
+    }
+
+    .footer {
+        display: block;
+    }
+}
+
+@media (max-width: 600px) {
+    #container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .navbar {
+        margin: 0 20px;
+    }
+
+    .footer {
+        display: none;
+    }
+}
+
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.bounce {
+    display: inline-block;
+    position: relative;
+    -moz-animation: bounce 0.5s infinite linear;
+    -o-animation: bounce 0.5s infinite linear;
+    -webkit-animation: bounce 0.5s infinite linear;
+    animation: bounce 0.5s infinite linear;
+    colr: 000;
+}
+
+@-webkit-keyframes bounce {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: -0.2em;
+    }
+    70% {
+        top: -0.3em;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+@-moz-keyframes bounce {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: -0.2em;
+    }
+    70% {
+        top: -0.3em;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+@-o-keyframes bounce {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: -0.2em;
+    }
+    70% {
+        top: -0.3em;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+@-ms-keyframes bounce {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: -0.2em;
+    }
+    70% {
+        top: -0.3em;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+@keyframes bounce {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: -0.2em;
+    }
+    70% {
+        top: -0.3em;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    -moz-appearance: none;
+    appearance: none;
+}

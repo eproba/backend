@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">Zaloguj się</h1>
+    {% if google_auth_enabled %}
+        <div class="buttons">
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="color-scheme: light">
+            </div>
+        </div>
+    {% endif %}
+    <form action="." method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="field">
+            <div class="block">
+            </div>
+            <div class="buttons">
+                <div class="control">
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    <button class="button is-success  is-outlined" type="submit"><span class="icon"><i
+                            class="fas fa-key"></i></span><span>Zaloguj się</span></button>
+                    <button onclick="window.location.href='{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
+                            class="button is-info is-outlined" type="button"><span class="icon"><i
+                            class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
+                    <button onclick="window.location.href='{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
+                            class="button is-link is-outlined" type="button"><span class="icon"><i
+                            class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

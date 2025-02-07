@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            {% if request.user.is_authenticated %}
+            <!-- Blog Entries Column -->
+            <div>
+                {% for post in post_list %}
+                    {% if post.minimum_function <= request.user.function %}
+                    <div class="block card" onclick="location.href='{% url 'blog:post_detail' post.slug %}'"
+                         style="cursor: pointer;">
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="title is-4">{{ post.title }}</p>
+                                    <p class="subtitle is-6">{{ post.created_on }}</p>
+                                </div>
+                            </div>
+
+                            <div class="content">{{ post.content | safe }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="box">
+                Aby wyświetlić posty, musisz się zalogować.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

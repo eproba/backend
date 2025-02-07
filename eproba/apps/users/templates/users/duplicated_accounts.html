@@ -1,0 +1,190 @@
+{% extends 'core/base.html' %}
+{% block title %}Zduplikowane konta{% endblock %}
+{% block content %}
+    <div class="box" style="position:relative; width:100%;">
+        <h1 class="title has-text-weight-medium has-text-centered">Wybierz konto które chcesz zachować</h1>
+    </div>
+    <div class="columns">
+        <div class="column is-half">
+            <div class="box" id="user_{{ user_1.id }}_box" onclick="highlightUser({{ user_1.id }})"
+                 style="cursor:pointer;">
+                <h3 class="title is-4 has-text-centered">{{ user_1 }}</h3>
+                <h5 class="subtitle" style="margin-top: 1rem;">
+                    Informacje:
+                </h5>
+                <table class="table is-fullwidth">
+                    <tr>
+                        <td>Imię</td>
+                        <td>{{ user_1.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nazwisko</td>
+                        <td>{{ user_1.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ user_1.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Data założenia konta</td>
+                        <td>{{ user_1.date_joined }}</td>
+                    </tr>
+                    <tr>
+                        <td>Drużyna</td>
+                        {% if user_1.patrol %}
+                            <td>{{ user_1.patrol.team.name }}</td>
+                        {% else %}
+                            <td>Brak drużyny</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Zastęp</td>
+                        <td>{{ user_1.patrol.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Stopień</td>
+                        <td>{{ user_1.rank }}</td>
+                    </tr>
+                    <tr>
+                        <td>Funkcja</td>
+                        <td>{{ user_1.get_function_display }}</td>
+                    </tr>
+                </table>
+                <h5 class="subtitle">
+                    Próby:
+                </h5>
+                {% for worksheet in user_1.worksheets.all %}
+                    <div class="box">
+                        <h5 class="title is-5">{{ worksheet.name }}</h5>
+                        <table class="table is-fullwidth">
+                            <tr>
+                                <th>Zadanie</th>
+                                <th>Status</th>
+                            </tr>
+                            {% for task in worksheet.tasks.all %}
+                                <tr>
+                                    <td>{{ task.task }}</td>
+                                    <td>{{ task.get_status_display }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% endfor %}
+                {% if user_1.worksheets.count == 0 %}
+                    <div class="box">
+                        <h5 class="title is-5">Brak prób</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="column is-half">
+            <div class="box" id="user_{{ user_2.id }}_box" onclick="highlightUser({{ user_2.id }})"
+                 style="cursor:pointer;">
+                <h3 class="title is-4 has-text-centered">{{ user_2 }}</h3>
+                <h5 class="subtitle" style="margin-top: 1rem;">
+                    Informacje:
+                </h5>
+                <table class="table is-fullwidth">
+                    <tr>
+                        <td>Imię</td>
+                        <td>{{ user_2.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nazwisko</td>
+                        <td>{{ user_2.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ user_2.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Data założenia konta</td>
+                        <td>{{ user_2.date_joined }}</td>
+                    </tr>
+                    <tr>
+                        <td>Drużyna</td>
+                        {% if user_2.patrol %}
+                            <td>{{ user_2.patrol.team.name }}</td>
+                        {% else %}
+                            <td>Brak drużyny</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>Zastęp</td>
+                        <td>{{ user_2.patrol.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Stopień</td>
+                        <td>{{ user_2.rank }}</td>
+                    </tr>
+                    <tr>
+                        <td>Funkcja</td>
+                        <td>{{ user_2.get_function_display }}</td>
+                    </tr>
+                </table>
+                <h5 class="subtitle">
+                    Próby:
+                </h5>
+                {% for worksheet in user_2.worksheets.all %}
+                    <div class="box">
+                        <h5 class="title is-5">{{ worksheet.name }}</h5>
+                        <table class="table is-fullwidth">
+                            <tr>
+                                <th>Zadanie</th>
+                                <th>Status</th>
+                            </tr>
+                            {% for task in worksheet.tasks.all %}
+                                <tr>
+                                    <td>{{ task.task }}</td>
+                                    <td>{{ task.get_status_display }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% endfor %}
+                {% if user_2.worksheets.count == 0 %}
+                    <div class="box">
+                        <h5 class="title is-5">Brak prób</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="box has-text-centered">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="selected_user" value="">
+            <label class="label" for="note">Uwagi</label>
+            <textarea name="note" id="note" class="textarea"
+                      placeholder="Dodatkowe uwagi (np. żeby przenieść próby z jednego konta na drugie)"></textarea>
+            <button class="button is-link" style="margin-top: 1rem;" type="submit" disabled id="submit_button">Wybierz konto</button>
+        </form>
+    </div>
+    <script>
+        var selected_user = null;
+
+        function highlightUser(user_id) {
+            if (selected_user) {
+                document.getElementById('user_' + selected_user + '_box').style.boxShadow = 'none';
+            }
+            selected_user = user_id;
+            document.querySelector('input[name="selected_user"]').value = user_id;
+            document.getElementById('user_' + user_id + '_box').style.boxShadow = '0 0 0 3px #3273dc';
+            document.getElementById('submit_button').disabled = false;
+            document.getElementById('submit_button').textContent = "Zachowaj wybrane konto"
+        }
+    </script>
+    <style>
+
+        @media (prefers-color-scheme: dark) {
+            textarea {
+                background-color: #161B22 !important;
+                color: #a2aeb0 !important;
+            }
+
+            textarea::placeholder {
+                color: #a2aeb0 !important;
+            }
+        }
+    </style>
+{% endblock %}
