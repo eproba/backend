@@ -46,7 +46,7 @@ def contactView(request):
                     f"{from_email}: {subject}",
                     message,
                     None,
-                    ["eproba.zhr@gmail.com"],
+                    ["eproba@zhr.pl"],
                 )
             except BadHeaderError:
                 return HttpResponse("Invalid header found.")

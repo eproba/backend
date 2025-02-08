@@ -36,7 +36,9 @@ CRISPY_TEMPLATE_PACK = "bulma"
 
 # Firebase
 try:
-    FIREBASE_APP = initialize_app(credentials.Certificate("secrets/firebase-admin-sdk.json"))
+    FIREBASE_APP = initialize_app(
+        credentials.Certificate("secrets/firebase-admin-sdk.json")
+    )
 except FileNotFoundError:
     LOGGER.warning("Firebase credentials file not found. Notifications are disabled.")
     FIREBASE_APP = None
