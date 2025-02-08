@@ -127,6 +127,7 @@ CONSTANCE_CONFIG = {
     "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
     "API_MAINTENANCE_MODE": (False, "API maintenance"),
     "MINIMUM_APP_VERSION": (20240900, "Minimum app version"),
+    "REQUIRE_EMAIL_VERIFICATION": (True, "Require email verification"),
 }
 
 # Maintenance mode
@@ -156,6 +157,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "constance.context_processors.config",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",

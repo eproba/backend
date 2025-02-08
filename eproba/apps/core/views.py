@@ -71,5 +71,8 @@ def site_management(request):
         config.WEB_MAINTENANCE_MODE = bool(request.POST.get("maintenance_web", False))
         config.API_MAINTENANCE_MODE = bool(request.POST.get("maintenance_api", False))
         config.MINIMUM_APP_VERSION = request.POST.get("min_app_version", "0")
+        config.REQUIRE_EMAIL_VERIFICATION = bool(
+            request.POST.get("require_email_verification", False)
+        )
         return redirect(reverse("site_management"))
-    return render(request, "sites/site_management.html", {"config": config})
+    return render(request, "sites/site_management.html")

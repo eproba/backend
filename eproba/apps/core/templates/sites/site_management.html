@@ -98,6 +98,20 @@
             <input type="number" pattern="[0-9]*" inputmode="numeric" class="input" style="width: unset"
                    id="min_app_version" name="min_app_version" value="{{ config.MINIMUM_APP_VERSION }}">
         </div>
+        <div class="box">
+            <h1 class="subtitle">Ogólne</h1>
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td style="border: none">Wymagaj potwierdzenia email</td>
+                    <td style="border: none"><input type="checkbox" id="require_email_verification"
+                                                    name="require_email_verification"
+                                                    {% if config.REQUIRE_EMAIL_VERIFICATION %}checked{% endif %}><label
+                            class="toggle" for="require_email_verification"></label></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div class="level">
             <div class="level-item">
