@@ -53,7 +53,7 @@ async function prepareData() {
         id: team.id,
         data: {
             id: team.id,
-            name: team.name,
+            name: team.short_name,
         },
         options: {
             nodeBGColor: 'var(--bulma-primary)', // Team node color

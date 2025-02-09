@@ -16,6 +16,7 @@ Including another URLconf
 
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
+from apps.teams.views.api import TeamRequestViewSet
 from apps.users.views import (
     change_password,
     duplicated_accounts,
@@ -76,6 +77,7 @@ api.register(r"users", UserViewSet, "api-users")
 api.register(r"districts", DistrictViewSet, "api-districts")
 api.register(r"teams", TeamViewSet, "api-teams")
 api.register(r"patrols", PatrolViewSet, "api-patrols")
+api.register(r"team-requests", TeamRequestViewSet, basename="team-requests")
 
 sitemaps = {
     "posts": PostSitemap,

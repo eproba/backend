@@ -26,6 +26,9 @@ class SiteUserCreationForm(UserCreationForm):
             "last_name": "Nazwisko",
             "gender": "Płeć",
         }
+        help_texts = {
+            "email": "Jeśli posiadasz to skorzystaj z adresu email w domenie @zhr.pl",
+        }
 
 
 class TermsOfServiceForm(forms.Form):

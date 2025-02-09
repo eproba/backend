@@ -4,6 +4,7 @@
     <div class="box">
         <div class="content">
             <h1 class="title has-text-weight-bold">Zgłoszenie drużyny</h1>
+
             {% if request.user.patrol %}
                 <div class="notification my-2 p-4 mb-5 is-warning">
                     <p>
@@ -16,71 +17,65 @@
 
             <form method="post">
                 {% csrf_token %}
+
                 <div class="field">
-                    <label class="label" for="district">Okręg</label>
+                    <label class="label">{{ form.district.label }}</label>
                     <div class="control">
                         <div class="select is-fullwidth">
-                            <select name="district" id="district" required>
-                                <option value="" disabled selected hidden>Wybierz okręg</option>
-                                {% for district in districts %}
-                                    <option value="{{ district.id }}">{{ district.name }}</option>
-                                {% endfor %}
-                            </select>
+                        {{ form.district }}
                         </div>
                     </div>
                 </div>
+
                 <div class="field">
-                    <label class="label" for="team_name">Nazwa drużyny</label>
+                    <label class="label">{{ form.team_name.label }}</label>
                     <div class="control">
-                        <input class="input" type="text" name="team_name" id="team_name" required
-                               placeholder="np. 30 Zielonogórska Drużyna Harcerzy „Orlęta” im. Cichociemnych">
+                        {{ form.team_name }}
                     </div>
                 </div>
+
                 <div class="field">
-                    <label class="label" for="team_short_name">Skrócona nazwa drużyny</label>
+                    <label class="label">{{ form.team_short_name.label }}</label>
                     <div class="control">
-                        <input class="input" type="text" name="team_short_name" id="team_short_name" required
-                               placeholder="np. 30 ZDH" maxlength="10">
+                        {{ form.team_short_name }}
                     </div>
                 </div>
+
+                <div class="field">
+                    <label class="label">{{ form.function_level.label }}</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                        {{ form.function_level }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="block">
-                    <h3 class="is-subtitle mb-2 has-text-weight-semibold">Zastępy</h3>
+                    <h3 class="is-subtitle mb-2 has-text-weight-semibold">{{ form.patrols.label }}</h3>
                     <div id="patrols" class="mb-2">
                         <div class="field is-grouped">
                             <div class="control is-expanded">
-                                <input class="input" type="text" name="patrols[]" id="patrol_1"
-                                       value="Kadra">
+                                <input class="input" type="text" name="patrols[]" id="patrol_1" value="Kadra">
                             </div>
                             <div class="control">
-                                <button type="button" class="button is-info user-patrol"
-                                        onclick="markUserPatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-user-ninja"></i>
-                                    </span>
+                                <button type="button" class="button is-info user-patrol" onclick="markUserPatrol(this)">
+                                    <span class="icon"><i class="fa-solid fa-user-ninja"></i></span>
                                 </button>
                                 <button type="button" class="button is-danger is-soft" onclick="removePatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </span>
+                                    <span class="icon"><i class="fa-solid fa-trash"></i></span>
                                 </button>
                             </div>
                         </div>
                         <div class="field is-grouped">
                             <div class="control is-expanded">
-                                <input class="input" type="text" name="patrols[]" id="patrol_2"
-                                       value="Bez zastępu">
+                                <input class="input" type="text" name="patrols[]" id="patrol_2" value="Bez zastępu">
                             </div>
                             <div class="control">
-                                <button type="button" class="button is-info is-outlined user-patrol"
-                                        onclick="markUserPatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-user-ninja"></i>
-                                    </span>
+                                <button type="button" class="button is-info user-patrol" onclick="markUserPatrol(this)">
+                                    <span class="icon"><i class="fa-solid fa-user-ninja"></i></span>
                                 </button>
                                 <button type="button" class="button is-danger is-soft" onclick="removePatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </span>
+                                    <span class="icon"><i class="fa-solid fa-trash"></i></span>
                                 </button>
                             </div>
                         </div>
@@ -89,24 +84,17 @@
                                 <input class="input" type="text" name="patrols[]" id="patrol_3">
                             </div>
                             <div class="control">
-                                <button type="button" class="button is-info is-outlined user-patrol"
-                                        onclick="markUserPatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-user-ninja"></i>
-                                    </span>
+                                <button type="button" class="button is-info user-patrol" onclick="markUserPatrol(this)">
+                                    <span class="icon"><i class="fa-solid fa-user-ninja"></i></span>
                                 </button>
                                 <button type="button" class="button is-danger is-soft" onclick="removePatrol(this)">
-                                    <span class="icon">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </span>
+                                    <span class="icon"><i class="fa-solid fa-trash"></i></span>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <button type="button" class="button is-link" onclick="addPatrol()">
-                        <span class="icon">
-                            <i class="fa-solid fa-plus"></i>
-                        </span>
+                        <span class="icon"><i class="fa-solid fa-plus"></i></span>
                         <span>Dodaj zastęp</span>
                     </button>
                     <input type="hidden" name="user_patrol" id="user_patrol">
@@ -120,6 +108,7 @@
             </form>
         </div>
     </div>
+
     <script>
         let patrolCount = 3;
 
@@ -134,20 +123,15 @@
             </div>
             <div class="control">
                 <button type="button" class="button is-info is-outlined user-patrol" onclick="markUserPatrol(this)">
-                    <span class="icon">
-                        <i class="fa-solid fa-user-ninja"></i>
-                    </span>
+                    <span class="icon"><i class="fa-solid fa-user-ninja"></i></span>
                 </button>
                 <button type="button" class="button is-danger is-soft" onclick="removePatrol(this)">
-                    <span class="icon">
-                        <i class="fa-solid fa-trash"></i>
-                    </span>
+                    <span class="icon"><i class="fa-solid fa-trash"></i></span>
                 </button>
             </div>
-            `;
+        `;
             patrolsDiv.appendChild(newField);
             updateUserPatrol();
-            newField.querySelector('input').focus();
         }
 
         function removePatrol(button) {
@@ -157,7 +141,6 @@
             if (input.value === userPatrol.value) {
                 userPatrol.value = '';
             }
-            input.removeEventListener('input', updateUserPatrolOnInput);
             field.remove();
             updateUserPatrol();
         }
@@ -166,12 +149,8 @@
             const input = button.parentElement.parentElement.querySelector('input');
             const userPatrol = document.getElementById('user_patrol');
             userPatrol.value = input.value;
-            const userPatrolButtons = document.querySelectorAll('.user-patrol');
-            userPatrolButtons.forEach((button) => {
-                button.classList.add('is-outlined');
-            });
+            document.querySelectorAll('.user-patrol').forEach(btn => btn.classList.add('is-outlined'));
             button.classList.remove('is-outlined');
-            input.addEventListener('input', updateUserPatrolOnInput);
         }
 
         function updateUserPatrol() {
@@ -182,11 +161,6 @@
                     markUserPatrol(firstPatrolInput.parentElement.parentElement.querySelector('.user-patrol'));
                 }
             }
-        }
-
-        function updateUserPatrolOnInput(event) {
-            const userPatrol = document.getElementById('user_patrol');
-            userPatrol.value = event.target.value;
         }
 
         document.addEventListener('DOMContentLoaded', updateUserPatrol);

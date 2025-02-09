@@ -29,3 +29,12 @@ class IsAllowedToManagePatrolOrReadOnly(permissions.BasePermission):
             and request.user.patrol
             and request.user.patrol.team == patrol.team
         ) or request.user.function >= 5
+
+
+class IsAllowedToAccessTeamRequest(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_staff
+            and request.user.has_perm("teams.change_team")
+            and request.user.has_perm("teams.change_teamrequest")
+        ) or request.user.is_superuser

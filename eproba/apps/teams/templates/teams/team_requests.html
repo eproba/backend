@@ -4,15 +4,30 @@
 {% block extrahead %}
     <script src="{% static 'js/teams/team_requests.js' %}"></script>
     <style>
-    @media (prefers-color-scheme: dark) {
-        .card {
-            --bulma-card-background-color: #0d1117;
+        @media (prefers-color-scheme: dark) {
+            .card {
+                --bulma-card-background-color: #0d1117;
+            }
         }
-    }
     </style>
 {% endblock %}
 {% block content %}
     <h1 class="title has-text-weight-bold">Zgłoszenia drużyn</h1>
+    <div class="field">
+        <label class="label">Filtruj po statusie:</label>
+        <div class="control">
+            <div class="select">
+                <select id="status-filter">
+                    <option value="submitted_pending_verification" selected>Zgłoszone / Oczekuje na weryfikację</option>
+                    <option value="all">Wszystkie</option>
+                    <option value="submitted" selected>Zgłoszone</option>
+                    <option value="pending_verification" selected>Oczekuje na dodatkową weryfikację</option>
+                    <option value="approved">Zaakceptowane</option>
+                    <option value="rejected">Odrzucone</option>
+                </select>
+            </div>
+        </div>
+    </div>
     <div id="team-requests">
     </div>
 {% endblock %}
