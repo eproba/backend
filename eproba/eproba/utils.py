@@ -149,11 +149,9 @@ class PatrolViewSet(
                 exception = APIException("Patrol has users")
                 exception.status_code = 409
                 raise exception
-            if instance.team.patrol_set.count() > 1:
+            if instance.team.patrols.count() > 1:
                 for user in instance.users.all():
-                    user.patrol = instance.team.patrol_set.exclude(
-                        id=instance.id
-                    ).first()
+                    user.patrol = instance.team.patrols.exclude(id=instance.id).first()
                     user.save()
             else:
                 for user in instance.users.all():

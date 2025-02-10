@@ -65,7 +65,7 @@
         </h1>
         Zastępy:
         <table class="table">
-            {% for patrol in team.patrol_set.all|dictsort:"name" %}
+            {% for patrol in team.patrols.all|dictsort:"name" %}
                 <tr>
                     <td><a href="{% url 'teams:view_patrol' patrol.id %}">{{ patrol.name }}</a></td>
                     <td>

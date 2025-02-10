@@ -24,7 +24,7 @@ class DistrictSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
     district = DistrictSerializer()
-    patrols = PatrolSerializer(many=True, source="patrol_set")
+    patrols = PatrolSerializer(many=True)
 
     class Meta:
         model = Team

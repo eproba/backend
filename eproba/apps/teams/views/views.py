@@ -20,7 +20,7 @@ def manage_user(request, user_id):
                 "teams/manage_user.html",
                 {
                     "user": user,
-                    "patrols": user.patrol.team.patrol_set.all(),
+                    "patrols": user.patrol.team.patrols.all(),
                     "foreign_teams": Team.objects.all().exclude(id=user.patrol.team.id),
                     "foreign_patrols": Patrol.objects.all().exclude(
                         team_id=user.patrol.team.id
@@ -52,7 +52,7 @@ def manage_user(request, user_id):
             "teams/manage_user.html",
             {
                 "user": user,
-                "patrols": user.patrol.team.patrol_set.all(),
+                "patrols": user.patrol.team.patrols.all(),
                 "foreign_teams": Team.objects.all().exclude(id=user.patrol.team.id),
                 "foreign_patrols": Patrol.objects.all().exclude(
                     team_id=user.patrol.team.id

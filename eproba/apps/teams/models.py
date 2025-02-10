@@ -26,9 +26,9 @@ class Team(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=10)
+    short_name = models.CharField(max_length=20)
     district = models.ForeignKey(
-        District, on_delete=models.RESTRICT, null=True, blank=True
+        District, on_delete=models.RESTRICT, related_name="teams"
     )
     is_verified = models.BooleanField(default=False)
 
@@ -47,7 +47,7 @@ class Patrol(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    team = models.ForeignKey(Team, on_delete=models.RESTRICT, null=True, blank=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="patrols")
 
     class Meta:
         verbose_name = "Zastęp"

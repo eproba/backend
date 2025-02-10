@@ -36,11 +36,12 @@ def team_request(request):
             )
 
             for patrol_name in patrols:
-                team.patrol_set.create(name=patrol_name)
+                team.patrols.create(name=patrol_name)
 
-            request.user.patrol = team.patrol_set.filter(
-                name=request.POST.get("user_patrol")
-            ).first()
+            request.user.patrol = (
+                team.patrols.filter(name=request.POST.get("user_patrol")).first()
+                or team.patrols.first()
+            )
             request.user.function = 0
 
             request.user.save()
