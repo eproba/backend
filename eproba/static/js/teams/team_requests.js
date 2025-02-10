@@ -26,6 +26,8 @@ async function saveTeamRequest(teamId) {
     const sendNote = card.querySelector('input[name="send_note"]').checked;
     const status = card.querySelector('select').value;
 
+    document.getElementById(`save-button-${teamId}`).classList.add('is-loading');
+
     const response = await fetch(`/api/team-requests/${teamId}/`, {
         method: 'PATCH',
         headers: {
@@ -85,7 +87,7 @@ function createRequestCard(request) {
                 </label>
 
                 <div class="mt-4">
-                    <button class="button is-success" onclick="saveTeamRequest('${request.id}')">Zapisz</button>
+                    <button class="button is-success" onclick="saveTeamRequest('${request.id}')" id="save-button-${request.id}">Zapisz</button>
                 </div>
             </div>
         </div>

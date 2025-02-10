@@ -2,7 +2,7 @@ from apps.blog.models import Post
 from constance import config
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.mail import BadHeaderError, send_mail
+from django.core.mail import BadHeaderError, EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.views import generic
@@ -42,12 +42,14 @@ def contactView(request):
             from_email = form.cleaned_data["from_email"]
             message = form.cleaned_data["message"]
             try:
-                send_mail(
-                    f"{from_email}: {subject}",
-                    message,
-                    None,
-                    ["eproba@zhr.pl"],
+                email = EmailMessage(
+                    subject=subject,
+                    body=message,
+                    from_email=None,  # Use the default email from settings
+                    to=["eproba@zhr.pl"],
+                    headers={"Reply-To": from_email},  # Set Reply-To header
                 )
+                email.send()
             except BadHeaderError:
                 return HttpResponse("Invalid header found.")
             messages.info(request, "Wiadomość została wysłana.")

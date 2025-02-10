@@ -86,6 +86,12 @@ def google_auth_receiver(request):
         else:
             send_verification_email_to_user(user)
 
+    if not created:
+        if not user.first_name:
+            user.first_name = user_data.get("given_name", "")
+        if not user.last_name:
+            user.last_name = user_data.get("family_name", "")
+
     login(request, user)
 
     next_url = request.GET.get("next", reverse("worksheets:worksheets"))
