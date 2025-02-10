@@ -8,21 +8,28 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         "email",
         "nickname",
+        "full_name",
+        "rank",
+        "patrol",
         "is_superuser",
         "is_staff",
         "is_active",
-        "first_name",
-        "last_name",
-        "patrol",
+        "date_joined",
     )
     list_filter = (
         "is_staff",
         "is_superuser",
         "is_active",
+        "scout_rank",
+        "instructor_rank",
+        "function",
     )
-    normal_fieldsets = (
+    search_fields = ("email", "nickname", "first_name", "last_name")
+    ordering = ("email",)
+
+    fieldsets = (
         (
-            None,
+            "Podstawowe informacje",
             {
                 "fields": (
                     "email",
@@ -36,19 +43,36 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
         (
-            "Scout",
+            "Harcerz",
             {
                 "fields": (
                     "patrol",
-                    (
-                        "scout_rank",
-                        "instructor_rank",
-                        "function",
-                    ),
+                    "scout_rank",
+                    "instructor_rank",
+                    "function",
                 )
             },
         ),
+        (
+            "Uprawnienia",
+            {
+                "fields": (
+                    "is_staff",
+                    "is_active",
+                    "is_superuser",
+                    "user_permissions",
+                    "groups",
+                )
+            },
+        ),
+        (
+            "Dodatkowe informacje",
+            {
+                "fields": ("date_joined",),
+            },
+        ),
     )
+
     add_fieldsets = (
         (
             None,
@@ -66,43 +90,32 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
         (
-            "Scout",
+            "Harcerz",
             {
                 "fields": (
                     "patrol",
-                    (
-                        "scout_rank",
-                        "instructor_rank",
-                        "function",
-                    ),
+                    "scout_rank",
+                    "instructor_rank",
+                    "function",
                 )
             },
         ),
     )
-    super_fieldsets = (
-        (
-            "Permissions",
-            {
-                "fields": (
-                    "is_staff",
-                    "is_active",
-                    "is_superuser",
-                    "user_permissions",
-                    "groups",
-                )
-            },
-        ),
-    )
-    search_fields = ("email", "nickname", "first_name", "last_name")
-    ordering = ("email",)
+
+    def full_name(self, obj):
+        return obj.full_name() or obj.email
+
+    full_name.short_description = "Pełne imię"
+
+    def rank(self, obj):
+        return obj.rank()
+
+    rank.short_description = "Stopień"
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
-            self.fieldsets = self.normal_fieldsets + self.super_fieldsets
-        else:
-            self.fieldsets = self.normal_fieldsets
-
-        return super(CustomUserAdmin, self).get_fieldsets(request, obj)
+            return self.fieldsets
+        return self.fieldsets[:-1]  # Hide permissions section for non-superusers
 
 
 admin.site.register(User, CustomUserAdmin)

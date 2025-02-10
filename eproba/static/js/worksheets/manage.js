@@ -30,7 +30,7 @@ const API = {
             });
             return await response.json();
         } catch (error) {
-            console.error(`Error posting to ${endpoint}:`, error);
+            console.error(`Error patching ${endpoint}:`, error);
             return null;
         }
     },
@@ -117,13 +117,12 @@ function sortWorksheets(worksheets) {
     return worksheets.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 }
 
-async function renderMissingUsers(missingUsers, users) {
+async function renderMissingUsers(missingUsers) {
     const userIds = [...new Set(missingUsers.map(({id}) => id))];
 
     await Promise.all(
         userIds.map(async (id) => {
             const user = await fetchUser(id);
-            users.push(user);
             missingUsers
                 .filter(missingUser => missingUser.id === id)
                 .forEach(missingUser => updateUserElement(user, missingUser));
@@ -135,12 +134,12 @@ function updateUserElement(user, {element_id, type}) {
     const element = document.getElementById(element_id);
     const userInfo = `${user.rank} ${user.nickname || user.first_name + ' ' + user.last_name}`;
     if (type === 'worksheet_title' || type === 'worksheet_supervisor') {
-        element.innerHTML = element.innerHTML.replace(/Nieznany użytkownik #\d+/, userInfo);
+        element.innerHTML = element.innerHTML.replace(/Nieznany użytkownik #[a-f0-9-]+/, userInfo);
         if (type === 'worksheet_title') {
             element.parentElement.dataset.patrolId = user.patrol;
         }
     } else if (type === 'task_status_icon') {
-        element.dataset.tooltip = element.dataset.tooltip.replace(/Nieznany użytkownik #\d+/, userInfo);
+        element.dataset.tooltip = element.dataset.tooltip.replace(/Nieznany użytkownik #[a-f0-9-]+/, userInfo);
     }
 }
 
