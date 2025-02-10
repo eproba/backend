@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.12-alpine AS builder
+FROM python:3.13-alpine AS builder
 
 # set work directory
 WORKDIR /usr/src/app
@@ -29,7 +29,7 @@ RUN pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels -r requirements.txt
 #########
 
 # pull official base image
-FROM python:3.12-alpine
+FROM python:3.13-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app
