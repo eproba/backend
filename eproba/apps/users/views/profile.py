@@ -1,3 +1,6 @@
+from urllib.parse import urlencode
+
+from apps.teams.models import Patrol
 from apps.users.forms import UserChangeForm
 from apps.users.models import User
 from django.contrib import messages
@@ -48,17 +51,21 @@ def edit_profile(request, user_id):
 @login_required
 @transaction.atomic
 def finish_signup(request):
-
     if request.method == "POST":
         user_form = UserChangeForm(request.POST, instance=request.user)
 
         if user_form.is_valid():
             user = user_form.save()
             user.save()
+            query_params = request.GET.dict()
+            patrol_id = query_params.pop("patrol", None)
+            if patrol_id:
+                patrol = Patrol.objects.get(id=patrol_id)
+                if patrol:
+                    user.patrol = patrol
+                    user.save()
             if not user.patrol and request.GET.get("ignore_patrol") is None:
-                return redirect(
-                    f"{reverse('select_patrol')}?next={request.GET.get('next', reverse('worksheets:worksheets'))}"
-                )
+                return redirect(f"{reverse('select_patrol')}?{urlencode(query_params)}")
             return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
 
     else:

@@ -1,7 +1,8 @@
 import threading
 import uuid
+from urllib.parse import urlencode
 
-from apps.teams.models import District
+from apps.teams.models import District, Patrol
 from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm
 from apps.users.models import User
 from apps.users.utils import send_verification_email_to_user
@@ -19,12 +20,32 @@ from google.oauth2 import id_token
 
 
 def signup(request):
+    query_params = request.GET.dict()
+    if request.user.is_authenticated:
+        if not request.user.patrol and query_params.get("patrol"):
+            request.user.patrol = Patrol.objects.get(id=query_params.get("patrol"))
+            query_params.pop("patrol", None)
+            request.user.save()
+        if request.GET.get("finish_signup") == "true":
+            next_url = query_params.get("next", reverse("worksheets:worksheets"))
+            query_params["next"] = next_url
+            query_params.pop("finish_signup", None)
+            return redirect(
+                f"{reverse('finish_signup')}?{urlencode(query_params, doseq=True)}"
+            )
+        return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
     if request.method == "POST":
         user_form = SiteUserCreationForm(request.POST)
         terms_of_service_form = TermsOfServiceForm(request.POST)
 
         if user_form.is_valid() and terms_of_service_form.is_valid():
             user = user_form.save()
+            patrol_id = query_params.pop("patrol", None)
+            if patrol_id:
+                patrol = Patrol.objects.get(id=patrol_id)
+                if patrol:
+                    user.patrol = patrol
+                    user.save()
             send_email_thread = threading.Thread(
                 target=send_verification_email_to_user, args=(user,), daemon=True
             )
@@ -32,7 +53,7 @@ def signup(request):
             login(request, user)
             if not user.patrol and request.GET.get("ignore_patrol") is None:
                 return redirect(
-                    f"{reverse('select_patrol')}?next={request.GET.get('next', reverse('worksheets:worksheets'))}"
+                    f"{reverse('select_patrol')}?{urlencode(request.GET, doseq=True)}"
                 )
             return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
 
@@ -59,6 +80,7 @@ def google_auth_receiver(request):
         return HttpResponse(status=400)
 
     token = request.POST["credential"]
+    state = request.POST.get("state", "")
 
     try:
         user_data = id_token.verify_oauth2_token(
@@ -94,12 +116,10 @@ def google_auth_receiver(request):
 
     login(request, user)
 
-    next_url = request.GET.get("next", reverse("worksheets:worksheets"))
-
     if created:
-        return redirect(f"{reverse('finish_signup')}?next={next_url}")
+        return redirect(f"{reverse('signup')}?next={state}&finish_signup=true")
 
-    return redirect(next_url)
+    return redirect(state or reverse("frontpage"))
 
 
 def password_reset_done(request):
@@ -240,7 +260,7 @@ def select_patrol(request):
             messages.add_message(
                 request, messages.SUCCESS, "Jednostka została wybrana."
             )
-            return redirect(reverse("frontpage"))
+            return redirect(request.GET.get("next", reverse("frontpage")))
         else:
             messages.add_message(
                 request, messages.ERROR, "Jednostka nie została wybrana."

@@ -145,7 +145,7 @@ class PatrolViewSet(
 
     def perform_destroy(self, instance):
         if instance.users.count() > 0:
-            if instance.users.filter(user__is_active=True).count() > 0:
+            if instance.users.filter(is_active=True).count() > 0:
                 exception = APIException("Patrol has users")
                 exception.status_code = 409
                 raise exception

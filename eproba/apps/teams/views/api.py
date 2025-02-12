@@ -92,10 +92,21 @@ class TeamRequestViewSet(
             else ""
         )
 
+        patrol_links = "\n".join(
+            [
+                f"{patrol.name}: {patrol.get_registration_link()}"
+                for patrol in team_request.team.patrols.all()
+            ]
+        )
+
         email_templates = {
             "approved": (
                 "Twoje zgłoszenie zostało zaakceptowane!",
-                f"Drużyna {team_name} została zaakceptowana, możesz teraz korzystać ze wszystkich funkcji Epróby.{note_text}",
+                f"""Drużyna {team_name} została zaakceptowana, możesz teraz korzystać ze wszystkich funkcji Epróby.
+
+Możesz udostępnić link do częściowo wypełnionej rejestracji członkom swojej drużyny: {team_request.team.get_registration_link()}.
+Lub dla konkretnego zastępu: 
+{patrol_links}{note_text}""",
             ),
             "rejected": (
                 "Twoje zgłoszenie zostało odrzucone",

@@ -14,7 +14,7 @@ class ContactForm(forms.Form):
         label="Temat",
     )
     message = forms.CharField(
-        widget=Textarea(),
+        widget=Textarea({"rows": 5}),
         required=True,
         label="Wiadomość",
     )

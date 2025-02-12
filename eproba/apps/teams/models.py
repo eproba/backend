@@ -39,6 +39,9 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+    def get_registration_link(self):
+        return f"https://eproba.zhr.pl/signup/?team={self.id}"
+
 
 class Patrol(models.Model):
     """
@@ -55,6 +58,9 @@ class Patrol(models.Model):
 
     def __str__(self):
         return f"{self.team.short_name} - {self.name}" if self.team else self.name
+
+    def get_registration_link(self):
+        return f"https://eproba.zhr.pl/signup/?patrol={self.id}"
 
 
 class TeamRequest(models.Model):
@@ -92,7 +98,7 @@ class TeamRequest(models.Model):
     )
     function_level = models.IntegerField(choices=FUNCTION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
-    notes = models.TextField()
+    notes = models.TextField(blank=True)
 
     class Meta:
         verbose_name = "Zgłoszenie drużyny"

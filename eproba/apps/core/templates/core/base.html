@@ -78,11 +78,8 @@
          data-client_id="897419344971-f2uj5udmpk698ur529di5ens7ufogclg.apps.googleusercontent.com"
          data-context="use"
          data-ux_mode="redirect"
-         data-login_uri="{% if request.is_secure %}https://{{ request.get_host }}{% endif %}{% url 'google_auth_receiver' %}{% if request.GET.next %}?next=
-
-
-
-             {{ request.GET.next }}{% elif request.path != '/' and request.path != '/login/' and request.path != '/signup/' %}?next={{ request.path }}{% endif %}"
+         data-login_uri="{% if request.is_secure %}https://{{ request.get_host }}{% endif %}{% url 'google_auth_receiver' %}"
+         data-state="{{ request.get_full_path }}"
          data-itp_support="true">
     </div>
 {% endif %}
