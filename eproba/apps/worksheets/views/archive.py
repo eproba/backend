@@ -16,7 +16,7 @@ def archive(request):
             prepare_worksheet(worksheet)
             for worksheet in Worksheet.objects.filter(
                 user__patrol__team__id=user.patrol.team.id,
-                function__lt=user.function,
+                user__function__lt=user.function,
                 is_archived=True,
                 deleted=False,
             ).exclude(user=user)
