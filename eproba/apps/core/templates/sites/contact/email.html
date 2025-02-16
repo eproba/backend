@@ -8,7 +8,9 @@
             {% csrf_token %}
             {{ form|crispy }}
             <div class="form-actions">
-                <button class="button is-primary" type="submit">Wyślij</button>
+                <button class="button is-primary" type="submit"
+                        onclick="this.disabled=true;this.classList.add('is-loading');this.form.submit();">Wyślij
+                </button>
             </div>
         </form>
     </div>
