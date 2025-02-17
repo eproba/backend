@@ -16,7 +16,7 @@
             </div>
         </div>
     {% endif %}
-    <form action="." method="post">
+    <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="field">
