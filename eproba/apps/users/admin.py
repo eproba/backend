@@ -14,7 +14,7 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
         "is_staff",
         "is_active",
-        "date_joined",
+        "created_at",
     )
     list_filter = (
         "is_staff",
@@ -68,7 +68,7 @@ class CustomUserAdmin(UserAdmin):
         (
             "Dodatkowe informacje",
             {
-                "fields": ("date_joined",),
+                "fields": ("created_at", "is_deleted", "deleted_at"),
             },
         ),
     )
@@ -102,6 +102,8 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
+    readonly_fields = ("created_at",)
+
     def full_name(self, obj):
         return obj.full_name() or obj.email
 
@@ -115,7 +117,7 @@ class CustomUserAdmin(UserAdmin):
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
             return self.fieldsets
-        return self.fieldsets[:-1]  # Hide permissions section for non-superusers
+        return self.fieldsets[:2]
 
 
 admin.site.register(User, CustomUserAdmin)

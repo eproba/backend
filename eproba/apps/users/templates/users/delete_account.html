@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Usuń konto - Epróba{% endblock %}
+{% block content %}
+    <h1 class="title has-text-weight-bold">Czy na pewno chcesz usunąć swoje konto?</h1>
+    <p>Jeśli usuniesz swoje konto, nie będziesz mógł się zalogować ponownie. Zawsze możesz założyć nowe konto, ale
+        nie będziesz mógł odzyskać swoich danych.</p>
+    <p>Jeśli jesteś pewien, że chcesz usunąć swoje konto, wpisz "USUŃ KONTO" w pole poniżej i kliknij przycisk "Usuń
+        konto".</p>
+    <form method="post" onsubmit="return checkDelete()">
+        {% csrf_token %}
+        <div class="field">
+            <label class="label" for="confirmation">Wpisz "USUŃ KONTO" aby potwierdzić</label>
+            <div class="control">
+                <input class="input" id="confirmation" type="text" name="confirmation" required
+                       placeholder="USUŃ KONTO">
+            </div>
+        </div>
+        <div class="field">
+            <div class="control">
+                <button class="button is-danger is-soft" type="submit">Usuń konto</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        function checkDelete() {
+            const result = document.getElementById('confirmation').value === 'USUŃ KONTO';
+            if (!result) {
+                alert('Wpisz "USUŃ KONTO" aby potwierdzić usunięcie konta');
+            }
+            return result;
+        }
+    </script>
+{% endblock %}

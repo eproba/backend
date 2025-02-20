@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{%  block extrahead %}
+{% block extrahead %}
     <script defer src="{% static 'js/core/helpers.js' %}"></script>
     <script async type="module" src="{% static 'js/users/profile.js' %}"></script>
 {% endblock %}
@@ -68,8 +68,12 @@
                 <td>
                     <p>
                         {{ user.patrol.team }}
-                        {% if user.function == 4 %} - <b>{% if user.gender == 0 %}Drużynowy{% elif user.gender == 1 %}Drużynowa{% else %}Drużynowy(-a){% endif %}</b>{% endif %}
-                        {% if user.function == 3 %} - <b>{% if user.gender == 0 %}Przyboczny{% elif user.gender == 1 %}Przyboczna{% else %}Przyboczny(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 4 %} -
+                            <b>{% if user.gender == 0 %}Drużynowy{% elif user.gender == 1 %}Drużynowa{% else %}
+                                Drużynowy(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 3 %} -
+                            <b>{% if user.gender == 0 %}Przyboczny{% elif user.gender == 1 %}Przyboczna{% else %}
+                                Przyboczny(-a){% endif %}</b>{% endif %}
                     </p>
                 </td>
             </tr>
@@ -78,8 +82,12 @@
                 <td>
                     <p>
                         {{ user.patrol|default_if_none:"<i>Nie przypisano</i>" }}
-                        {% if user.function == 2 %} - <b>{% if user.gender == 0 %}Zasępowy{% elif user.gender == 1 %}Zastępowa{% else %}Zastępowy(-a){% endif %}</b>{% endif %}
-                        {% if user.function == 1 %} - <b>{% if user.gender == 0 %}Podzastępowy{% elif user.gender == 1 %}Podzastępowa{% else %}Podzastępowy(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 2 %} -
+                            <b>{% if user.gender == 0 %}Zasępowy{% elif user.gender == 1 %}Zastępowa{% else %}
+                                Zastępowy(-a){% endif %}</b>{% endif %}
+                        {% if user.function == 1 %} -
+                            <b>{% if user.gender == 0 %}Podzastępowy{% elif user.gender == 1 %}Podzastępowa{% else %}
+                                Podzastępowy(-a){% endif %}</b>{% endif %}
                     </p>
                 </td>
             </tr>
@@ -99,57 +107,76 @@
         </div>
 
         <div class="box" style="position:relative; width:100%;">
-            <a href="{% url 'edit_profile' user.id %}">
+            <a href="{% url 'edit_profile' %}">
                 <button class="button is-primary is-soft">
                     <span class="icon"><i class="fas fa-user-edit"></i></span><span>Edytuj profil</span>
                 </button>
             </a>
             {% if user.has_usable_password %}
-                <a href="{% url 'change_password' user.id %}">
+                <a href="{% url 'change_password' %}">
                     <button class="button is-success is-soft">
                         <span class="icon"><i class="fas fa-key"></i></span><span>Zmień hasło</span>
                     </button>
                 </a>
             {% else %}
-                <a href="{% url 'set_password' user.id %}">
+                <a href="{% url 'set_password' %}">
                     <button class="button is-success is-soft">
                         <span class="icon"><i class="fas fa-key"></i></span><span>Ustaw hasło</span>
                     </button>
                 </a>
             {% endif %}
+            <a href="{% url 'delete_account' %}">
+                <button class="button is-danger is-soft">
+                    <span class="icon"><i class="fas fa-user-minus"></i></span><span>Usuń konto</span>
+                </button>
+            </a>
         </div>
         <div class="box" id="notifications_devices" style="position:relative; width:100%;">
             <div>
                 <h1 class="subtitle">Powiadomienia</h1>
                 <div style="display: flex; flex-wrap: wrap;">
                     {% for device in user.fcmdevice_set.all %}
-                        <div class="card" style="max-width: 220px; margin-right: 1rem" data-registration_id="{{ device.registration_id }}" data-device-info="{{ device.name }}">
-                          <div class="card-image">
-                            <figure class="image is-256x256">
-                              <img src="https://faisalman.github.io/ua-parser-js/images/types/default.png" alt="Placeholder image">
-                            </figure>
-                          </div>
-                          <div class="card-content">
-                            <div class="media">
-                              <div class="media-left">
-                                <figure class="image is-48x48">
-                                  <img src="https://faisalman.github.io/ua-parser-js/images/browsers/default.png" alt="Placeholder image">
+                        <div class="card" style="max-width: 220px; margin-right: 1rem"
+                             data-registration_id="{{ device.registration_id }}" data-device-info="{{ device.name }}">
+                            <div class="card-image">
+                                <figure class="image is-256x256">
+                                    <img src="https://faisalman.github.io/ua-parser-js/images/types/default.png"
+                                         alt="Placeholder image">
                                 </figure>
-                              </div>
-                              <div class="media-content">
-                                <p class="title is-6"></p>
-                                <p class="subtitle is-7" style="margin-bottom: 0"></p>
-                                <div class="content" id="that-device"></div>
-                              </div>
                             </div>
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <figure class="image is-48x48">
+                                            <img src="https://faisalman.github.io/ua-parser-js/images/browsers/default.png"
+                                                 alt="Placeholder image">
+                                        </figure>
+                                    </div>
+                                    <div class="media-content">
+                                        <p class="title is-6"></p>
+                                        <p class="subtitle is-7" style="margin-bottom: 0"></p>
+                                        <div class="content" id="that-device"></div>
+                                    </div>
+                                </div>
 
-                            <div class="content" id="content">
-                                <p class="subtitle is-7">Status:</p>
-                                <span class="has-tooltip-left has-tooltip-arrow" data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button class="button is-primary" style="margin-bottom: 1rem" id="active-button-{{ device.id }}" data-device-id="{{ device.registration_id }}" data-active="{{ device.active }}">{% if device.active %}Włączone{% else %}Wyłączone{% endif %}</button></span><br>
-                                <p class="subtitle is-7">Akcje:</p>
-                                <span class="has-tooltip-left has-tooltip-arrow has-tooltip-danger" data-tooltip="Usuń to urządzenie"><button class="button is-danger" id="delete-button-{{ device.id }}" data-device-id="{{ device.registration_id }}"><span class="icon"><i class="fas fa-trash"></i></span><span>Usuń</span></button></span>
+                                <div class="content" id="content">
+                                    <p class="subtitle is-7">Status:</p>
+                                    <span class="has-tooltip-left has-tooltip-arrow"
+                                          data-tooltip="{% if device.active %}Wyłącz{% else %}Włącz{% endif %} powiadomienia na tym urządzeniu"><button
+                                            class="button is-primary" style="margin-bottom: 1rem"
+                                            id="active-button-{{ device.id }}"
+                                            data-device-id="{{ device.registration_id }}"
+                                            data-active="{{ device.active }}">{% if device.active %}Włączone{% else %}
+                                        Wyłączone{% endif %}</button></span><br>
+                                    <p class="subtitle is-7">Akcje:</p>
+                                    <span class="has-tooltip-left has-tooltip-arrow has-tooltip-danger"
+                                          data-tooltip="Usuń to urządzenie"><button class="button is-danger"
+                                                                                    id="delete-button-{{ device.id }}"
+                                                                                    data-device-id="{{ device.registration_id }}"><span
+                                            class="icon"><i
+                                            class="fas fa-trash"></i></span><span>Usuń</span></button></span>
+                                </div>
                             </div>
-                          </div>
                         </div>
                     {% endfor %}
                 </div>

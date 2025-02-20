@@ -6,7 +6,6 @@ from apps.users.utils import UUIDEncoder
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 from django.db.models import UUIDField
-from django.utils import timezone
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -46,7 +45,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(default=timezone.now)
+    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     patrol = models.ForeignKey(
         Patrol,
@@ -205,7 +206,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             "email_verified": self.email_verified,
             "is_staff": self.is_staff,
             "is_active": self.is_active,
-            "date_joined": self.date_joined,
+            "created_at": self.created_at,
             "patrol": self.patrol.id if self.patrol is not None else None,
             "scout_rank": self.scout_rank,
             "instructor_rank": self.instructor_rank,

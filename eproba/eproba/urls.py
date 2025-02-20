@@ -19,7 +19,7 @@ from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
 from apps.teams.views.api import TeamRequestViewSet
 from apps.users.views import (
     change_password,
-    duplicated_accounts,
+    delete_account,
     edit_profile,
     finish_signup,
     google_auth_receiver,
@@ -32,6 +32,7 @@ from apps.users.views import (
     verify_email,
     view_profile,
 )
+from django.conf import settings
 
 # from apps.users.views.login_hub import login_from_hub, login_hub
 from django.contrib import admin
@@ -84,7 +85,7 @@ sitemaps = {
     "static": Sitemap,
 }
 admin.site.site_title = "EPRÓBA"
-admin.site.site_header = "Panel administratora"
+admin.site.site_header = "Panel administratora" + " - DEV" if settings.DEV else ""
 urlpatterns = [
     path("", FrontPageView.as_view(), name="frontpage"),
     path("firebase-messaging-sw.js", fcm_sw, name="fcm_sw"),
@@ -153,13 +154,12 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     path("password-reset-done/", password_reset_done, name="password_reset_done"),
-    path("profile/edit/<uuid:user_id>/", edit_profile, name="edit_profile"),
-    path(
-        "profile/edit/<uuid:user_id>/password/", change_password, name="change_password"
-    ),
-    path("profile/set/<uuid:user_id>/password/", set_password, name="set_password"),
+    path("profile/edit/", edit_profile, name="edit_profile"),
+    path("profile/change-password/", change_password, name="change_password"),
+    path("profile/set-password/", set_password, name="set_password"),
     path("profile/view/", view_profile, name="view_profile", kwargs={"user_id": None}),
     path("profile/view/<uuid:user_id>/", view_profile, name="view_profile"),
+    path("profile/delete/", delete_account, name="delete_account"),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
@@ -187,11 +187,6 @@ urlpatterns = [
     path(
         "ads.txt",
         RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
-    ),
-    path(
-        "duplicated-accounts/<uuid:user_id_1>/<uuid:user_id_2>/",
-        duplicated_accounts,
-        name="duplicated_accounts",
     ),
     path(
         "google-auth-receiver/",

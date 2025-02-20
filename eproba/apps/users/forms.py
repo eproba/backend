@@ -38,6 +38,12 @@ class TermsOfServiceForm(forms.Form):
         ),
         required=True,
     )
+    personal_data_processing = forms.BooleanField(
+        label=mark_safe(
+            "Wyrażam zgodę na przetwarzanie danych osobowych w celach związanych z rejestracją i obsługą konta w serwisie. Rozumiem, że zgoda może być wycofana w dowolnym momencie i nie wpłynie to na przetwarzanie, którego dokonano przed jej wycofaniem"
+        ),
+        required=True,
+    )
 
 
 class UserChangeForm(auth.forms.UserChangeForm):

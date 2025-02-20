@@ -20,6 +20,9 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "") == "true"
 
+# When DEV is set to true, the app will show a dev label in the top right corner
+DEV = os.environ.get("DEV", "") == "true"
+
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
 CSRF_TRUSTED_ORIGINS = os.environ.get(
@@ -163,6 +166,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.google_auth_enabled",
+                "apps.core.context_processors.dev_mode",
             ],
         },
     },
