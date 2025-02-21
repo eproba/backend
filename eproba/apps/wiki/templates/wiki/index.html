@@ -1,0 +1,145 @@
+{% extends "core/base.html" %}
+{% block content %}
+    <nav class="level is-mobile">
+        <div class="level-left">
+            <div class="level-item">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul>
+                        <li><a href="{% url 'wiki:index' %}">Wiki</a></li>
+                        {% for folder in path %}
+                            <li><a href="{% url 'wiki:folder' folder.id %}">{{ folder.name }}</a></li>
+                        {% endfor %}
+                        {% if folder %}
+                            <li class="is-active"><a href="#" aria-current="page">{{ folder.name }}</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="level-right">
+            <div class="level-item has-text-right">
+                <i class="fa-solid fa-folder-plus mr-2" style="cursor: pointer;"
+                   onclick="document.getElementById('create-folder-modal').classList.add('is-active')"></i>
+                {% if folder %}
+                    <i class="fa-solid fa-file-circle-plus mr-2" style="cursor: pointer;"
+                       onclick="location.href='{% url 'wiki:create_page' folder.id %}'"></i>
+                {% elif request.user.is_staff %}
+                    <i class="fa-solid fa-file-circle-plus mr-2" style="cursor: pointer;"
+                       onclick="location.href='{% url 'wiki:create_root_page' %}'"></i>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% if folder %}
+        <h1 class="title is-2">{{ folder.name }}</h1>
+    {% endif %}
+    <div class="box">
+        {% for folder in folders %}
+            <div class="media" onclick="location.href='{% url 'wiki:folder' folder.id %}'"
+                 style="cursor: pointer;">
+                <div class="media-left">
+                    {% if folder.is_empty %}
+                        <i class="fa-regular fa-folder" style="font-size: 2em; width: 1em;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-folder-open" style="font-size: 2em; width: 1em;"></i>
+                    {% endif %}
+                </div>
+                <div class="media-content">
+                    <p class="title is-4">{{ folder.name }}</p>
+                    <p class="subtitle is-6">
+                        {% if not folder.is_empty %}{{ folder.get_content_count_combined }} w
+                            środku{% else %}Pusty{% endif %}</p>
+                </div>
+            </div>
+            {% for child in folder.get_children.all %}
+                <div class="media" onclick="location.href='{% url 'wiki:folder' child.id %}'"
+                     style="cursor: pointer;">
+                    <div class="media-left pl-5">
+                        {% if child.is_empty %}
+                            <i class="fa-regular fa-folder" style="font-size: 2em; width: 1em;"></i>
+                        {% else %}
+                            <i class="fa-solid fa-folder" style="font-size: 2em; width: 1em;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="media-content">
+                        <p class="title is-4">{{ child.name }}</p>
+                        <p class="subtitle is-6">
+                            {% if not child.is_empty %}{{ child.get_content_count_combined }} w
+                                środku{% else %}Pusty{% endif %}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            {% for page in folder.pages.all %}
+                <div class="media" onclick="location.href='{% url 'wiki:page' page.id %}'"
+                     style="cursor: pointer;">
+                    <div class="media-left pl-5">
+                        <i class="fa-solid fa-file" style="font-size: 2em; width: 1em;"></i>
+                    </div>
+                    <div class="media-content">
+                        <p class="title is-4">{{ page.title }}</p>
+                        <p class="subtitle is-6">{{ page.created_at }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for page in pages %}
+            <div class="media" onclick="location.href='{% url 'wiki:page' page.id %}'"
+                 style="cursor: pointer;">
+                <div class="media-left">
+                    <i class="fa-solid fa-file" style="font-size: 2em; width: 1em;"></i>
+                </div>
+                <div class="media-content">
+                    <p class="title is-4">{{ page.title }}</p>
+                    <p class="subtitle is-6">{{ page.created_at }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% if not folders and not pages %}
+            <p class="has-text-centered">Brak zawartości</p>
+        {% endif %}
+    </div>
+    <div class="modal" id="create-folder-modal">
+        <div class="modal-background"
+             onclick="document.getElementById('create-folder-modal').classList.remove('is-active')"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Utwórz folder</p>
+                <button class="delete" aria-label="close"
+                        onclick="document.getElementById('create-folder-modal').classList.remove('is-active')"></button>
+            </header>
+            <form method="post">
+                <section class="modal-card-body">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label class="label">Nazwa</label>
+                        <div class="control">
+                            <input class="input" type="text" name="name" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Rodzic</label>
+                        <div class="control">
+                            <div class="select">
+                                <select name="parent">
+                                    <option value="">Brak</option>
+                                    {% for folder in folders %}
+                                        <option value="{{ folder.id }}">{{ folder.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <div class="buttons">
+                        <button class="button is-success" type="submit">Utwórz</button>
+                        <button class="button"
+                                onclick="document.getElementById('create-folder-modal').classList.remove('is-active')"
+                                type="button">Anuluj
+                        </button>
+                    </div>
+                </footer>
+            </form>
+        </div>
+    </div>
+{% endblock %}

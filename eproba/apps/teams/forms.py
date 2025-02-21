@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import District, TeamRequest
+from .models import District, OrganizationChoice, TeamRequest
 
 
 class TeamRequestForm(forms.Form):
@@ -39,10 +39,17 @@ class TeamRequestForm(forms.Form):
     )
 
     function_level = forms.ChoiceField(
-        choices=TeamRequest.FUNCTION_CHOICES,
+        choices=TeamRequest.FUNCTION_CHOICES[:2],
         initial=TeamRequest.FUNCTION_CHOICES[1][0],
         widget=forms.Select,
         label="Twoja funkcja",
+    )
+
+    organization = forms.ChoiceField(
+        choices=[("", "Wybierz organizację")] + OrganizationChoice.choices,
+        widget=forms.Select,
+        label="Twoja organizacja",
+        required=True,
     )
 
     class Meta:

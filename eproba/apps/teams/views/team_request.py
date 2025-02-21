@@ -32,6 +32,7 @@ def team_request(request):
                 name=request.POST.get("team_name"),
                 short_name=request.POST.get("team_short_name"),
                 district=District.objects.get(id=request.POST.get("district")),
+                organization=int(request.POST.get("organization", 0)),
                 is_verified=False,
             )
 

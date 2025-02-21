@@ -208,4 +208,6 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
+    path("tinymce/", include("tinymce.urls")),
+    path("wiki/", include("apps.wiki.urls")),
 ]

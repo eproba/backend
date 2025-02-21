@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="{% url 'wiki:index' %}">Wiki</a></li>
+            {% for folder in page.folder.get_ancestors %}
+                <li><a href="{% url 'wiki:folder' folder.id %}">{{ folder.name }}</a></li>
+            {% endfor %}
+            {% if page.folder %}
+                <li><a href="{% url 'wiki:folder' page.folder.id %}" aria-current="page">{{ page.folder.name }}</a></li>
+            {% endif %}
+            <li class="is-active"><a href="#" aria-current="page">{{ page.title }}</a></li>
+        </ul>
+    </nav>
+    <h1 class="title is-2">{{ page.title }}</h1>
+    <div class="box">
+        <div class="content">{{ page.content | safe }}
+        </div>
+    </div>
+{% endblock %}
