@@ -9,8 +9,6 @@ from treebeard.mp_tree import MP_Node
 from ..teams.models import District, OrganizationChoice, Patrol, Team
 from ..users.models import User
 
-MAX_DEPTH = 6
-
 
 class Folder(MP_Node):
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -45,7 +43,12 @@ class Folder(MP_Node):
 
     # Optimized permission check
     def can_view(self, user: User, for_list=False):
-        if self.for_all or user.is_superuser or self.owner == user:
+        if (
+            self.for_all
+            or self.owner == user
+            or user.is_staff
+            and user.has_perm("wiki.view_folder")
+        ):
             return not for_list
 
         user_patrol = getattr(user, "patrol", None)
@@ -87,13 +90,25 @@ class Folder(MP_Node):
 
     # Optimized edit permission check
     def can_edit(self, user: User):
-        if user.is_superuser or self.owner == user:
+        if self.owner == user or user.is_staff and user.has_perm("wiki.change_folder"):
             return True
 
-        # Check the entire hierarchy for edit permission
-        for folder in self.get_ancestors():
-            if folder.owner == user:
+        if self.team and user.patrol and user.patrol.team == self.team:
+            if user.function >= 3:
                 return True
+            elif user.function >= 2 and self.patrol == user.patrol:
+                return True
+
+        # Check the entire hierarchy for edit permission
+        if self.inherit_permissions:
+            for folder in self.get_ancestors():
+                if folder.owner == user:
+                    return True
+                if folder.team and user.patrol and user.patrol.team == folder.team:
+                    if user.function >= 3:
+                        return True
+                    elif user.function >= 2 and folder.patrol == user.patrol:
+                        return True
 
         return False
 
@@ -150,7 +165,12 @@ class Page(models.Model):
         return reverse("wiki:page", kwargs={"pk": self.pk})
 
     def can_view(self, user: User):
-        if self.for_all or user.is_superuser or self.owner == user:
+        if (
+            self.for_all
+            or self.owner == user
+            or user.is_staff
+            and user.has_perm("wiki.view_page")
+        ):
             return True
 
         user_patrol = getattr(user, "patrol", None)
@@ -169,7 +189,7 @@ class Page(models.Model):
         )
 
     def can_edit(self, user: User):
-        if user.is_superuser or self.owner == user:
+        if self.owner == user or user.is_staff and user.has_perm("wiki.change_page"):
             return True
         if self.folder:
             return self.folder.can_edit(user)

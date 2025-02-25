@@ -120,6 +120,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             else ""
         )
 
+        _gender = (
+            self.patrol.team.organization if self.patrol is not None else self.gender
+        )
+
         scout_rank_male = {
             1: "biszkopt",
             2: "mł.",
@@ -138,9 +142,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             6: "HR",
         }
 
-        if self.gender == 0:
+        if _gender == 0:
             scout_rank = scout_rank_male.get(self.scout_rank, "")
-        elif self.gender == 1:
+        elif _gender == 1:
             scout_rank = scout_rank_female.get(self.scout_rank, "")
         else:
             scout_rank = self.get_scout_rank_display()
@@ -148,6 +152,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{rank}{scout_rank}"
 
     def full_rank(self):
+
+        _gender = (
+            self.patrol.team.organization if self.patrol is not None else self.gender
+        )
 
         instructor_rank_male = {1: "przewodnik", 2: "podharcmistrz", 3: "harcmistrz"}
 
@@ -175,10 +183,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             6: "harcerka Rzeczypospolitej",
         }
 
-        if self.gender == 0:
+        if _gender == 0:
             instructor_rank = instructor_rank_male.get(self.instructor_rank, "")
             scout_rank = scout_rank_male.get(self.scout_rank, "")
-        elif self.gender == 1:
+        elif _gender == 1:
             instructor_rank = instructor_rank_female.get(self.instructor_rank, "")
             scout_rank = scout_rank_female.get(self.scout_rank, "")
         else:

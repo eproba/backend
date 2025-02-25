@@ -274,11 +274,21 @@ DBBACKUP_STORAGE_OPTIONS = {
 TINYMCE_DEFAULT_CONFIG = {
     "promotion": False,
     "menubar": "file edit view insert format tools table help",
-    "plugins": "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code "
-    "fullscreen insertdatetime media table paste code help wordcount",
-    "toolbar": "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft "
-    "aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor "
-    "backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | "
-    "fullscreen  preview save | insertfile image media pageembed template link anchor codesample | "
-    "a11ycheck ltr rtl | showcomments addcomment code",
+    "plugins": (
+        "advlist autolink lists link image charmap preview anchor searchreplace emoticons "
+        "visualblocks code fullscreen insertdatetime media table code help wordcount"
+    ),
+    "toolbar": (
+        "undo redo | "
+        "bold italic underline strikethrough | "
+        "blocks fontfamily fontsize | "
+        "alignleft aligncenter alignright alignjustify | "
+        "forecolor backcolor removeformat | "
+        "numlist bullist checklist | "
+        "outdent indent hr | "
+        "charmap emoticons | "
+        "fullscreen preview save | "
+        "insertfile image media pageembed template link anchor codesample | "
+        "code"
+    ),
 }
