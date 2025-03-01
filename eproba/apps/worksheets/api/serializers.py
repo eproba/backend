@@ -1,6 +1,5 @@
+from apps.worksheets.models import Task, TemplateTask, TemplateWorksheet, Worksheet
 from rest_framework import serializers
-
-from .models import Task, Worksheet
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -24,6 +23,12 @@ class TaskSerializer(serializers.ModelSerializer):
             ),
         )
         return Task.objects.get(id=instance.id)
+
+
+class TemplateTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateTask
+        fields = ["id", "task", "description", "template_notes"]
 
 
 class WorksheetSerializer(serializers.ModelSerializer):
@@ -105,3 +110,11 @@ class WorksheetSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+
+class TemplateWorksheetSerializer(serializers.ModelSerializer):
+    tasks = TemplateTaskSerializer(many=True, required=False)
+
+    class Meta:
+        model = TemplateWorksheet
+        fields = ["id", "name", "description", "template_notes", "tasks"]

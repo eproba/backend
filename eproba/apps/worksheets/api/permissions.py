@@ -44,3 +44,28 @@ class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
 class IsTaskOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, task):
         return request.user == task.worksheet.user.user
+
+
+class IsAllowedToReadOrManageTemplateWorksheet(permissions.BasePermission):
+    def has_object_permission(self, request, view, template_worksheet):
+        if request.user.function < 2:
+            return False
+
+        is_team_template = template_worksheet.team == request.user.patrol.team
+
+        is_org_template = (
+            template_worksheet.team is None
+            and template_worksheet.organization == request.user.patrol.team.organization
+        )
+
+        if request.method in permissions.SAFE_METHODS:
+            return is_team_template or is_org_template
+
+        if (
+            is_org_template
+            and not request.user.is_staff
+            and not request.user.has_perm("worksheets.change_templateworksheet")
+        ):
+            return False
+
+        return is_team_template or is_org_template

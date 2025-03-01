@@ -1,7 +1,6 @@
-from apps.users.serializers import UserSerializer
+from apps.teams.models import District, Patrol, Team, TeamRequest
 from rest_framework import serializers
-
-from .models import District, Patrol, Team, TeamRequest
+from users.api.serializers import UserSerializer
 
 
 class PatrolSerializer(serializers.ModelSerializer):

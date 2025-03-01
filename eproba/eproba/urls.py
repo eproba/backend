@@ -16,7 +16,6 @@ Including another URLconf
 
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
-from apps.teams.views.api import TeamRequestViewSet
 from apps.users.views import (
     change_password,
     delete_account,
@@ -51,20 +50,25 @@ from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from rest_framework import routers
+from teams.api.views import (
+    DistrictViewSet,
+    PatrolViewSet,
+    TeamRequestViewSet,
+    TeamViewSet,
+)
+from users.api.views import UserInfo, UserViewSet
+from worksheets.api.views import (
+    SubmitTask,
+    TaskDetails,
+    TasksToBeChecked,
+    TemplateWorksheetViewSet,
+    UnsubmitTask,
+    WorksheetViewSet,
+)
 
 from .sitemaps import Sitemap
 from .utils import (
     ApiConfigView,
-    DistrictViewSet,
-    PatrolViewSet,
-    SubmitTask,
-    TaskDetails,
-    TasksToBeChecked,
-    TeamViewSet,
-    UnsubmitTask,
-    UserInfo,
-    UserViewSet,
-    WorksheetViewSet,
 )
 
 handler404 = "apps.core.views.handler404"
@@ -74,6 +78,7 @@ handler500 = "apps.core.views.handler500"
 api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
 api.register(r"worksheets", WorksheetViewSet, "api-worksheets")
+api.register(r"templates", TemplateWorksheetViewSet, "api-templates")
 api.register(r"users", UserViewSet, "api-users")
 api.register(r"districts", DistrictViewSet, "api-districts")
 api.register(r"teams", TeamViewSet, "api-teams")
