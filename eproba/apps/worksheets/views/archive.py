@@ -1,9 +1,8 @@
+from apps.teams.models import Patrol
 from apps.users.utils import min_function, patrol_required
+from apps.worksheets.models import Worksheet
 from django.shortcuts import render
-
-from ...teams.models import Patrol
-from ..models import Worksheet
-from .utils import prepare_worksheet
+from worksheets.utils import prepare_worksheet
 
 
 @patrol_required

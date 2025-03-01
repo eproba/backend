@@ -43,20 +43,23 @@
                 <div class="block worksheet" id="worksheet_{{ worksheet.id }}"
                      data-user-patrol="{{ worksheet.user.patrol.id }}">
                     <div class="box">
-                        <div class="level is-align-items-flex-start">
-                            <span class="title has-text-weight-medium" style="margin-bottom: 0">{{ worksheet }} </span>
-                            <div>
-                        <span class="icon has-tooltip-bottom has-tooltip-arrow"
-                              id="tooltip_text_{{ worksheet.id }}_print"
-                              data-tooltip="Drukuj próbę"><span
-                                onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'"><i
-                                class="fas fa-print"></i></span></span>
-
-                                <span class="icon has-tooltip-bottom has-tooltip-arrow"
+                        <div class="level">
+                            <div class="level-left">
+                            <span class="level-item title has-text-weight-medium"
+                                  style="margin-bottom: 0">{{ worksheet }} </span>
+                            </div>
+                            <div class="level-right is-gapless">
+                                    <span class="level-item icon has-tooltip-bottom has-tooltip-arrow"
+                                          id="tooltip_text_{{ worksheet.id }}_print"
+                                          data-tooltip="Drukuj próbę"><span
+                                            onclick="location.href='{% url 'worksheets:print_worksheet' worksheet.id %}'"><i
+                                            class="fas fa-print"></i></span></span>
+                                <span class="level-item icon has-tooltip-bottom has-tooltip-arrow"
                                       id="tooltip_text_{{ worksheet.id }}_restore"
                                       data-tooltip="Przywróć próbę"><span
                                         onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', function() {
-                                                fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
+                                                fetch('
+                                                {% url 'api-worksheets-list' %}{{ worksheet.id }}/?archived=true', {
                                                 method: 'PATCH',
                                                 headers: {
                                                 'X-CSRFToken': '{{ csrf_token }}',
@@ -78,11 +81,11 @@
                                                 });
                                                 })"><i class="fa-solid fa-box-open"></i></span></span>
                                 {% if user.function > 2 %}
-                                    <span class="icon has-tooltip-bottom has-tooltip-arrow"
+                                    <span class="level-item icon has-tooltip-bottom has-tooltip-arrow"
                                           id="tooltip_text_{{ worksheet.id }}_delete"
                                           data-tooltip="Usuń próbę na zawsze"><span
                                             onclick="confirm_popup(null, 'Czy na pewno chcesz usunąć tę próbę?', function() {
-                                                    fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/', {
+                                                    fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/?archived=true', {
                                                     method: 'DELETE',
                                                     headers: {
                                                     'X-CSRFToken': '{{ csrf_token }}',

@@ -82,7 +82,7 @@
 
 <h1 class="subtitle">{{ worksheet.name }}</h1>
 
-{% if worksheet.user.first_name and worksheet.user.last_name and worksheet.user.nickname and not worksheet.is_template %}
+{% if worksheet.user.first_name and worksheet.user.last_name and worksheet.user.nickname and not is_template %}
     <p><strong>Imię, nazwisko i pseudonim:</strong> {{ worksheet.user.full_name_nickname }}</p>
 {% else %}
     <p><strong>Imię, nazwisko, pseudonim:</strong></p>
@@ -96,6 +96,8 @@
 
 {% if worksheet.user.patrol.team %}
     <p><strong>Drużyna:</strong> {{ worksheet.user.patrol.team }}</p>
+{% elif is_template and worksheet.team %}
+    <p><strong>Drużyna:</strong> {{ worksheet.team }}</p>
 {% else %}
     <p><strong>Drużyna:</strong></p>
 {% endif %}

@@ -17,6 +17,7 @@ def remove_duplicates(seq):
 
 @login_required
 @min_function(2)
+# TODO: Refactor this function to reduce complexity and improve security
 def edit_worksheet(request, worksheet_id):
     if not Worksheet.objects.filter(id=worksheet_id, deleted=False).exists():
         messages.add_message(request, messages.ERROR, "Nie ma takiej próby.")
@@ -63,15 +64,10 @@ def edit_worksheet(request, worksheet_id):
                             task=task[0], worksheet=worksheet_obj, description=task[1]
                         )
                         t.save()
-                if worksheet_obj.is_template:
-                    messages.info(request, "Szablon został zapisany.")
-                else:
-                    messages.info(request, "Próba została zapisana.")
+                messages.info(request, "Próba została zapisana.")
+                return redirect(reverse("worksheets:manage_worksheets"))
             else:
                 messages.add_message(request, messages.ERROR, "Błąd w zadaniach.")
-            if worksheet_obj.is_template:
-                return redirect(reverse("worksheets:templates"))
-            return redirect(reverse("worksheets:manage_worksheets"))
 
     else:
         worksheet_form = WorksheetCreateForm(instance=worksheet)

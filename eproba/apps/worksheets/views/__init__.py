@@ -1,6 +1,7 @@
 from .archive import archive
 from .create_template import create_template
 from .create_worksheet import create_worksheet
+from .edit_template import edit_template
 from .edit_worksheet import edit_worksheet
 from .export import export, export_worksheet
 from .templates import templates
@@ -9,6 +10,7 @@ from .views import (
     check_tasks,
     manage_worksheets,
     print_worksheet,
+    print_worksheet_template,
     reject_task,
     sent_tasks,
     submit_task,
@@ -22,11 +24,13 @@ __all__ = [
     "create_template",
     "create_worksheet",
     "edit_worksheet",
+    "edit_template",
     "export",
     "export_worksheet",
     "templates",
     "view_worksheets",
     "print_worksheet",
+    "print_worksheet_template",
     "view_shared_worksheet",
     "manage_worksheets",
     "check_tasks",

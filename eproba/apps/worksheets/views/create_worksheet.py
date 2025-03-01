@@ -4,10 +4,10 @@ from django.db import transaction
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from worksheets.utils import send_notification
 
 from ..forms import ExtendedWorksheetCreateForm, TaskForm, WorksheetCreateForm
-from ..models import Task, Worksheet
-from .utils import send_notification
+from ..models import Task, TemplateWorksheet
 
 
 @login_required
@@ -17,8 +17,14 @@ def create_worksheet(request):
         "template", False
     ):
         template_id = request.GET.get("template", False)
-        template = get_object_or_404(Worksheet, id=template_id, deleted=False)
+        template = get_object_or_404(TemplateWorksheet, id=template_id)
         task_form_set = formset_factory(TaskForm, extra=1)
+    # elif request.GET.get("source", False) == "copy" and request.GET.get(
+    #     "worksheet", False
+    # ):
+    #     template_id = request.GET.get("worksheet", False)
+    #     template = get_object_or_404(Worksheet, id=template_id, deleted=False)
+    #     task_form_set = formset_factory(TaskForm, extra=1)
     else:
         template = None
         task_form_set = formset_factory(TaskForm, extra=3)
@@ -30,7 +36,10 @@ def create_worksheet(request):
         if template:
             tasks = task_form_set(
                 request.POST,
-                initial=[{"task": task.task} for task in template.tasks.all()],
+                initial=[
+                    {"task": task.task, "description": task.description}
+                    for task in template.tasks.all()
+                ],
             )
         else:
             tasks = task_form_set(request.POST)
@@ -67,16 +76,33 @@ def create_worksheet(request):
             if request.GET.get("next", False):
                 return redirect(request.GET.get("next"))
             return redirect(reverse("worksheets:worksheets"))
+        else:
+            messages.error(request, "Błąd w formularzu")
 
     else:
         if request.user.function >= 2 and request.user.patrol:
-            worksheet = ExtendedWorksheetCreateForm(request.user)
+            worksheet = ExtendedWorksheetCreateForm(
+                request.user,
+                template_notes=template.template_notes if template else None,
+            )
         else:
-            worksheet = WorksheetCreateForm()
+            worksheet = WorksheetCreateForm(
+                template_notes=template.template_notes if template else None
+            )
         if template:
             tasks = task_form_set(
-                initial=[{"task": task.task} for task in template.tasks.all()]
+                initial=[
+                    {
+                        "task": task.task,
+                        "description": task.description,
+                        "template_notes": task.template_notes,
+                    }
+                    for task in template.tasks.all()
+                ]
             )
+            worksheet.fields["name"].initial = template.name
+            worksheet.fields["description"].initial = template.description
+            worksheet.fields["user"].initial = None
         else:
             tasks = task_form_set()
 

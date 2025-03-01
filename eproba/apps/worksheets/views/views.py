@@ -12,10 +12,11 @@ try:
 except OSError:
     pass
 
+from worksheets.utils import prepare_worksheet, send_notification
+
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm
-from ..models import Task, Worksheet
-from .utils import prepare_worksheet, send_notification
+from ..models import Task, TemplateWorksheet, Worksheet
 
 
 def view_worksheets(request):
@@ -24,7 +25,7 @@ def view_worksheets(request):
         worksheets = [
             prepare_worksheet(worksheet)
             for worksheet in Worksheet.objects.filter(
-                user=user, is_template=False, deleted=False, is_archived=False
+                user=user, deleted=False, is_archived=False
             )
         ]
 
@@ -59,6 +60,31 @@ def print_worksheet(request, id):
         return redirect(reverse("worksheets:worksheets"))
     response["Content-Disposition"] = (
         f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
+    )
+
+    return response
+
+
+def print_worksheet_template(request, id):
+    worksheet_template = get_object_or_404(TemplateWorksheet, id=id)
+
+    try:
+        response = HttpResponse(
+            HTML(
+                string=render_to_string(
+                    "worksheets/worksheet_pdf.html",
+                    {"worksheet": worksheet_template, "is_template": True},
+                )
+            ).write_pdf(),
+            content_type="application/pdf",
+        )
+    except NameError:
+        messages.add_message(
+            request, messages.ERROR, "Weasyprint nie jest zainstalowany."
+        )
+        return redirect(reverse("worksheets:worksheets"))
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(worksheet_template))} - Epróba.pdf"'
     )
 
     return response

@@ -22,18 +22,17 @@ def export(request):
         )
     user = request.user
     user_worksheets = Worksheet.objects.filter(
-        user=user, is_template=False, deleted=False, is_archived=False
+        user=user, deleted=False, is_archived=False
     )
 
     archived_user_worksheets = Worksheet.objects.filter(
-        user=user, is_template=False, deleted=False, is_archived=True
+        user=user, deleted=False, is_archived=True
     )
 
     patrol_worksheets = []
     if user.function >= 2:
         patrol_worksheets = Worksheet.objects.filter(
             user__patrol=user.patrol,
-            is_template=False,
             deleted=False,
             is_archived=False,
         )
@@ -42,7 +41,6 @@ def export(request):
     if user.function >= 3:
         team_worksheets = Worksheet.objects.filter(
             user__patrol__team=user.patrol.team,
-            is_template=False,
             deleted=False,
             is_archived=False,
         )
@@ -51,7 +49,6 @@ def export(request):
     if user.function >= 2:
         archived_patrol_worksheets = Worksheet.objects.filter(
             user__patrol=user.patrol,
-            is_template=False,
             deleted=False,
             is_archived=True,
         )
@@ -60,7 +57,6 @@ def export(request):
     if user.function >= 3:
         archived_team_worksheets = Worksheet.objects.filter(
             user__patrol__team=user.patrol.team,
-            is_template=False,
             deleted=False,
             is_archived=True,
         )
