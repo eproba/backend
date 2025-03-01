@@ -12,7 +12,7 @@ try:
 except OSError:
     pass
 
-from worksheets.utils import prepare_worksheet, send_notification
+from apps.worksheets.utils import prepare_worksheet, send_notification
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm

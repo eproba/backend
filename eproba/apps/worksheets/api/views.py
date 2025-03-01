@@ -2,6 +2,7 @@ from apps.users.models import User
 from apps.users.tasks import clear_tokens
 from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
 from apps.worksheets.tasks import remove_expired_deleted_worksheets
+from apps.worksheets.utils import send_notification
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -12,7 +13,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from worksheets.utils import send_notification
 
 from .permissions import (
     IsAllowedToManageTaskOrReadOnlyForOwner,

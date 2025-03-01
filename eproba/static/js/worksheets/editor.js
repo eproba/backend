@@ -134,24 +134,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-        const tasksDescriptionsButton = document.getElementById('tasks-descriptions-button');
+        const tasksDescriptionsButton = document.getElementById('additional-fields-button');
         tasksDescriptionsButton.addEventListener('click', () => {
             tasksDescriptionsButton.classList.toggle('is-outlined');
             const enabled = !tasksDescriptionsButton.classList.contains('is-outlined');
 
-            const tasksDescriptions = document.querySelectorAll('.tasks-description');
+            const tasksDescriptions = document.querySelectorAll('.additional-field');
             tasksDescriptions.forEach(description => {
                 if (enabled) {
                     description.classList.remove('is-hidden');
-                    const label = description.closest('.form-row').querySelector('.field-label');
-                    description.parentElement.style.marginLeft = label.offsetWidth + parseFloat(getComputedStyle(label).marginRight) + 'px';
+                    // const label = description.closest('.form-row').querySelector('.field-label');
+                    // description.parentElement.style.marginLeft = label.offsetWidth + parseFloat(getComputedStyle(label).marginRight) + 'px';
                 } else {
                     description.classList.add('is-hidden');
                 }
             });
         });
         let shouldEnableDescriptionsAutomatically = false;
-        document.querySelectorAll('.tasks-description').forEach(description => {
+        document.querySelectorAll('.field.additional-field textarea').forEach(description => {
             if (description.value) {
                 shouldEnableDescriptionsAutomatically = true;
             }

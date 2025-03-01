@@ -2,7 +2,7 @@
 {% load static %}
 {% block extrahead %}
     <script defer src="{% static 'js/core/helpers.js' %}"></script>
-    <script async type="module" src="{% static 'js/users/profile.js' %}"></script>
+    <script type="module" src="{% static 'js/users/profile.js' %}"></script>
 {% endblock %}
 {% block title %}Profil - {{ user.nickname }} - Epróba{% endblock %}
 {% block content %}

@@ -173,11 +173,15 @@ function renderWorksheet(worksheet, missingUsers) {
         },
         innerHTML: `
             <div class="box">
-                <div class="level is-align-items-flex-start mb-1">
-                    <span class="title has-text-weight-medium" style="margin-bottom: 0" id="worksheet-title_${id}">${name} - ${renderUserInfo(worksheet.user, missingUsers, id)}</span>
-                    <div>${renderWorksheetActions(worksheet)}</div>
+                <div class="level mb-1">
+                            <div class="level-left">
+                    <span class="level-item title has-text-weight-medium" style="margin-bottom: 0" id="worksheet-title_${id}">${name} - ${renderUserInfo(worksheet.user, missingUsers, id)}</span>
+                    </div>
+                    <div class="level-right">
+                    <div class="level-right is-gapless">${renderWorksheetActions(worksheet)}</div>
+                    </div>
                 </div>
-                ${supervisor ? `<h2 class="subtitle" id="worksheet-supervisor_${id}">Opiekun próby: <a href="/profile/view/${supervisor}">${renderUserInfo(supervisor, missingUsers, id, 'worksheet_supervisor')}</a></h2>` : ''}
+                ${supervisor ? `<h2 class="subtitle" id="worksheet_supervisor_${id}">Opiekun próby: <a href="/profile/view/${supervisor}">${renderUserInfo(supervisor, missingUsers, id, 'worksheet_supervisor')}</a></h2>` : ''}
                 <h2 class="subtitle is-6">Ostatnia edycja: <span id="worksheet-updated_${id}">${(new Date(updated_at)).toLocaleString()}</span></h2>
                 <p><br/></p>
                 ${renderTasksTable(worksheet, missingUsers)}
@@ -207,23 +211,23 @@ function findUser(userId, missingUsers, element_id, type) {
 function renderWorksheetActions(worksheet) {
 
     return `
-        <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}" data-tooltip="Naciśnij aby skopiować link do próby">
+        <span class="level-item icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}" data-tooltip="Naciśnij aby skopiować link do próby">
             <span onclick="copy_to_clipboard('tooltip_text_${worksheet.id}', '${location.host}/worksheets/share/view/${worksheet.id}')">
                 <i class="fa-solid fa-clipboard"></i>
             </span>
         </span>
-        <span class="icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}_print" data-tooltip="Drukuj próbę">
+        <span class="level-item icon has-tooltip-bottom has-tooltip-arrow" id="tooltip_text_${worksheet.id}_print" data-tooltip="Drukuj próbę">
             <span onclick="location.href='/worksheets/print/${worksheet.id}'">
                 <i class="fas fa-print"></i>
             </span>
         </span>
-        <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Zarchiwizuj próbę">
+        <span class="level-item icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Zarchiwizuj próbę">
             <span onclick="archiveWorksheet('${worksheet.id}')">
                 <i class="fa-solid fa-box-archive"></i>
             </span>
         </span>
         ${userFunction > 2 ? renderDeleteWorksheetAction(worksheet.id) : ''}
-        <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Edytuj próbę">
+        <span class="level-item icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Edytuj próbę">
             <span onclick="location.href='/worksheets/edit/${worksheet.id}'">
                 <i class="fas fa-edit"></i>
             </span>
@@ -233,7 +237,7 @@ function renderWorksheetActions(worksheet) {
 
 function renderDeleteWorksheetAction(id) {
     return `
-        <span class="icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Usuń próbę">
+        <span class="level-item icon has-tooltip-bottom has-tooltip-arrow" data-tooltip="Usuń próbę">
             <span onclick="deleteWorksheet('${id}')">
                 <i class="fa-solid fa-trash"></i>
             </span>

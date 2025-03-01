@@ -16,6 +16,13 @@ Including another URLconf
 
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
+from apps.teams.api.views import (
+    DistrictViewSet,
+    PatrolViewSet,
+    TeamRequestViewSet,
+    TeamViewSet,
+)
+from apps.users.api.views import UserInfo, UserViewSet
 from apps.users.views import (
     change_password,
     delete_account,
@@ -30,6 +37,14 @@ from apps.users.views import (
     signup,
     verify_email,
     view_profile,
+)
+from apps.worksheets.api.views import (
+    SubmitTask,
+    TaskDetails,
+    TasksToBeChecked,
+    TemplateWorksheetViewSet,
+    UnsubmitTask,
+    WorksheetViewSet,
 )
 from django.conf import settings
 
@@ -50,21 +65,6 @@ from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from rest_framework import routers
-from teams.api.views import (
-    DistrictViewSet,
-    PatrolViewSet,
-    TeamRequestViewSet,
-    TeamViewSet,
-)
-from users.api.views import UserInfo, UserViewSet
-from worksheets.api.views import (
-    SubmitTask,
-    TaskDetails,
-    TasksToBeChecked,
-    TemplateWorksheetViewSet,
-    UnsubmitTask,
-    WorksheetViewSet,
-)
 
 from .sitemaps import Sitemap
 from .utils import (
