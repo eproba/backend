@@ -7,53 +7,7 @@ import django.utils.timezone
 from django.db import migrations, models
 
 
-def migrate_templates(apps, schema_editor):
-    # Get historical versions of the models
-    Worksheet = apps.get_model("worksheets", "Worksheet")
-    Task = apps.get_model("worksheets", "Task")
-    TemplateWorksheet = apps.get_model("worksheets", "TemplateWorksheet")
-    TemplateTask = apps.get_model("worksheets", "TemplateTask")
-
-    # For each Worksheet that was marked as a template, create a new Template instance and remove the old Worksheet.
-    for worksheet in Worksheet.objects.filter(is_template=True, deleted=False):
-        # Determine the team. If your User model has a team attribute, use it;
-        # otherwise, use the first available Team (or adjust as needed).
-        if hasattr(worksheet.user, "patrol") and worksheet.user.patrol:
-            team_instance = worksheet.user.patrol.team
-        else:
-            continue  # Skip this worksheet if the user doesn’t have a team
-
-        new_template = TemplateWorksheet.objects.create(
-            id=worksheet.id,
-            team=team_instance,
-            name=worksheet.name,
-            description="",  # Old templates didn’t have a description; default to empty
-            created_at=worksheet.updated_at,
-            # Use the updated_at as the creation time as created_at didn’t exist before
-            updated_at=worksheet.updated_at,
-        )
-
-        # Now, migrate all tasks related to the worksheet into TemplateTask records.
-        tasks = Task.objects.filter(worksheet=worksheet)
-        for task in tasks:
-            TemplateTask.objects.create(
-                id=task.id,
-                template=new_template,
-                task=task.task,
-                description=task.description,
-            )
-
-    # Remove all migrated Template and TemplateTask records.
-    Worksheet.objects.filter(is_template=True).delete()
-
-
 class Migration(migrations.Migration):
-
-    replaces = [
-        ("worksheets", "0002_worksheet_created_at_worksheet_description_and_more"),
-        ("worksheets", "0003_migrate_templates"),
-        ("worksheets", "0004_remove_worksheet_is_template_and_more"),
-    ]
 
     dependencies = [
         ("teams", "0006_team_organization"),
@@ -172,23 +126,5 @@ class Migration(migrations.Migration):
                 "verbose_name": "Zadanie szablonu",
                 "verbose_name_plural": "Zadania szablonu",
             },
-        ),
-        migrations.RunPython(
-            code=migrate_templates,
-        ),
-        migrations.RemoveField(
-            model_name="worksheet",
-            name="is_template",
-        ),
-        migrations.AlterField(
-            model_name="templateworksheet",
-            name="team",
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="templates",
-                to="teams.team",
-            ),
         ),
     ]
