@@ -39,6 +39,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "description",
             "user",
             "updated_at",
             "supervisor",

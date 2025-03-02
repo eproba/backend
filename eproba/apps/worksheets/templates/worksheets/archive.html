@@ -58,8 +58,7 @@
                                       id="tooltip_text_{{ worksheet.id }}_restore"
                                       data-tooltip="Przywróć próbę"><span
                                         onclick="confirm_popup(null, 'Czy na pewno chcesz przywrócić tę próbę?', function() {
-                                                fetch('
-                                                {% url 'api-worksheets-list' %}{{ worksheet.id }}/?archived=true', {
+                                                fetch('{% url 'api-worksheets-list' %}{{ worksheet.id }}/?archived=true', {
                                                 method: 'PATCH',
                                                 headers: {
                                                 'X-CSRFToken': '{{ csrf_token }}',
@@ -113,6 +112,9 @@
                             <h2 class="subtitle">Opiekun próby: <a
                                     href="{% url 'view_profile' user_id=worksheet.supervisor.user.id %}">{{ worksheet.supervisor.user.full_name_nickname }}</a>
                             </h2>
+                        {% endif %}
+                        {% if worksheet.description %}
+                            <p style="white-space: pre-wrap;">{{ worksheet.description }}</p>
                         {% endif %}
                         <p><br/></p>
                         <table class="table">

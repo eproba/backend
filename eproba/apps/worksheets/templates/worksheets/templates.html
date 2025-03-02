@@ -58,6 +58,12 @@
                                      <i class="fa-solid fa-trash"></i></span></span>
                             </div>
                         </div>
+                        {% if worksheet_template.description %}
+                            <p style="white-space: pre-wrap;">{{ worksheet_template.description }}</p>
+                        {% endif %}
+                        {% if worksheet_template.template_notes %}
+                            <p class="has-text-text-50" style="white-space: pre-wrap;">{{ worksheet_template.template_notes }}</p>
+                        {% endif %}
                         <p><br/></p>
                         <table class="table">
                             <thead>
@@ -105,14 +111,15 @@
             </div>
         {% endif %}
         <div class="block">
-        <div class="container has-text-centered">
-            <button class="button is-outlined is-primary"
-                    onclick="location.href='{% url 'worksheets:create_template' %}'">
+            <div class="container has-text-centered">
+                <button class="button is-outlined is-primary"
+                        onclick="location.href='{% url 'worksheets:create_template' %}'">
                     <span class="icon">
                         <i class="fas fa-plus"></i>
                     </span>
-                <span>Utwórz nowy szablon</span>
-            </button>
+                    <span>Utwórz nowy szablon</span>
+                </button>
+            </div>
         </div>
     {% else %}
         <div class="box">

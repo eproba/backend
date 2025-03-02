@@ -162,7 +162,7 @@ function renderWorksheets(worksheets) {
 }
 
 function renderWorksheet(worksheet, missingUsers) {
-    const {id, name, tasks, supervisor, updated_at} = worksheet;
+    const {id, name, description, tasks, supervisor, updated_at} = worksheet;
     return createElement('div', {
         id: `worksheet_${id}`,
         className: 'block worksheet show',
@@ -183,6 +183,7 @@ function renderWorksheet(worksheet, missingUsers) {
                 </div>
                 ${supervisor ? `<h2 class="subtitle" id="worksheet_supervisor_${id}">Opiekun próby: <a href="/profile/view/${supervisor}">${renderUserInfo(supervisor, missingUsers, id, 'worksheet_supervisor')}</a></h2>` : ''}
                 <h2 class="subtitle is-6">Ostatnia edycja: <span id="worksheet-updated_${id}">${(new Date(updated_at)).toLocaleString()}</span></h2>
+                ${description ? `<p>${description}</p>` : ''}
                 <p><br/></p>
                 ${renderTasksTable(worksheet, missingUsers)}
             </div>
