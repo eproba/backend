@@ -59,6 +59,27 @@ class TemplateWorksheetCreateForm(ModelForm):
         }
 
 
+class ExtendedTemplateWorksheetCreateForm(ModelForm):
+    for_organization = forms.BooleanField(
+        label="Dla całej organizacji?",
+        required=False,
+        initial=False,
+    )
+
+    class Meta:
+        model = TemplateWorksheet
+        fields = ["name", "description", "template_notes", "for_organization"]
+        labels = {
+            "name": "Nazwa szablonu",
+            "description": "Opis szablonu",
+            "template_notes": "Notatki (widoczne tylko w szablonie)",
+        }
+        widgets = {
+            "description": Textarea(attrs={"class": "textarea", "rows": 2}),
+            "template_notes": Textarea(attrs={"class": "textarea", "rows": 2}),
+        }
+
+
 class TaskForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)

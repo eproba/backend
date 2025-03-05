@@ -5,7 +5,11 @@ from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from ..forms import TemplateTaskForm, TemplateWorksheetCreateForm
+from ..forms import (
+    ExtendedTemplateWorksheetCreateForm,
+    TemplateTaskForm,
+    TemplateWorksheetCreateForm,
+)
 from ..models import TemplateTask
 
 
@@ -15,12 +19,27 @@ from ..models import TemplateTask
 def create_template(request):
     task_form_set = formset_factory(TemplateTaskForm, extra=3)
     if request.method == "POST":
-        worksheet_template = TemplateWorksheetCreateForm(request.POST)
+        if request.user.is_staff and request.user.has_perm(
+            "worksheets.add_templateworksheet"
+        ):
+            worksheet_template = ExtendedTemplateWorksheetCreateForm(request.POST)
+        else:
+            worksheet_template = TemplateWorksheetCreateForm(request.POST)
         tasks = task_form_set(request.POST)
         if worksheet_template.is_valid():
-
             worksheet_template_obj = worksheet_template.save(commit=False)
-            worksheet_template_obj.team = request.user.patrol.team
+            if (
+                worksheet_template.cleaned_data.get("for_organization")
+                and request.user.is_staff
+                and request.user.has_perm("worksheets.add_templateworksheet")
+            ):
+                worksheet_template_obj.team = None
+                worksheet_template_obj.organization = (
+                    request.user.patrol.team.organization
+                )
+            else:
+                worksheet_template_obj.team = request.user.patrol.team
+                worksheet_template_obj.organization = None
             worksheet_template_obj.save()
             if tasks.is_valid():
                 tasks_data = tasks.cleaned_data
@@ -38,7 +57,12 @@ def create_template(request):
             return redirect(reverse("worksheets:templates"))
 
     else:
-        worksheet_template = TemplateWorksheetCreateForm()
+        if request.user.is_staff and request.user.has_perm(
+            "worksheets.add_templateworksheet"
+        ):
+            worksheet_template = ExtendedTemplateWorksheetCreateForm()
+        else:
+            worksheet_template = TemplateWorksheetCreateForm()
         tasks = task_form_set()
 
     return render(

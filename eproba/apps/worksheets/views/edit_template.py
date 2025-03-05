@@ -5,7 +5,11 @@ from django.forms import formset_factory
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from ..forms import TemplateTaskForm, TemplateWorksheetCreateForm
+from ..forms import (
+    ExtendedTemplateWorksheetCreateForm,
+    TemplateTaskForm,
+    TemplateWorksheetCreateForm,
+)
 from ..models import TemplateTask, TemplateWorksheet
 
 
@@ -22,26 +26,47 @@ def edit_template(request, worksheet_id):
     if not TemplateWorksheet.objects.filter(id=worksheet_id).exists():
         messages.add_message(request, messages.ERROR, "Nie ma takiego szablonu.")
         return redirect(reverse("worksheets:templates"))
-    if TemplateWorksheet.objects.get(
-        id=worksheet_id
-    ).team != request.user.patrol.team and (
-        TemplateWorksheet.objects.get(id=worksheet_id).organization
-        != request.user.patrol.team.organization
-        and request.user.function >= 5
+    worksheet = TemplateWorksheet.objects.get(id=worksheet_id)
+    if worksheet.team != request.user.patrol.team and not (
+        worksheet.organization == request.user.patrol.team.organization
+        and request.user.has_perm("worksheets.change_templateworksheet")
+        and request.user.is_staff
     ):
         messages.add_message(
             request,
             messages.ERROR,
-            "Nie masz uprawnień do edycji prób z poza swojej drużyny.",
+            "Nie masz uprawnień do edycji tego szablonu.",
         )
-        return redirect(reverse("worksheets:worksheets"))
-    worksheet = TemplateWorksheet.objects.get(id=worksheet_id)
+        return redirect(reverse("worksheets:templates"))
     task_form_set = formset_factory(TemplateTaskForm, extra=1)
     if request.method == "POST":
-        worksheet_form = TemplateWorksheetCreateForm(request.POST, instance=worksheet)
+        if request.user.has_perm("worksheets.change_templateworksheet"):
+            worksheet_form = ExtendedTemplateWorksheetCreateForm(
+                request.POST, instance=worksheet
+            )
+        else:
+            worksheet_form = TemplateWorksheetCreateForm(
+                request.POST, instance=worksheet
+            )
         tasks = task_form_set(request.POST)
         if worksheet_form.is_valid():
-            worksheet_obj = worksheet_form.save()
+            worksheet_obj = worksheet_form.save(commit=False)
+            if worksheet_form.cleaned_data.get("for_organization"):
+                if not request.user.is_staff or not request.user.has_perm(
+                    "worksheets.change_templateworksheet"
+                ):
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Nie masz uprawnień do edycji szablonów dla całej organizacji.",
+                    )
+                    return redirect(reverse("worksheets:templates"))
+                worksheet_obj.team = None
+                worksheet_obj.organization = request.user.patrol.team.organization
+            else:
+                worksheet_obj.team = request.user.patrol.team
+                worksheet_obj.organization = None
+            worksheet_obj.save()
             if tasks.is_valid():
                 old_tasks = []
                 for task in TemplateTask.objects.filter(template=worksheet_obj):
@@ -75,7 +100,13 @@ def edit_template(request, worksheet_id):
                 messages.add_message(request, messages.ERROR, "Błąd w zadaniach.")
 
     else:
-        worksheet_form = TemplateWorksheetCreateForm(instance=worksheet)
+        if request.user.has_perm("worksheets.change_templateworksheet"):
+            worksheet_form = ExtendedTemplateWorksheetCreateForm(
+                instance=worksheet,
+                initial={"for_organization": worksheet.organization is not None},
+            )
+        else:
+            worksheet_form = TemplateWorksheetCreateForm(instance=worksheet)
         tasks = task_form_set(
             initial=[
                 {

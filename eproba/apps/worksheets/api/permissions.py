@@ -61,10 +61,9 @@ class IsAllowedToReadOrManageTemplateWorksheet(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return is_team_template or is_org_template
 
-        if (
-            is_org_template
-            and not request.user.is_staff
-            and not request.user.has_perm("worksheets.change_templateworksheet")
+        if is_org_template and (
+            not request.user.is_staff
+            or not request.user.has_perm("worksheets.change_templateworksheet")
         ):
             return False
 
