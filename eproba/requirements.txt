@@ -13,7 +13,7 @@ pre-commit==4.1.0
 django-constance==4.3.2
 django-picklefield==3.2
 django-maintenance-mode==0.21.1
-google-api-python-client==2.161.0
+google-api-python-client==2.168.0
 python-dotenv==1.0.1
 psycopg[binary]==3.2.4
 drf-spectacular==0.28.0
