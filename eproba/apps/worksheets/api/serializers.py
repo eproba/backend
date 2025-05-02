@@ -96,7 +96,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
             if not task_name:
                 continue
             if task_name in existing_task_names:
-                # Update only name and description, clear other fields
+                # Update only the description of existing tasks
                 Task.objects.filter(task=task_name, worksheet=instance).update(
                     description=task_data.get("description", ""),
                 )

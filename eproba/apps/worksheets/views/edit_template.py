@@ -79,7 +79,7 @@ def edit_template(request, worksheet_id):
                         if "task" in t
                     ]
                 ):
-                    if any(x.task == task for x in old_tasks):
+                    if any((x.task, x.description) == task for x in old_tasks):
                         t = next(
                             (x for x in old_tasks if (x.task, x.description) == task),
                             None,
