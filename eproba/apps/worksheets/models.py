@@ -1,5 +1,6 @@
 import uuid
 
+from apps.teams.models import OrganizationChoice, Team
 from apps.users.models import User
 from django.db import models
 from django.db.models import UUIDField
@@ -31,11 +32,12 @@ class Worksheet(models.Model):
         verbose_name="Opiekun próby",
     )
     name = models.CharField(max_length=200, verbose_name="Nazwa próby")
+    description = models.TextField(blank=True, default="", verbose_name="Opis próby")
     is_archived = models.BooleanField(
         default=False, verbose_name="Próba zarchiwizowana?"
     )
-    is_template = models.BooleanField(default=False, verbose_name="Szablon?")
     deleted = models.BooleanField(default=False, verbose_name="Usunięta?")
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -77,3 +79,48 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         super(Task, self).save()
         self.worksheet.save()  # update updated_at
+
+
+class TemplateWorksheet(models.Model):
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    team = models.ForeignKey(
+        Team, related_name="templates", on_delete=models.CASCADE, null=True, blank=True
+    )
+    organization = models.IntegerField(
+        choices=OrganizationChoice.choices, null=True, blank=True
+    )
+    name = models.CharField(max_length=200, verbose_name="Nazwa szablonu")
+    description = models.TextField(blank=True, default="", verbose_name="Opis szablonu")
+    template_notes = models.TextField(
+        blank=True, default="", verbose_name="Notatki do szablonu"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Szablon"
+        verbose_name_plural = "Szablony"
+
+
+class TemplateTask(models.Model):
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    template = models.ForeignKey(
+        TemplateWorksheet, related_name="tasks", on_delete=models.CASCADE
+    )
+    task = models.CharField(max_length=250, verbose_name="Zadanie szablonu")
+    description = models.TextField(
+        blank=True, default="", verbose_name="Opis zadania szablonu"
+    )
+    template_notes = models.TextField(
+        blank=True, default="", verbose_name="Notatki do zadania szablonu"
+    )
+
+    def __str__(self):
+        return self.task
+
+    class Meta:
+        verbose_name = "Zadanie szablonu"
+        verbose_name_plural = "Zadania szablonu"

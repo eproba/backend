@@ -16,7 +16,13 @@ Including another URLconf
 
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
-from apps.teams.views.api import TeamRequestViewSet
+from apps.teams.api.views import (
+    DistrictViewSet,
+    PatrolViewSet,
+    TeamRequestViewSet,
+    TeamViewSet,
+)
+from apps.users.api.views import UserInfo, UserViewSet
 from apps.users.views import (
     change_password,
     delete_account,
@@ -31,6 +37,14 @@ from apps.users.views import (
     signup,
     verify_email,
     view_profile,
+)
+from apps.worksheets.api.views import (
+    SubmitTask,
+    TaskDetails,
+    TasksToBeChecked,
+    TemplateWorksheetViewSet,
+    UnsubmitTask,
+    WorksheetViewSet,
 )
 from django.conf import settings
 
@@ -55,16 +69,6 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     ApiConfigView,
-    DistrictViewSet,
-    PatrolViewSet,
-    SubmitTask,
-    TaskDetails,
-    TasksToBeChecked,
-    TeamViewSet,
-    UnsubmitTask,
-    UserInfo,
-    UserViewSet,
-    WorksheetViewSet,
 )
 
 handler404 = "apps.core.views.handler404"
@@ -74,6 +78,7 @@ handler500 = "apps.core.views.handler500"
 api = routers.DefaultRouter()
 api.register(r"fcm/devices", FCMDeviceAuthorizedViewSet, "fcm_devices")
 api.register(r"worksheets", WorksheetViewSet, "api-worksheets")
+api.register(r"templates", TemplateWorksheetViewSet, "api-templates")
 api.register(r"users", UserViewSet, "api-users")
 api.register(r"districts", DistrictViewSet, "api-districts")
 api.register(r"teams", TeamViewSet, "api-teams")
@@ -208,4 +213,6 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
+    path("tinymce/", include("tinymce.urls")),
+    path("wiki/", include("apps.wiki.urls")),
 ]

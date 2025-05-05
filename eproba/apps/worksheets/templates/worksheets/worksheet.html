@@ -18,6 +18,9 @@
                                 href="{% url 'view_profile' user_id=worksheet.supervisor.id %}">{{ worksheet.supervisor.full_name_nickname }}</a>
                         </h2>
                     {% endif %}
+                    {% if worksheet.description %}
+                        <p style="white-space: pre-wrap;">{{ worksheet.description }}</p>
+                    {% endif %}
                     <table class="table">
                         <thead>
                         <tr>
@@ -73,7 +76,8 @@
                     </table>
                     {% if not is_shared or user == worksheet.user %}
                         <div class="modal" id="qr_modal_{{ worksheet.id }}">
-                            <div class="modal-background" onclick="document.getElementById('qr_modal_{{ worksheet.id }}').classList.remove('is-active'); document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = '';"></div>
+                            <div class="modal-background"
+                                 onclick="document.getElementById('qr_modal_{{ worksheet.id }}').classList.remove('is-active'); document.getElementById('qr_modal_div_{{ worksheet.id }}').innerHTML = '';"></div>
                             <div class="modal-card">
                                 <header class="modal-card-head">
                                     <p class="modal-card-title">Kod QR</p>
@@ -91,7 +95,8 @@
                         </div>
                         {% if worksheet.percent != "100%" and not worksheet.is_archived %}
                             <div class="modal" id="request_task_check_modal_{{ worksheet.id }}">
-                                <div class="modal-background" onclick="document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.remove('is-active');"></div>
+                                <div class="modal-background"
+                                     onclick="document.getElementById('request_task_check_modal_{{ worksheet.id }}').classList.remove('is-active');"></div>
                                 <div class="modal-card">
                                     <header class="modal-card-head">
                                         <p class="modal-card-title">Wyślij prośbę o zatwierdzenie zadania</p>
@@ -244,8 +249,8 @@
                 const response = await fetch(`/worksheets/${button.dataset.worksheetId}/task/submit/`);
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(await response.text(), 'text/html');
-                document.getElementById(`request_task_check_modal_div_${ button.dataset.worksheetId }`).innerHTML = doc.getElementById('form').outerHTML;
-                document.getElementById(`request_task_check_modal_${ button.dataset.worksheetId }`).classList.add('is-active');
+                document.getElementById(`request_task_check_modal_div_${button.dataset.worksheetId}`).innerHTML = doc.getElementById('form').outerHTML;
+                document.getElementById(`request_task_check_modal_${button.dataset.worksheetId}`).classList.add('is-active');
             });
         });
     </script>

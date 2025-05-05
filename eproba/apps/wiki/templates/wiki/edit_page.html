@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block extrahead %}
+    <script src="{% static "tinymce/tinymce.min.js" %}"></script>
+    <script src="{% static "js/init_tinymce.js" %}"></script>
+{% endblock %}
+{% block content %}
+    <nav class="level is-mobile">
+        <div class="level-left is-flex-direction-row is-flex-shrink-1 is-overflow-x-auto">
+            <div class="level-item">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul class="is-flex-wrap-nowrap">
+                        <li><a href="{% url 'wiki:index' %}">Wiki</a></li>
+                        {% for crumb in page.folder.get_ancestors %}
+                            <li><a href="{% url 'wiki:folder' crumb.id %}">{{ crumb.name }}</a></li>
+                        {% endfor %}
+                        {% if page.folder %}
+                            <li><a href="{% url 'wiki:folder' page.folder.id %}"
+                                   aria-current="page">{{ page.folder.name }}</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </nav>
+    <h1 class="title">Edytuj stronę</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% if folder %}
+            <div class="field">
+                <label class="label">Folder</label>
+                <div class="control">
+                    <input class="input" type="text" value="{{ folder.name }}" disabled>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="field">
+            <label class="label">{{ form.title.label }}</label>
+            <div class="control">
+                {{ form.title }}
+            </div>
+            {% if form.title.errors %}
+                <p class="help is-danger">{{ form.title.errors }}</p>
+            {% endif %}
+        </div>
+
+        <div class="field">
+            <label class="label">{{ form.content.label }}</label>
+            <div class="control">
+                {{ form.content }}
+            </div>
+            {% if form.content.errors %}
+                <p class="help is-danger">{{ form.content.errors }}</p>
+            {% endif %}
+        </div>
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button type="submit" class="button is-primary">Zapisz</button>
+            </div>
+            <div class="control">
+                <a href="
+
+
+
+                        {% if folder %}{% url 'wiki:folder' folder.id %}{% else %}{% url 'wiki:index' %}{% endif %}"
+                   class="button is-light">Anuluj</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

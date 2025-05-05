@@ -1,6 +1,5 @@
+from apps.worksheets.models import Task, TemplateTask, TemplateWorksheet, Worksheet
 from rest_framework import serializers
-
-from .models import Task, Worksheet
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -26,6 +25,12 @@ class TaskSerializer(serializers.ModelSerializer):
         return Task.objects.get(id=instance.id)
 
 
+class TemplateTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateTask
+        fields = ["id", "task", "description", "template_notes"]
+
+
 class WorksheetSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, required=False)
 
@@ -34,6 +39,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "description",
             "user",
             "updated_at",
             "supervisor",
@@ -90,7 +96,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
             if not task_name:
                 continue
             if task_name in existing_task_names:
-                # Update only name and description, clear other fields
+                # Update only the description of existing tasks
                 Task.objects.filter(task=task_name, worksheet=instance).update(
                     description=task_data.get("description", ""),
                 )
@@ -105,3 +111,11 @@ class WorksheetSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+
+class TemplateWorksheetSerializer(serializers.ModelSerializer):
+    tasks = TemplateTaskSerializer(many=True, required=False)
+
+    class Meta:
+        model = TemplateWorksheet
+        fields = ["id", "name", "description", "template_notes", "tasks"]

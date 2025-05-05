@@ -1,22 +1,22 @@
 from apps.users.utils import min_function, patrol_required
+from django.db.models import Q
 from django.shortcuts import render
 
-from ..models import Worksheet
+from ..models import TemplateWorksheet
 
 
 @patrol_required
 @min_function(2)
 def templates(request):
-    worksheets = []
+    worksheet_templates = []
     if request.user.is_authenticated:
-        worksheets = Worksheet.objects.filter(
-            is_template=True,
-            user__patrol__team=request.user.patrol.team,
-            deleted=False,
+        worksheet_templates = TemplateWorksheet.objects.filter(
+            Q(team=request.user.patrol.team)
+            | Q(team=None, organization=request.user.patrol.team.organization)
         )
 
     return render(
         request,
         "worksheets/templates.html",
-        {"user": request.user, "worksheets_list": worksheets},
+        {"user": request.user, "worksheet_templates": worksheet_templates},
     )

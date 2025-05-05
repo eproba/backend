@@ -1,11 +1,63 @@
+from apps.teams.api.permissions import IsAllowedToAccessTeamRequest
+from apps.teams.api.serializers import TeamRequestSerializer
+from apps.teams.models import District, Patrol, Team, TeamRequest
 from django.conf import settings
 from django.core.mail import send_mail
 from rest_framework import mixins, status, viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from ..models import TeamRequest
-from ..permissions import IsAllowedToAccessTeamRequest
-from ..serializers import TeamRequestSerializer
+from .permissions import (
+    IsAllowedToManagePatrolOrReadOnly,
+    IsAllowedToManageTeamOrReadOnly,
+)
+from .serializers import (
+    DistrictSerializer,
+    PatrolSerializer,
+    TeamListSerializer,
+    TeamSerializer,
+)
+
+
+class DistrictViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = District.objects.all()
+    serializer_class = DistrictSerializer
+
+
+class TeamViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsAllowedToManageTeamOrReadOnly]
+
+    def get_queryset(self):
+        district = self.request.GET.get("district")
+        is_verified = self.request.GET.get("is_verified")
+        qs = Team.objects.all()
+        if district:
+            qs = qs.filter(district=district)
+        if is_verified is not None:
+            qs = qs.filter(is_verified=is_verified.lower() == "true")
+        return qs
+
+    def get_serializer_class(self):
+        if self.action == "list" and self.request.GET.get("with_patrols") != "true":
+            return TeamListSerializer
+        return TeamSerializer
+
+
+class PatrolViewSet(viewsets.ModelViewSet):
+    queryset = Patrol.objects.all()
+    serializer_class = PatrolSerializer
+    permission_classes = [IsAuthenticated, IsAllowedToManagePatrolOrReadOnly]
+
+    def perform_destroy(self, instance):
+        # Prevent deletion if patrol has active users
+        if instance.users.filter(is_active=True).exists():
+            from rest_framework.exceptions import APIException
+
+            exc = APIException("Patrol has active users.")
+            exc.status_code = 409
+            raise exc
+        instance.delete()
 
 
 class TeamRequestViewSet(

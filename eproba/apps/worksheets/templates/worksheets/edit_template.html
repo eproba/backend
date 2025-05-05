@@ -1,0 +1,96 @@
+{% extends 'core/base.html' %}
+{% block title %}Edytuj próbę - Epróba{% endblock %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block extrahead %}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
+    <script src="{% static 'js/worksheets/editor.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/worksheets/editor.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="box">
+        <form method="POST">
+            {% csrf_token %}
+            {{ worksheet|crispy }}
+            {{ tasks.management_form }}
+            <div class="level m-0">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1>Zadania:</h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <button class="button is-small is-outlined is-primary" type="button"
+                                id="additional-fields-button">
+                        <span class="icon">
+                            <i class="fa-solid fa-align-left"></i>
+                        </span>
+                            <span>Opisy zadań</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="box" id="tasks">
+                {% for form in tasks %}
+                    <div class="form-row field">
+                        <div class="field has-addons">
+                            <div class="field-label is-unselectable"
+                                 style="display: flex; align-items: center; flex-grow: 0">{{ forloop.counter }}.
+                            </div>
+                            <div class="field-body is-flex" id="field-body-{{ forloop.counter|add:"-1" }}"
+                                 style="width: 100%">
+                                <div class="control" id="input" style="width: 100%">
+                                    {{ form.task }}
+                                </div>
+                                <div class="control" id="action-button">
+                                    <button class="button add-form-row {% if not forloop.counter == tasks|length %}is-hidden{% endif %}"
+                                            id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"><i
+                                            class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="button remove-form-row {% if forloop.counter == tasks|length %}is-hidden{% endif %}"
+                                            id="id_form-{{ forloop.counter|add:"-1" }}-task-button" type="button"
+                                            tabindex="-1"><i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                                <div class="control" id="move-button">
+                                    <button class="button draggable"
+                                            style="cursor: move; user-select: none; background-color: transparent; touch-action: none"
+                                            onclick="this.blur();" type="button" tabindex="-1">
+                                        <i class="fa-solid fa-grip-vertical"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field additional-field is-hidden">
+                            <label class="label">Opis:</label>
+                            <div class="control">
+                                {{ form.description }}
+                            </div>
+                            <p class="help is-danger">{{ form.description.errors }}</p>
+                        </div>
+                        <div class="field additional-field is-hidden mb-4">
+                            <label class="label">Notatki (widoczne tylko w szablonie):</label>
+                            <div class="control">
+                                {{ form.template_notes }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="block">
+                <div class="container has-text-centered">
+                    <button type="submit" class="button is-outlined is-primary">
+                            <span class="icon">
+                                <i class="fas fa-pen"></i>
+                            </span>
+                        <span>Zapisz</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelector('#id_form-INITIAL_FORMS').value = 0; // To allow for removing the old tasks, probably not the best way to do it
+    </script>
+{% endblock %}

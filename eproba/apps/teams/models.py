@@ -3,6 +3,15 @@ import uuid
 from django.db import models
 
 
+class OrganizationChoice(models.IntegerChoices):
+    """
+    Czy drużyna należy do organizacji harcerek czy harcerzy
+    """
+
+    MALE = 0, "Organizacja Harcerzy"
+    FEMALE = 1, "Organizacja Harcerek"
+
+
 class District(models.Model):
     """
     Okręg
@@ -31,6 +40,9 @@ class Team(models.Model):
         District, on_delete=models.RESTRICT, related_name="teams"
     )
     is_verified = models.BooleanField(default=False)
+    organization = models.IntegerField(
+        choices=OrganizationChoice.choices, default=OrganizationChoice.choices[0][0]
+    )
 
     class Meta:
         verbose_name = "Drużyna"

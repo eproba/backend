@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% block content %}
+    <nav class="level is-mobile">
+        <div class="level-left is-flex-direction-row is-flex-shrink-1 is-overflow-x-auto">
+            <div class="level-item">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul class="is-flex-wrap-nowrap">
+                        <li><a href="{% url 'wiki:index' %}">Wiki</a></li>
+                        {% for folder in page.folder.get_ancestors %}
+                            <li><a href="{% url 'wiki:folder' folder.id %}">{{ folder.name }}</a></li>
+                        {% endfor %}
+                        {% if page.folder %}
+                            <li><a href="{% url 'wiki:folder' page.folder.id %}"
+                                   aria-current="page">{{ page.folder.name }}</a></li>
+                        {% endif %}
+                        <li class="is-active"><a href="#" aria-current="page">{{ page.title }}</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% if allow_edit %}
+            <div class="level-right is-flex-shrink-0">
+                <div class="level-item has-text-right">
+                    <i class="fa-solid fa-file-edit mr-2" style="cursor: pointer;"
+                       onclick="location.href='{% url 'wiki:edit_page' page.id %}'"></i>
+                </div>
+            </div>
+        {% endif %}
+    </nav>
+    <h1 class="title is-2">{{ page.title }}</h1>
+    <div class="box">
+        <div class="content">{{ page.content | safe }}
+        </div>
+    </div>
+{% endblock %}

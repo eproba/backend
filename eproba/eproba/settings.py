@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "apps.worksheets.apps.WorksheetConfig",
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
+    "apps.wiki.apps.WikiConfig",
     "crispy_forms",
     "crispy_bulma",
     "fcm_django",
@@ -70,6 +71,8 @@ INSTALLED_APPS = [
     "maintenance_mode",
     "drf_spectacular",
     "dbbackup",
+    "tinymce",
+    "treebeard",
 ]
 
 # Middleware
@@ -265,4 +268,27 @@ SPECTACULAR_SETTINGS = {
 DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
 DBBACKUP_STORAGE_OPTIONS = {
     "location": os.environ.get("DBBACKUP_STORAGE_LOCATION", BASE_DIR / "backups"),
+}
+
+# TinyMCE
+TINYMCE_DEFAULT_CONFIG = {
+    "promotion": False,
+    "menubar": "file edit view insert format tools table help",
+    "plugins": (
+        "advlist autolink lists link image charmap preview anchor searchreplace emoticons "
+        "visualblocks code fullscreen insertdatetime media table code help wordcount"
+    ),
+    "toolbar": (
+        "undo redo | "
+        "bold italic underline strikethrough | "
+        "blocks fontfamily fontsize | "
+        "alignleft aligncenter alignright alignjustify | "
+        "forecolor backcolor removeformat | "
+        "numlist bullist checklist | "
+        "outdent indent hr | "
+        "charmap emoticons | "
+        "fullscreen preview save | "
+        "insertfile image media pageembed template link anchor codesample | "
+        "code"
+    ),
 }
