@@ -105,7 +105,7 @@ class CustomUserAdmin(UserAdmin):
     readonly_fields = ("created_at",)
 
     def full_name(self, obj):
-        return obj.full_name() or obj.email
+        return obj.full_name or obj.email
 
     full_name.short_description = "Pełne imię"
 

@@ -30,6 +30,11 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 ).split(" ")
 SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:30000",
+    "http://dev-eproba.zhr.pl",
+    "https://eproba.zhr.pl",
+]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
@@ -73,6 +78,7 @@ INSTALLED_APPS = [
     "dbbackup",
     "tinymce",
     "treebeard",
+    "corsheaders",
 ]
 
 # Middleware
@@ -80,6 +86,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -118,10 +125,16 @@ AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
     "SCOPES": {
-        "read": "Odczytywanie zawartości i danych na twoim koncie",
-        "write": "Modyfikacja zawartoci i danych na twoim koncie",
+        "openid": "Dostęp do OpenID Connect",
+        "profile": "Wyświetlanie i edytowanie twojego profilu",
+        "email": "Wyświetlanie twojego adresu e-mail",
+        "read": "Odczytywanie zawartości i danych na twoim koncie [wycofane]",
+        "write": "Modyfikacja zawartoci i danych na twoim koncie [wycofane]",
     },
-    "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "com.czaplicki.eproba"],
+    "OIDC_ENABLED": True,
+    "OAUTH2_VALIDATOR_CLASS": "apps.users.oauth_validators.CustomOAuth2Validator",
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "http", "com.czaplicki.eproba"],
+    "REFRESH_TOKEN_GRACE_PERIOD_SECONDS": 120,
 }
 
 # Constance

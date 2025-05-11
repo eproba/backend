@@ -1,11 +1,24 @@
+from apps.users.api.serializers import PublicUserSerializer
 from apps.worksheets.models import Task, TemplateTask, TemplateWorksheet, Worksheet
 from rest_framework import serializers
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    approver_name = serializers.CharField(
+        source="approver.rank_nickname", read_only=True
+    )
+
     class Meta:
         model = Task
-        fields = ["id", "task", "description", "status", "approver", "approval_date"]
+        fields = [
+            "id",
+            "task",
+            "description",
+            "status",
+            "approver",
+            "approver_name",
+            "approval_date",
+        ]
 
     def update(self, instance, validated_data):
         task = validated_data
@@ -33,6 +46,11 @@ class TemplateTaskSerializer(serializers.ModelSerializer):
 
 class WorksheetSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, required=False)
+    user = PublicUserSerializer(read_only=True)
+    user_id = serializers.UUIDField(source="user.id", write_only=True)
+    supervisor_name = serializers.CharField(
+        source="supervisor.rank_nickname", read_only=True
+    )
 
     class Meta:
         model = Worksheet
@@ -41,8 +59,10 @@ class WorksheetSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "user",
+            "user_id",
             "updated_at",
             "supervisor",
+            "supervisor_name",
             "deleted",
             "is_archived",
             "tasks",

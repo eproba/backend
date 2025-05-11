@@ -29,7 +29,7 @@ def view_patrol(request, patrol_id):
             messages.error(request, "Nie jesteś przypisany do żadnej drużyny.")
             return redirect("frontpage")
         patrol = get_object_or_404(Patrol, id=patrol_id)
-        users = patrol.users.filter(is_active=True)
+        users = patrol.users.filter(is_active=True).order_by("nickname")
 
         return render(
             request,

@@ -12,7 +12,7 @@ class PatrolSerializer(serializers.ModelSerializer):
 class TeamListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ["id", "name", "short_name", "district", "is_verified"]
+        fields = ["id", "name", "short_name", "district", "is_verified", "organization"]
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -27,7 +27,15 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "name", "short_name", "district", "is_verified", "patrols"]
+        fields = [
+            "id",
+            "name",
+            "short_name",
+            "district",
+            "is_verified",
+            "patrols",
+            "organization",
+        ]
 
 
 class TeamRequestSerializer(serializers.ModelSerializer):

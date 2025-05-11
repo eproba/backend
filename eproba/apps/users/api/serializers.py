@@ -31,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
             "scout_rank",
             "instructor_rank",
             "function",
+            "gender",
         ]
 
 
@@ -63,4 +64,5 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "scout_rank",
             "instructor_rank",
             "function",
+            "gender",
         ]

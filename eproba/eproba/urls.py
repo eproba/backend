@@ -40,6 +40,7 @@ from apps.users.views import (
 )
 from apps.worksheets.api.views import (
     SubmitTask,
+    TaskActionView,
     TaskDetails,
     TasksToBeChecked,
     TemplateWorksheetViewSet,
@@ -64,6 +65,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
+from oauth2_provider.urls import oidc_urlpatterns
 from rest_framework import routers
 
 from .sitemaps import Sitemap
@@ -117,16 +119,25 @@ urlpatterns = [
     path("api/api-config/", ApiConfigView.as_view()),
     path("api/user/", UserInfo.as_view({"get": "list"})),
     path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
+        TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/",
         TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
     path("api/worksheets/tasks/tbc/", TasksToBeChecked.as_view()),
     path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/submit", SubmitTask.as_view()
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/submit",
+        SubmitTask.as_view(),  # Outdated URL
     ),
     path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/unsubmit",
+        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/unsubmit",  # Outdated URL
         UnsubmitTask.as_view(),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/<str:action>/",
+        TaskActionView.as_view(),
     ),
     path("contact/", contactView, name="contact"),
     path("worksheets/", include("apps.worksheets.urls")),
@@ -181,7 +192,8 @@ urlpatterns = [
     path(
         "oauth2/",
         include(
-            (oauth2_base_urlpatterns, oauth2_app_name), namespace="oauth2_provider"
+            (oauth2_base_urlpatterns + oidc_urlpatterns, oauth2_app_name),
+            namespace="oauth2_provider",
         ),
     ),
     path("site-management/", site_management, name="site_management"),

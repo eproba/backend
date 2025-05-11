@@ -73,11 +73,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name_nickname() or self.email
 
     def get_short_name(self):
-        return self.full_name() or self.email.split("@")[0]
+        return self.full_name or self.email.split("@")[0]
 
     def get_nickname(self):
-        return self.nickname or self.full_name() or self.email.split("@")[0]
+        return self.nickname or self.full_name or self.email.split("@")[0]
 
+    @property
     def full_name(self):
         return (
             f"{self.first_name} {self.last_name}"
@@ -88,6 +89,20 @@ class User(AbstractBaseUser, PermissionsMixin):
                 else self.last_name if self.last_name is not None else None
             )
         )
+
+    @property
+    def gender_string(self):
+        _gender = (
+            self.patrol.team.organization if self.patrol is not None else self.gender
+        )
+        if _gender == 0:
+            return "male"
+        elif _gender == 1:
+            return "female"
+        elif _gender == 2:
+            return "other"
+        else:
+            return None
 
     def full_name_nickname(self):
         return (
@@ -149,7 +164,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             scout_rank = self.get_scout_rank_display()
 
-        return f"{rank}{scout_rank}"
+        return f"{rank}{scout_rank if self.scout_rank >= 1 else ''}"
 
     def full_rank(self):
 
@@ -202,7 +217,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def rank_nickname(self):
-        return f"{self.rank()} {self.get_nickname()}"
+        return f"{self.rank() + ' ' if self.rank() else ''}{self.full_name_nickname()}"
 
     def to_dict(self):
         return {

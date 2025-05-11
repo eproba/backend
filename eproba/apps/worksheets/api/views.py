@@ -1,3 +1,4 @@
+from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
 from apps.users.tasks import clear_tokens
 from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
@@ -7,7 +8,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ParseError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -41,7 +42,7 @@ class WorksheetViewSet(viewsets.ModelViewSet):
 
             qs = qs.filter(updated_at__gt=datetime.fromtimestamp(int(last_sync)))
         if self.request.query_params.get("user") is not None:
-            return qs.filter(user=user, is_archived=False)
+            return qs.filter(user=user)
         if self.request.query_params.get("archived") is not None:
             return qs.filter(user__patrol__team=user.patrol.team, is_archived=True)
         # This is here for backward compatibility
@@ -186,3 +187,141 @@ class UnsubmitTask(APIView):
         task.approval_date = None
         task.save()
         return Response({"message": "Task unsubmitted"})
+
+
+class TaskActionView(APIView):
+    def get_permissions(self):
+        if self.kwargs.get("action") in ["submit", "unsubmit"]:
+            return [IsAuthenticated(), IsTaskOwner()]
+        else:  # accept, reject, clear
+            return [IsAuthenticated()]  # Could add a custom IsApprover permission here
+
+    def post(self, request, *args, **kwargs):
+        action = kwargs.get("action")
+        task = get_object_or_404(
+            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
+        )
+
+        if action == "submit":
+            return self.submit_task(request, task)
+        elif action == "unsubmit":
+            return self.unsubmit_task(task)
+        elif action == "accept":
+            return self.accept_task(request, task)
+        elif action == "reject":
+            return self.reject_task(request, task)
+        elif action == "clear":
+            return self.clear_status(request, task)
+        raise ParseError("Invalid action")
+
+    def get(self, request, *args, **kwargs):
+        action = kwargs.get("action")
+        task = get_object_or_404(
+            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
+        )
+
+        if action == "approvers":
+            return self.get_available_approvers(request, task)
+        raise ParseError("Invalid action")
+
+    def submit_task(self, request, task):
+        if request.data.get("approver") is None:
+            return Response({"detail": "Approver is required"}, status=422)
+        if task.status == 1:
+            raise ParseError("Task already submitted")
+        if task.status == 2:
+            raise ParseError("Task already approved")
+
+        task.status = 1
+        task.approver = User.objects.get(id=request.data["approver"])
+        task.approval_date = timezone.now()
+        task.save()
+
+        send_notification(
+            targets=task.approver,
+            title="Nowe zadanie do sprawdzenia",
+            body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
+            link=reverse("worksheets:check_tasks"),
+        )
+        return Response(TaskSerializer(task).data)
+
+    def unsubmit_task(self, task):
+        if task.status != 1:
+            raise ParseError("Task is not submitted")
+
+        task.status = 0
+        task.approver = None
+        task.approval_date = None
+        task.save()
+        return Response(TaskSerializer(task).data)
+
+    def accept_task(self, request, task):
+        old_status = task.status
+        task.status = 2
+        task.approver = request.user
+        task.approval_date = timezone.now()
+        task.save()
+        task.worksheet.save()  # Update worksheet timestamp
+
+        if old_status != 2:
+            send_notification(
+                targets=task.approver,
+                title="Zadanie zaakceptowane",
+                body=f"Twoje zadanie zostało zaakceptowane przez {request.user}",
+                link=reverse("worksheets:check_tasks"),
+            )
+        return Response(TaskSerializer(task).data)
+
+    def reject_task(self, request, task):
+        old_status = task.status
+        task.status = 3
+        task.approval_date = timezone.now()
+        task.approver = request.user
+        task.save()
+        task.worksheet.save()  # Update worksheet timestamp
+
+        if old_status not in [0, 3]:
+            send_notification(
+                targets=task.worksheet.user,
+                title="Zadanie odrzucone",
+                body=f"Twoje zadanie zostało odrzucone przez {request.user}",
+                link=f"https://eproba.zhr.pl/worksheets/{task.worksheet.id}",
+            )
+        return Response(TaskSerializer(task).data)
+
+    def clear_status(self, request, task):
+        task.status = 0
+        task.approval_date = None
+        task.approver = None
+        task.save()
+        return Response(TaskSerializer(task).data)
+
+    def get_available_approvers(self, request, task):
+        if task.status in [1, 2]:
+            raise PermissionDenied(
+                "Task already submitted or approved, so you don't need that information"
+            )
+
+        available_approvers = []
+
+        if task.worksheet.supervisor:
+            available_approvers.append(task.worksheet.supervisor)
+
+        if task.worksheet.user.patrol:
+            available_approvers.extend(
+                User.objects.filter(
+                    patrol=task.worksheet.user.patrol,
+                    function__gte=2,
+                ).exclude(id=task.worksheet.user.id)
+            )
+
+            if task.worksheet.user.patrol.team:
+                available_approvers.extend(
+                    User.objects.filter(
+                        patrol__team=task.worksheet.user.patrol.team,
+                        function__gte=3,
+                    ).exclude(id=task.worksheet.user.id)
+                )
+
+        available_approvers = list(set(available_approvers))
+        return Response(PublicUserSerializer(available_approvers, many=True).data)
