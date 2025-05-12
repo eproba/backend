@@ -35,6 +35,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://dev-eproba.zhr.pl",
     "https://eproba.zhr.pl",
 ]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 WSGI_APPLICATION = "eproba.wsgi.application"
 
