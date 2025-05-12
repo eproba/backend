@@ -32,7 +32,7 @@ SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:30000",
-    "http://dev-eproba.zhr.pl",
+    "https://dev-eproba.zhr.pl",
     "https://eproba.zhr.pl",
 ]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
