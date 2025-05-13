@@ -45,8 +45,6 @@ const API = {
     }
 };
 
-let users = [];
-
 async function deleteWorksheet(worksheetId) {
     const confirmed = confirm('Czy na pewno chcesz usunąć tę próbę?');
     if (!confirmed) return;
@@ -75,14 +73,6 @@ async function archiveWorksheet(worksheetId) {
 
 async function fetchWorksheets() {
     return API.get('/api/worksheets/');
-}
-
-async function fetchUsers() {
-    return API.get('/api/users/');
-}
-
-async function fetchUser(id) {
-    return API.get(`/api/users/${id}/`);
 }
 
 function calculatePercentage(tasks) {
@@ -117,32 +107,6 @@ function sortWorksheets(worksheets) {
     return worksheets.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 }
 
-async function renderMissingUsers(missingUsers) {
-    const userIds = [...new Set(missingUsers.map(({id}) => id))];
-
-    await Promise.all(
-        userIds.map(async (id) => {
-            const user = await fetchUser(id);
-            missingUsers
-                .filter(missingUser => missingUser.id === id)
-                .forEach(missingUser => updateUserElement(user, missingUser));
-        })
-    );
-}
-
-function updateUserElement(user, {element_id, type}) {
-    const element = document.getElementById(element_id);
-    const userInfo = `${user.rank} ${user.nickname || user.first_name + ' ' + user.last_name}`;
-    if (type === 'worksheet_title' || type === 'worksheet_supervisor') {
-        element.innerHTML = element.innerHTML.replace(/Nieznany użytkownik #[a-f0-9-]+/, userInfo);
-        if (type === 'worksheet_title') {
-            element.parentElement.dataset.patrolId = user.patrol;
-        }
-    } else if (type === 'task_status_icon') {
-        element.dataset.tooltip = element.dataset.tooltip.replace(/Nieznany użytkownik #[a-f0-9-]+/, userInfo);
-    }
-}
-
 function renderWorksheets(worksheets) {
     const worksheetsList = document.getElementById('worksheets-list');
     document.getElementById('loading').style.display = 'none';
@@ -152,62 +116,48 @@ function renderWorksheets(worksheets) {
     }
 
     const sortedWorksheets = sortWorksheets(worksheets);
-    const missingUsers = [];
 
     sortedWorksheets
         .filter(worksheet => !worksheet.deleted)
-        .forEach(worksheet => appendToParent(worksheetsList, renderWorksheet(worksheet, missingUsers)));
-
-    renderMissingUsers(missingUsers);
+        .forEach(worksheet => appendToParent(worksheetsList, renderWorksheet(worksheet)));
 }
 
-function renderWorksheet(worksheet, missingUsers) {
-    const {id, name, description, tasks, supervisor, updated_at} = worksheet;
+function renderWorksheet(worksheet) {
+    const {id, name, description, tasks, supervisor, supervisor_name, updated_at} = worksheet;
     return createElement('div', {
         id: `worksheet_${id}`,
         className: 'block worksheet show',
         attributes: {
             'data-tasks-count': tasks.length,
             'data-completed-tasks-count': tasks.filter(task => task.status === 2).length,
-            'data-patrol-id': findUser(worksheet.user, missingUsers, `worksheet-title_${id}`, 'worksheet_title').patrol
+            'data-patrol-id': worksheet.user.patrol
         },
         innerHTML: `
             <div class="box">
                 <div class="level mb-1">
                             <div class="level-left">
-                    <span class="level-item title has-text-weight-medium" style="margin-bottom: 0" id="worksheet-title_${id}">${name} - ${renderUserInfo(worksheet.user, missingUsers, id)}</span>
+                    <span class="level-item title has-text-weight-medium" style="margin-bottom: 0" id="worksheet-title_${id}">${name} - ${renderUserInfo(worksheet.user)}</span>
                     </div>
                     <div class="level-right">
-                    <div class="level-right is-gapless">${renderWorksheetActions(worksheet)}</div>
+                    <div class="level-right is-gapless is-flex-direction-row\t">${renderWorksheetActions(worksheet)}</div>
                     </div>
                 </div>
-                ${supervisor ? `<h2 class="subtitle" id="worksheet_supervisor_${id}">Opiekun próby: <a href="/profile/view/${supervisor}">${renderUserInfo(supervisor, missingUsers, id, 'worksheet_supervisor')}</a></h2>` : ''}
+                ${supervisor ? `<h2 class="subtitle mb-2" id="worksheet_supervisor_${id}">Opiekun próby: <a href="/profile/view/${supervisor}">${supervisor_name}</a></h2>` : ''}
                 <h2 class="subtitle is-6">Ostatnia edycja: <span id="worksheet-updated_${id}">${(new Date(updated_at)).toLocaleString()}</span></h2>
                 ${description ? `<p>${description}</p>` : ''}
                 <p><br/></p>
-                ${renderTasksTable(worksheet, missingUsers)}
+                <div style="overflow-x: auto;">
+                ${renderTasksTable(worksheet)}
+                </div>
             </div>
         `
     });
 }
 
-function renderUserInfo(userId, missingUsers, worksheetId, type = 'worksheet_title') {
-    const user = findUser(userId, missingUsers, `${type}_${worksheetId}`, type);
+function renderUserInfo(user) {
     return `${user.rank} ${user.nickname || user.first_name + ' ' + user.last_name}`;
 }
 
-function findUser(userId, missingUsers, element_id, type) {
-    let user = users.find(user => user.id === userId);
-    if (!user) {
-        if (userId !== null) {
-            missingUsers.push({id: userId, element_id, type});
-            user = {nickname: `Nieznany użytkownik #${userId}`, patrol: null, rank: ''};
-        } else {
-            user = {nickname: `Nieznany użytkownik`, patrol: null, rank: ''};
-        }
-    }
-    return user;
-}
 
 function renderWorksheetActions(worksheet) {
 
@@ -246,7 +196,7 @@ function renderDeleteWorksheetAction(id) {
     `;
 }
 
-function renderTasksTable(worksheet, missingUsers) {
+function renderTasksTable(worksheet) {
     const showDescription = worksheet.tasks.some(task => task.description);
     return `
         <table class="table">
@@ -273,20 +223,20 @@ function renderTasksTable(worksheet, missingUsers) {
                 </tr>
             </tfoot>
             <tbody>
-                ${renderTasks(worksheet, missingUsers, showDescription)}
+                ${renderTasks(worksheet, showDescription)}
             </tbody>
         </table>
     `;
 }
 
-function renderTasks(worksheet, missingUsers, showDescription = false) {
+function renderTasks(worksheet, showDescription = false) {
     return worksheet.tasks.map((task, i) => `
         <tr>
             <td>${i + 1}</td>
             <td>${task.task}</td>
             ${showDescription ? `<td>${task.description}</td>` : ''}
             <td class="task-status">
-                ${renderTaskStatus(task, missingUsers)}
+                ${renderTaskStatus(task)}
             </td>
             <td class="task-action">
                 <span class="has-tooltip-arrow has-tooltip-left has-tooltip-success" data-tooltip="Zatwierdź zadanie">
@@ -304,19 +254,19 @@ function renderTasks(worksheet, missingUsers, showDescription = false) {
     `).join('');
 }
 
-function renderTaskStatus(task, users = [], missingUsers = []) {
-    const {id, status, approver, approval_date} = task;
+function renderTaskStatus(task) {
+    const {id, status, approver_name, approval_date} = task;
     const iconClass = status === 3 ? 'fa-circle-xmark' : status === 2 ? 'fa-check-circle' : status === 1 ? 'fa-clock' : '';
     let tooltipMessage = "";
     switch (status) {
         case 3  :
-            tooltipMessage = `${renderUserInfo(approver, missingUsers, id, 'task_status_icon')}  odrzucił ${(new Date(approval_date)).toLocaleString()}`;
+            tooltipMessage = `${approver_name}  odrzucił ${(new Date(approval_date)).toLocaleString()}`;
             break;
         case 2:
-            tooltipMessage = `${renderUserInfo(approver, missingUsers, id, 'task_status_icon')}  zatwierdził ${(new Date(approval_date)).toLocaleString()}`;
+            tooltipMessage = `${approver_name}  zatwierdził ${(new Date(approval_date)).toLocaleString()}`;
             break;
         case 1:
-            tooltipMessage = `Zadanie oczekuje na zatwierdzenie ${renderUserInfo(approver, missingUsers, id, 'task_status_icon')} od ${(new Date(approval_date)).toLocaleString()}`;
+            tooltipMessage = `Zadanie oczekuje na zatwierdzenie ${approver_name} od ${(new Date(approval_date)).toLocaleString()}`;
             break;
         default:
             break;
@@ -373,7 +323,6 @@ function showErrorStatus(statusIcon) {
 
 
 (async () => {
-    users = await fetchUsers();
     const worksheets = await fetchWorksheets();
     renderWorksheets(worksheets);
 })();
