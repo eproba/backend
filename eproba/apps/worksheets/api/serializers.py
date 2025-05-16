@@ -75,10 +75,20 @@ class WorksheetSerializer(serializers.ModelSerializer):
             data["supervisor"] = None
             data["name"] = "Deleted"
             data["user"] = None
+            data["user_id"] = None
             data["is_archived"] = False
         return data
 
     def create(self, validated_data):
+        user_id = validated_data.pop("user_id", None)
+        if user_id:
+            from apps.users.models import User
+
+            try:
+                user = User.objects.get(id=user_id)
+                validated_data["user"] = user
+            except User.DoesNotExist:
+                raise serializers.ValidationError({"user_id": "User does not exist"})
         tasks = validated_data.pop("tasks") if "tasks" in validated_data else []
         worksheet = Worksheet.objects.create(**validated_data)
         for task in tasks:
@@ -86,6 +96,15 @@ class WorksheetSerializer(serializers.ModelSerializer):
         return worksheet
 
     def update(self, instance, validated_data):
+        user_id = validated_data.pop("user_id", None)
+        if user_id:
+            from apps.users.models import User
+
+            try:
+                user = User.objects.get(id=user_id)
+                validated_data["user"] = user
+            except User.DoesNotExist:
+                raise serializers.ValidationError({"user_id": "User does not exist"})
         tasks_data = validated_data.pop("tasks", None)
         instance.name = validated_data.get("name", instance.name)
         instance.user = validated_data.get("user", instance.user)

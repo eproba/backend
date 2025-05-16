@@ -73,10 +73,10 @@ class WorksheetViewSet(viewsets.ModelViewSet):
         remove_expired_deleted_worksheets()  # remove worksheets deleted more than 30 days ago, it's here as a temporary solution
 
     def perform_create(self, serializer):
-        if serializer.validated_data.get("user") is None:
-            serializer.save(user=self.request.user)
+        if serializer.validated_data.get("user_id") is None:
+            serializer.save(user_id=self.request.user.id)
         elif (
-            serializer.validated_data.get("user") != self.request.user
+            serializer.validated_data.get("user_id") != self.request.user.id
             and self.request.user.function < 2
         ):
             raise PermissionDenied("You can't create worksheets for other user")
