@@ -36,7 +36,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
-
     team = serializers.UUIDField(
         read_only=True, required=False, source="patrol.team.id"
     )

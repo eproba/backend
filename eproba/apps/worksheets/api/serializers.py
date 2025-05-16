@@ -47,7 +47,7 @@ class TemplateTaskSerializer(serializers.ModelSerializer):
 class WorksheetSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, required=False)
     user = PublicUserSerializer(read_only=True)
-    user_id = serializers.UUIDField(source="user.id", write_only=True)
+    user_id = serializers.UUIDField(source="user.id")  # will be write-only in future
     supervisor_name = serializers.CharField(
         source="supervisor.rank_nickname", read_only=True
     )

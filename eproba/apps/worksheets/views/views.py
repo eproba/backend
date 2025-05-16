@@ -54,10 +54,11 @@ def print_worksheet(request, id):
             content_type="application/pdf",
         )
     except NameError:
-        messages.add_message(
-            request, messages.ERROR, "Weasyprint nie jest zainstalowany."
+        return HttpResponse(
+            "Weasyprint is not installed, PDF generation is not possible.\nContact the administrator for help.",
+            content_type="text/plain",
+            status=500,
         )
-        return redirect(reverse("worksheets:worksheets"))
     response["Content-Disposition"] = (
         f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
     )
@@ -79,10 +80,11 @@ def print_worksheet_template(request, id):
             content_type="application/pdf",
         )
     except NameError:
-        messages.add_message(
-            request, messages.ERROR, "Weasyprint nie jest zainstalowany."
+        return HttpResponse(
+            "Weasyprint is not installed, PDF generation is not possible.\nContact the administrator for help.",
+            content_type="text/plain",
+            status=500,
         )
-        return redirect(reverse("worksheets:worksheets"))
     response["Content-Disposition"] = (
         f'inline; filename="{unidecode(str(worksheet_template))} - Epróba.pdf"'
     )

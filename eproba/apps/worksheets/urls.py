@@ -27,6 +27,7 @@ urlpatterns = [
     ),
     path("tasks/check/", views.check_tasks, name="check_tasks"),
     path("templates/", views.templates, name="templates"),
+    path("<uuid:id>/print/", views.print_worksheet, name="print_worksheet"),
     path(
         "<uuid:worksheet_id>/task/<uuid:task_id>/accept/",
         views.accept_task,
