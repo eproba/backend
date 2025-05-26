@@ -117,7 +117,14 @@ def google_auth_receiver(request):
         if not user.last_name:
             user.last_name = user_data.get("family_name", "")
 
-    login(request, user)
+    if not user.is_active:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Konto jest deaktywowane, nie możesz się zalogować.",
+        )
+
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
     if created:
         return redirect(f"{reverse('signup')}?next={state}&finish_signup=true")

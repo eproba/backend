@@ -23,7 +23,7 @@ from apps.teams.api.views import (
     TeamRequestViewSet,
     TeamViewSet,
 )
-from apps.users.api.views import UserInfo, UserViewSet
+from apps.users.api.views import ChangePasswordView, UserInfo, UserViewSet
 from apps.users.views import (
     change_password,
     delete_account,
@@ -119,7 +119,13 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/api-config/", ApiConfigView.as_view()),
-    path("api/user/", UserInfo.as_view({"get": "list"})),
+    path(
+        "api/user/",
+        UserInfo.as_view(
+            {"get": "retrieve", "patch": "partial_update", "delete": "destroy"}
+        ),
+    ),
+    path("api/user/password/", ChangePasswordView.as_view(), name="change_password"),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
         TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),

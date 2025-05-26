@@ -1,11 +1,15 @@
 from apps.users.models import User
-from rest_framework import mixins, viewsets
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from rest_framework import mixins, serializers, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
 
 from .permissions import IsAllowedToManageUserOrReadOnly
-from .serializers import PublicUserSerializer, UserSerializer
+from .serializers import ChangePasswordSerializer, PublicUserSerializer, UserSerializer
 
 
 class UserViewSet(
@@ -33,7 +37,7 @@ class UserViewSet(
 
     def perform_update(self, serializer):
         # Example check for promotion restrictions
-        data = serializer.validated_data.get("user")
+        data = serializer.validated_data
         if data and data.get("function", 0) > self.request.user.function:
             from rest_framework.exceptions import PermissionDenied
 
@@ -46,9 +50,73 @@ class UserViewSet(
         return Response(serializer.data)
 
 
-class UserInfo(viewsets.ModelViewSet):
+class UserInfo(
+    viewsets.GenericViewSet,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
+
+    ALLOWED_UPDATE_FIELDS = [
+        "nickname",
+        "first_name",
+        "last_name",
+        "email",
+        "patrol",
+        "is_active",
+    ]
+
+    def get_object(self):
+        return self.request.user
+
+    def perform_update(self, serializer):
+        data = serializer.validated_data
+        for field in data.keys():
+            if field not in self.ALLOWED_UPDATE_FIELDS:
+                raise serializers.ValidationError(
+                    f"Field '{field}' is not allowed to be updated."
+                )
+        if data.get("patrol", self.request.user.patrol) != self.request.user.patrol:
+            if (
+                not data.get("patrol")
+                or not self.request.user.patrol
+                or data["patrol"].team != self.request.user.patrol.team
+            ):
+                data["function"] = 0
+            elif self.request.user.function <= 2:
+                data["function"] = 0
+
+        serializer.save()
+
+
+class ChangePasswordView(APIView):
+    """
+    API view for changing user password.
+    """
+
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        return Response(self.get_serializer(request.user).data)
+    def post(self, request):
+        user = request.user
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={"request": request}
+        )
+
+        if serializer.is_valid():
+            try:
+                validate_password(serializer.validated_data["new_password"], user)
+            except ValidationError as e:
+                return Response(
+                    {"new_password": e.messages}, status=HTTP_400_BAD_REQUEST
+                )
+
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+
+            return Response(
+                {"detail": "Password successfully changed"}, status=HTTP_200_OK
+            )
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

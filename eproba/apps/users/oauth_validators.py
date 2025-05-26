@@ -6,6 +6,9 @@ class CustomOAuth2Validator(OAuth2Validator):
     oidc_claim_scope.update(
         {
             "patrol": "profile",
+            "patrol_name": "profile",
+            "team": "profile",
+            "team_name": "profile",
             "rank": "profile",
             "scout_rank": "profile",
             "instructor_rank": "profile",
@@ -28,6 +31,9 @@ class CustomOAuth2Validator(OAuth2Validator):
             "gender": request.user.gender_string,
             # Custom claims
             "patrol": request.user.patrol.id,
+            "patrol_name": request.user.patrol.name,
+            "team": request.user.patrol.team.id,
+            "team_name": request.user.patrol.team.name,
             "rank": request.user.full_rank(),
             "scout_rank": request.user.scout_rank,
             "instructor_rank": request.user.instructor_rank,

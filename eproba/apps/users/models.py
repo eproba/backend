@@ -86,7 +86,11 @@ class User(AbstractBaseUser, PermissionsMixin):
             else (
                 self.first_name
                 if self.first_name is not None
-                else self.last_name if self.last_name is not None else None
+                else (
+                    self.last_name
+                    if self.last_name is not None
+                    else self.email.split("@")[0]
+                )
             )
         )
 

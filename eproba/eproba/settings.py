@@ -31,7 +31,7 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:30000",
+    "http://localhost:3000",
     "https://dev-eproba.zhr.pl",
     "https://eproba.zhr.pl",
 ]
@@ -230,7 +230,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "pwned_passwords_django.validators.PwnedPasswordsValidator",
         "OPTIONS": {
-            "error_message": "To hasło zostało znalezione w bazie haseł, które zostały ujawnione w wyniku różnych ataków. Wybierz inne hasło. Aby dowiedzieć się więcej, odwiedź https://haveibeenpwned.com",
+            "error_message": "To hasło zostało znalezione w bazie haseł, które zostały ujawnione w wyniku różnych ataków.",
             "help_message": "Twoje hasło nie może być używane w zbyt wielu miejscach.",
         },
     },
