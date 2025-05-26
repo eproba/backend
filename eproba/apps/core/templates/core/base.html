@@ -69,7 +69,7 @@
     <script>
         const csrfToken = "{{ csrf_token }}";
     </script>
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and not request.GET.embed %}
         <script async type="module" src="{% static 'js/core/firebase.js' %}"></script>
     {% endif %}
 </head>
@@ -98,7 +98,7 @@
         DEV
     </div>
 {% endif %}
-{% if not request.user.is_authenticated and google_auth_enabled %}
+{% if not request.user.is_authenticated and google_auth_enabled and not request.GET.embed %}
     <div id="g_id_onload"
          data-client_id="897419344971-f2uj5udmpk698ur529di5ens7ufogclg.apps.googleusercontent.com"
          data-context="use"
@@ -108,26 +108,32 @@
          data-itp_support="true">
     </div>
 {% endif %}
-<div class="container" id="container" style="display: flex; flex-direction: column;">
-    {% include "core/navbar.html" %}
+<div {% if not request.GET.embed %} class="container" id="container" {% endif %}
+                                    style="display: flex; flex-direction: column;">
+    {% if not request.GET.embed %}
+        {% include "core/navbar.html" %}
+    {% endif %}
     <br>
     {% block subnavbarcontent %}
     {% endblock %}
-    <div class="container px-3"
-         style="position: relative; margin-bottom: 10vh;display: flex; flex-direction: column;width: 100%;">
+    <div {% if not request.GET.embed %} class="container px-3" {% else %} class="px-4" {% endif %}
+                                        style="position: relative; {% if not request.GET.embed %} margin-bottom: 10vh {% endif %};display: flex; flex-direction: column;width: 100%;">
         {% block content %}
         {% endblock %}
     </div>
 </div>
 <div id="notifications" style="z-index: 50; position: fixed; bottom: 10px; right: 10px"></div>
-{% block footer %}
-    <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-        <div style="border-top: 1px solid #dee2e6; padding-bottom: 0.5rem"></div>
-        <p class="has-text-centered">
-            <strong>Epróba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source code
-            is available on <a href="https://github.com/eproba">Github</a>.
-        </p>
-    </div>
-{% endblock %}
+{% if not request.GET.embed %}
+    {% block footer %}
+        <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
+            <div style="border-top: 1px solid #dee2e6; padding-bottom: 0.5rem"></div>
+            <p class="has-text-centered">
+                <strong>Epróba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source
+                code
+                is available on <a href="https://github.com/eproba">Github</a>.
+            </p>
+        </div>
+    {% endblock %}
+{% endif %}
 </body>
 </html>

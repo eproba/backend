@@ -45,6 +45,10 @@ class WorksheetViewSet(viewsets.ModelViewSet):
             return qs.filter(user=user)
         if self.request.query_params.get("archived") is not None:
             return qs.filter(user__patrol__team=user.patrol.team, is_archived=True)
+        if self.request.query_params.get("review") is not None:
+            return qs.filter(
+                tasks__approver=self.request.user, tasks__status=1
+            ).distinct()
         # This is here for backward compatibility
         if self.request.query_params.get("templates") is not None:
             return TemplateWorksheet.objects.filter(
@@ -191,10 +195,10 @@ class UnsubmitTask(APIView):
 
 class TaskActionView(APIView):
     def get_permissions(self):
-        if self.kwargs.get("action") in ["submit", "unsubmit"]:
+        if self.kwargs.get("action") in ["submit", "unsubmit", "approvers"]:
             return [IsAuthenticated(), IsTaskOwner()]
         else:  # accept, reject, clear
-            return [IsAuthenticated()]  # Could add a custom IsApprover permission here
+            return [IsAuthenticated()]  # TODO: implement IsAllowedToManageTask
 
     def post(self, request, *args, **kwargs):
         action = kwargs.get("action")

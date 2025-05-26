@@ -31,6 +31,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         district = self.request.GET.get("district")
         is_verified = self.request.GET.get("is_verified")
+        organization = self.request.GET.get("organization")
         qs = Team.objects.all()
         if self.request.GET.get("user") is not None:
             qs = qs.filter(patrols__users=self.request.user)
@@ -38,6 +39,8 @@ class TeamViewSet(viewsets.ModelViewSet):
             qs = qs.filter(district=district)
         if is_verified is not None:
             qs = qs.filter(is_verified=is_verified.lower() == "true")
+        if organization:
+            qs = qs.filter(organization=int(organization))
         return qs
 
     def get_serializer_class(self):

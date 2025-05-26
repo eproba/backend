@@ -141,9 +141,7 @@
                     <button class="delete" aria-label="close"
                             onclick="document.getElementById('create-folder-modal').classList.remove('is-active')"></button>
                 </header>
-                <form method="post" action="
-
-                        {% if current_folder %}{% url 'wiki:create_folder' current_folder.id %}{% else %}{% url 'wiki:create_root_folder' %}{% endif %}">
+                <form method="post" action="{% if current_folder %}{% url 'wiki:create_folder' current_folder.id %}{% else %}{% url 'wiki:create_root_folder' %}{% endif %}">
                     <section class="modal-card-body">
                         {% csrf_token %}
                         <div class="field">
