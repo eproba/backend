@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from ..users.models import User
 
-STATUS = ((0, "Draft"), (1, "Publish"))
+STATUS = ((0, "draft"), (1, "published"), (2, "archived"))
 
 
 class Post(models.Model):
@@ -20,7 +20,22 @@ class Post(models.Model):
     content = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=0)
+    authorized_only = models.BooleanField(
+        default=False,
+        help_text="Czy post jest dostępny tylko dla zalogowanych użytkowników?",
+    )
     minimum_function = models.IntegerField(choices=User.FUNCTION_CHOICES, default=0)
+    pinned = models.BooleanField(
+        default=False, help_text="Czy post jest przypięty na stronie głównej?"
+    )
+    priority = models.IntegerField(
+        default=0,
+        help_text="Priorytet postu (wyższy priorytet = wyższa pozycja na liście)",
+    )
+    hidden = models.BooleanField(
+        default=False,
+        help_text="Czy post jest ukryty - nie będzie wyświetlany na liście postów.",
+    )
 
     class Meta:
         ordering = ["-created_on"]

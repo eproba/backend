@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from apps.blog.api.views import PostViewSet
 from apps.blog.sitemaps import PostSitemap
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
 from apps.teams.api.views import (
@@ -86,6 +87,7 @@ api.register(r"districts", DistrictViewSet, "api-districts")
 api.register(r"teams", TeamViewSet, "api-teams")
 api.register(r"patrols", PatrolViewSet, "api-patrols")
 api.register(r"team-requests", TeamRequestViewSet, basename="team-requests")
+api.register("news", PostViewSet, basename="news")
 
 sitemaps = {
     "posts": PostSitemap,
