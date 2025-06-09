@@ -77,15 +77,34 @@ class WorksheetViewSet(viewsets.ModelViewSet):
         remove_expired_deleted_worksheets()  # remove worksheets deleted more than 30 days ago, it's here as a temporary solution
 
     def perform_create(self, serializer):
-        if serializer.validated_data.get("user_id") is None:
-            serializer.save(user_id=self.request.user.id)
-        elif (
-            serializer.validated_data.get("user_id") != self.request.user.id
-            and self.request.user.function < 2
-        ):
-            raise PermissionDenied("You can't create worksheets for other user")
+        user_data = serializer.validated_data.get("user")
+        user_id = user_data.get("id") if user_data else None
+
+        if user_id:
+            # Only function level 2+ can create worksheets for others
+            if user_id != self.request.user.id and self.request.user.function < 2:
+                raise PermissionDenied("You can't create worksheets for other user")
+
+            from apps.users.models import User
+
+            user = User.objects.get(id=user_id)
+            serializer.save(user=user)
         else:
-            serializer.save()
+            # Default to current user if no user specified
+            serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        user_data = serializer.validated_data.get("user")
+        user_id = user_data.get("id") if user_data else None
+        if user_id:
+            if user_id != self.request.user.id and self.request.user.function < 2:
+                raise PermissionDenied("You can't update worksheets for other user")
+
+            from apps.users.models import User
+
+            user = User.objects.get(id=user_id)
+            serializer.validated_data["user"] = user
+        serializer.save()
 
 
 class TaskDetails(viewsets.ModelViewSet):

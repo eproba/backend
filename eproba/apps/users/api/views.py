@@ -1,7 +1,10 @@
 from apps.users.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from rest_framework import mixins, serializers, viewsets
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -47,6 +50,44 @@ class UserViewSet(
     def retrieve(self, request, *args, **kwargs):
         instance = get_object_or_404(User, pk=kwargs["pk"])
         serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def search(self, request):
+        """
+        Search users by nickname, email, first name, or last name.
+        """
+        query = request.query_params.get("q", "")
+        search_outside_team = (
+            request.query_params.get("outside_team", "false").lower() == "true"
+        )
+        if not query:
+            return Response(
+                {"detail": "Query parameter 'q' is required."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        if not len(query.strip()) >= 3:
+            return Response(
+                {"detail": "Query parameter 'q' must be at least 3 characters long."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        users = User.objects.annotate(
+            _full_name=Concat(
+                "first_name", Value(" "), "last_name", Value(" "), "nickname"
+            )
+        ).filter(
+            Q(nickname__icontains=query)
+            | Q(email__icontains=query)
+            | Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+            | Q(_full_name__icontains=query)
+        )
+        if not search_outside_team:
+            users = users.filter(patrol__team=self.request.user.patrol.team)
+
+        serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
 
 

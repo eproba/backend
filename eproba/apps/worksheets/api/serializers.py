@@ -4,9 +4,15 @@ from rest_framework import serializers
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    """Serializer for a Task model with improved maintainability."""
+
     approver_name = serializers.CharField(
         source="approver.rank_nickname", read_only=True
     )
+    worksheet = serializers.PrimaryKeyRelatedField(
+        queryset=Worksheet.objects.all(), write_only=True, required=False
+    )
+    clear_status = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = Task
@@ -18,39 +24,64 @@ class TaskSerializer(serializers.ModelSerializer):
             "approver",
             "approver_name",
             "approval_date",
+            "worksheet",
+            "notes",
+            "category",
+            "order",
+            "clear_status",
         ]
 
+    def to_representation(self, instance):
+        """Custom representation to hide notes field based on user permissions."""
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+
+        # Hide notes field if user doesn't have sufficient permissions
+        if request and hasattr(request, "user") and request.user.is_authenticated:
+            if request.user.function < 4:
+                data.pop("notes", None)
+        else:
+            data.pop("notes", None)
+
+        return data
+
     def update(self, instance, validated_data):
-        task = validated_data
-        Task.objects.filter(id=instance.id).update(
-            task=task["task"] if "task" in task else instance.task,
-            description=(
-                task["description"] if "description" in task else instance.description
-            ),
-            approver=task["approver"] if "approver" in task else instance.approver,
-            status=task["status"] if "status" in task else instance.status,
-            approval_date=(
-                task["approval_date"]
-                if "approval_date" in task
-                else instance.approval_date
-            ),
-        )
-        return Task.objects.get(id=instance.id)
+        """Update method with clear_status functionality."""
+        # Handle clear_status field
+        clear_status = validated_data.pop("clear_status", False)
+        if clear_status:
+            validated_data["status"] = 0
+            validated_data["approval_date"] = None
+            validated_data["approver"] = None
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class TemplateTaskSerializer(serializers.ModelSerializer):
+    """Serializer for TemplateTask model."""
+
     class Meta:
         model = TemplateTask
-        fields = ["id", "task", "description", "template_notes"]
+        fields = ["id", "task", "description", "template_notes", "category", "order"]
 
 
 class WorksheetSerializer(serializers.ModelSerializer):
+    """
+    Serializer for a Worksheet model with nested task management.
+    """
+
     tasks = TaskSerializer(many=True, required=False)
     user = PublicUserSerializer(read_only=True)
-    user_id = serializers.UUIDField(source="user.id")  # will be write-only in future
+    user_id = serializers.UUIDField(
+        source="user.id", required=False
+    )  # will be write-only in future
     supervisor_name = serializers.CharField(
         source="supervisor.rank_nickname", read_only=True
     )
+    is_deleted = serializers.BooleanField(source="deleted", read_only=True)
 
     class Meta:
         model = Worksheet
@@ -61,100 +92,216 @@ class WorksheetSerializer(serializers.ModelSerializer):
             "user",
             "user_id",
             "updated_at",
+            "created_at",
             "supervisor",
             "supervisor_name",
             "deleted",
+            "is_deleted",
             "is_archived",
             "tasks",
+            "notes",
         ]
 
     def to_representation(self, instance):
+        """Custom representation for deleted worksheets and permission-based field access."""
         data = super().to_representation(instance)
+        request = self.context.get("request")
+
         if instance.deleted:
-            data["tasks"] = []
-            data["supervisor"] = None
-            data["name"] = "Deleted"
-            data["user"] = None
-            data["user_id"] = None
-            data["is_archived"] = False
+            # Hide most of the data for deleted worksheets
+            data.update(
+                {
+                    "tasks": [],
+                    "supervisor": None,
+                    "name": "Deleted",
+                    "user": None,
+                    "is_archived": False,
+                    "notes": "",
+                    "description": "",
+                }
+            )
+
+        # Hide notes field if user doesn't have sufficient permissions
+        if request.user.function < 4:
+            data.pop("notes", None)
+        else:
+            data.pop("notes", None)
+
         return data
 
-    def create(self, validated_data):
-        user_id = validated_data.pop("user_id", None)
-        if user_id:
+    def validate_user_id(self, value):
+        """Validate that the user exists."""
+        if value:
             from apps.users.models import User
 
-            try:
-                user = User.objects.get(id=user_id)
-                validated_data["user"] = user
-            except User.DoesNotExist:
-                raise serializers.ValidationError({"user_id": "User does not exist"})
-        tasks = validated_data.pop("tasks") if "tasks" in validated_data else []
+            if not User.objects.filter(id=value).exists():
+                raise serializers.ValidationError("User does not exist")
+        return value
+
+    def create(self, validated_data):
+        # Extract tasks data before creating worksheet
+        tasks_data = validated_data.pop("tasks", [])
+
+        # Create worksheet instance
         worksheet = Worksheet.objects.create(**validated_data)
-        for task in tasks:
-            Task.objects.create(worksheet=worksheet, **task)
+
+        # Create tasks
+        self._create_tasks(worksheet, tasks_data)
+
         return worksheet
 
-    def update(self, instance, validated_data):
-        user_id = validated_data.pop("user_id", None)
-        if user_id:
-            from apps.users.models import User
+    def _create_tasks(self, worksheet, tasks_data):
+        """Create tasks for a worksheet using TaskSerializer."""
+        for task_data in tasks_data:
+            if task_data.get("task"):  # Only create if task name exists
+                task_data["worksheet"] = worksheet.id
+                task_serializer = TaskSerializer(data=task_data, context=self.context)
+                task_serializer.is_valid(raise_exception=True)
+                task_serializer.save()
 
-            try:
-                user = User.objects.get(id=user_id)
-                validated_data["user"] = user
-            except User.DoesNotExist:
-                raise serializers.ValidationError({"user_id": "User does not exist"})
+    def update(self, instance, validated_data):
+        # Extract tasks data before updating worksheet
         tasks_data = validated_data.pop("tasks", None)
-        instance.name = validated_data.get("name", instance.name)
-        instance.user = validated_data.get("user", instance.user)
-        if validated_data.get("supervisor"):
-            instance.supervisor.user = validated_data.get("supervisor", None)
-        instance.deleted = validated_data.get("deleted", instance.deleted)
-        instance.is_archived = validated_data.get("is_archived", instance.is_archived)
+
+        # Update worksheet fields using Django's standard approach
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
 
-        if tasks_data is None:
-            return instance
-
-        # Remove duplicates from tasks_data
-        tasks_data = list({task["task"]: task for task in tasks_data}.values())
-
-        existing_task_names = set(instance.tasks.values_list("task", flat=True))
-        incoming_task_names = {
-            task.get("task") for task in tasks_data if task.get("task")
-        }
-
-        # Delete tasks that are not in tasks_data
-        Task.objects.filter(
-            task__in=existing_task_names - incoming_task_names, worksheet=instance
-        ).delete()
-
-        for task_data in tasks_data:
-            task_name = task_data.get("task", None)
-            if not task_name:
-                continue
-            if task_name in existing_task_names:
-                # Update only the description of existing tasks
-                Task.objects.filter(task=task_name, worksheet=instance).update(
-                    description=task_data.get("description", ""),
-                )
-            else:
-                Task.objects.create(
-                    worksheet=instance,
-                    task=task_name,
-                    description=task_data.get("description", ""),
-                    status=0,
-                    approver=None,
-                    approval_date=None,
-                )
+        # Handle tasks update if provided
+        if tasks_data is not None:
+            self._update_tasks(instance, tasks_data)
 
         return instance
 
+    def _update_tasks(self, worksheet, tasks_data):
+        """
+        Update tasks for a worksheet using TaskSerializer.
+        """
+        # Get current tasks mapped by ID for efficient lookup
+        existing_tasks = {str(task.id): task for task in worksheet.tasks.all()}
+
+        # Track which task IDs are being updated/created
+        processed_task_ids = set()
+
+        for task_data in tasks_data:
+            task_data["worksheet"] = worksheet.id
+            task_id = task_data.get("id")
+
+            if task_id and str(task_id) in existing_tasks:
+                # Update existing task using TaskSerializer
+                processed_task_ids.add(str(task_id))
+                task_instance = existing_tasks[str(task_id)]
+                task_serializer = TaskSerializer(
+                    task_instance, data=task_data, context=self.context, partial=True
+                )
+                task_serializer.is_valid(raise_exception=True)
+                task_serializer.save()
+            else:
+                # Create new task using TaskSerializer
+                task_serializer = TaskSerializer(data=task_data, context=self.context)
+                task_serializer.is_valid(raise_exception=True)
+                saved_task = task_serializer.save()
+                processed_task_ids.add(str(saved_task.id))
+
+        # Remove tasks that are no longer in the data
+        task_ids_to_remove = set(existing_tasks.keys()) - processed_task_ids
+        if task_ids_to_remove:
+            worksheet.tasks.filter(id__in=task_ids_to_remove).delete()
+
 
 class TemplateWorksheetSerializer(serializers.ModelSerializer):
+    """Serializer for TemplateWorksheet model with nested template tasks."""
+
     tasks = TemplateTaskSerializer(many=True, required=False)
 
     class Meta:
         model = TemplateWorksheet
-        fields = ["id", "name", "description", "template_notes", "tasks"]
+        fields = [
+            "id",
+            "name",
+            "description",
+            "template_notes",
+            "tasks",
+            "created_at",
+            "updated_at",
+            "team",
+            "organization",
+        ]
+
+    def create(self, validated_data):
+        """Create a template worksheet with nested template tasks."""
+        # Extract tasks data before creating template worksheet
+        tasks_data = validated_data.pop("tasks", [])
+
+        # Create template worksheet instance
+        template_worksheet = TemplateWorksheet.objects.create(**validated_data)
+
+        # Create template tasks
+        self._create_template_tasks(template_worksheet, tasks_data)
+
+        return template_worksheet
+
+    def _create_template_tasks(self, template_worksheet, tasks_data):
+        """Create template tasks for a template worksheet using TemplateTaskSerializer."""
+        for task_data in tasks_data:
+            if task_data.get("task"):  # Only create if task name exists
+                task_data["template"] = template_worksheet.id
+                task_serializer = TemplateTaskSerializer(
+                    data=task_data, context=self.context
+                )
+                task_serializer.is_valid(raise_exception=True)
+                task_serializer.save()
+
+    def update(self, instance, validated_data):
+        """Update a template worksheet with nested template tasks."""
+        # Extract tasks data before updating template worksheet
+        tasks_data = validated_data.pop("tasks", None)
+
+        # Update template worksheet fields using Django's standard approach
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Handle template tasks update if provided
+        if tasks_data is not None:
+            self._update_template_tasks(instance, tasks_data)
+
+        return instance
+
+    def _update_template_tasks(self, template_worksheet, tasks_data):
+        """
+        Update template tasks for a template worksheet using TemplateTaskSerializer.
+        """
+        # Get current template tasks mapped by ID for efficient lookup
+        existing_tasks = {str(task.id): task for task in template_worksheet.tasks.all()}
+
+        # Track which task IDs are being updated/created
+        processed_task_ids = set()
+
+        for task_data in tasks_data:
+            task_data["template"] = template_worksheet.id
+            task_id = task_data.get("id")
+
+            if task_id and str(task_id) in existing_tasks:
+                # Update existing template task using TemplateTaskSerializer
+                processed_task_ids.add(str(task_id))
+                task_instance = existing_tasks[str(task_id)]
+                task_serializer = TemplateTaskSerializer(
+                    task_instance, data=task_data, context=self.context, partial=True
+                )
+                task_serializer.is_valid(raise_exception=True)
+                task_serializer.save()
+            else:
+                # Create new template task using TemplateTaskSerializer
+                task_serializer = TemplateTaskSerializer(
+                    data=task_data, context=self.context
+                )
+                task_serializer.is_valid(raise_exception=True)
+                saved_task = task_serializer.save()
+                processed_task_ids.add(str(saved_task.id))
+
+        # Remove template tasks that are no longer in the data
+        task_ids_to_remove = set(existing_tasks.keys()) - processed_task_ids
+        if task_ids_to_remove:
+            template_worksheet.tasks.filter(id__in=task_ids_to_remove).delete()

@@ -13,6 +13,11 @@ STATUS = (
     (3, "Odrzucono"),
 )
 
+TASK_CATEGORY = (
+    ("general", "Ogólne"),
+    ("individual", "Indywidualne"),
+)
+
 
 class Worksheet(models.Model):
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -39,6 +44,11 @@ class Worksheet(models.Model):
     deleted = models.BooleanField(default=False, verbose_name="Usunięta?")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    notes = models.TextField(
+        default="",
+        blank=True,
+        verbose_name="Notatki do próby, ukryte przed użytkownikami",
+    )
 
     def __str__(self):
         return f"{self.name} - {self.user.rank_nickname}"
@@ -68,6 +78,20 @@ class Task(models.Model):
         default=timezone.now, blank=True, null=True, verbose_name="Data zatwierdzenia"
     )
     description = models.TextField(default="", blank=True, verbose_name="Opis zadania")
+    notes = models.TextField(
+        default="",
+        blank=True,
+        verbose_name="Notatki do zadania, ukryte przed użytkownikami",
+    )
+    category = models.CharField(
+        max_length=20,
+        choices=TASK_CATEGORY,
+        default="general",
+        verbose_name="Kategoria",
+    )
+    order = models.IntegerField(
+        default=0, verbose_name="Kolejność zadania w próbie/kategorii"
+    )
 
     def __str__(self):
         return str(self.task)
@@ -116,6 +140,15 @@ class TemplateTask(models.Model):
     )
     template_notes = models.TextField(
         blank=True, default="", verbose_name="Notatki do zadania szablonu"
+    )
+    category = models.CharField(
+        max_length=20,
+        choices=TASK_CATEGORY,
+        default="general",
+        verbose_name="Kategoria",
+    )
+    order = models.IntegerField(
+        default=0, verbose_name="Kolejność zadania w szablonie/kategorii"
     )
 
     def __str__(self):
