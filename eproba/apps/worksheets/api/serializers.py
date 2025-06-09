@@ -6,6 +6,7 @@ from rest_framework import serializers
 class TaskSerializer(serializers.ModelSerializer):
     """Serializer for a Task model with improved maintainability."""
 
+    id = serializers.UUIDField(required=False)
     approver_name = serializers.CharField(
         source="approver.rank_nickname", read_only=True
     )
