@@ -9,7 +9,11 @@ User = get_user_model()
 @receiver(pre_save, sender=User)
 def deactivate_tokens(sender, instance, **kwargs):
     if instance.pk:
-        previous = sender.objects.get(pk=instance.pk)
-        if previous and previous.is_active and not instance.is_active:
-            AccessToken.objects.filter(user=instance).delete()
-            RefreshToken.objects.filter(user=instance).delete()
+        try:
+            previous = sender.objects.get(pk=instance.pk)
+            if previous and previous.is_active and not instance.is_active:
+                AccessToken.objects.filter(user=instance).delete()
+                RefreshToken.objects.filter(user=instance).delete()
+        except sender.DoesNotExist:
+            # User is being created for the first time, no tokens to deactivate
+            pass
