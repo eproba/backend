@@ -2,39 +2,93 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
-    <h1 class="title has-text-weight-bold">Zaloguj się</h1>
-    {% if google_auth_enabled %}
-        <div class="buttons">
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="filled_black"
-                 data-text="signin_with"
-                 data-size="large"
-                 data-logo_alignment="left"
-                 style="color-scheme: light">
-            </div>
-        </div>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <div class="field">
-            <div class="block">
-            </div>
-            <div class="buttons">
-                <div class="control">
-                    <input type="hidden" name="next" value="{{ request.GET.next }}">
-                    <button class="button is-success  is-outlined" type="submit"><span class="icon"><i
-                            class="fas fa-key"></i></span><span>Zaloguj się</span></button>
-                    <button onclick="window.location.href='{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
-                            class="button is-info is-outlined" type="button"><span class="icon"><i
-                            class="fas fa-user-plus"></i></span><span>Załóż konto</span></button>
-                    <button onclick="window.location.href='{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}'"
-                            class="button is-link is-outlined" type="button"><span class="icon"><i
-                            class="fas fa-unlock-alt"></i></span><span>Zapomniałeś hasła?</span></button>
+    <section class="section px-2">
+        <div class="container">
+            <div class="is-flex is-justify-content-center">
+                <div class="is-flex-grow-0" style="width: 100%; max-width: 400px;">
+                    <!-- Login Card -->
+                    <div class="box">
+                        <h1 class="title has-text-centered has-text-weight-bold is-size-4">Zaloguj się</h1>
+
+                        <!-- Login Form -->
+                        <form method="post" class="mb-4">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+
+                            <!-- Forgot Password Link -->
+                            <div class="has-text-right my-0">
+                                <a href="{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}"
+                                   class="has-text-grey is-size-7 has-text-weight-medium">
+                                    <span>Zapomniałeś hasła?</span>
+                                </a>
+                            </div>
+                            <div class="field mt-4">
+                                <div class="control">
+                                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                                    <button class="button is-primary is-fullwidth has-text-weight-bold" type="submit">
+                                        <span class="icon"><i class="fas fa-key"></i></span>
+                                        <span>Zaloguj się</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+
+                        {% if google_auth_enabled %}
+                            <!-- Divider -->
+                            <div class="is-divider text-grey">lub</div>
+
+                            <!-- Google Sign In -->
+                            <div class="mb-4 is-flex is-justify-content-center">
+                                <div class="g_id_signin"
+                                     data-locale="pl"
+                                     data-text="signin_with"
+                                     data-size="large"
+                                     data-theme="filled_black"
+                                     style="color-scheme: light;">
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sign Up Card - More Distinct -->
+                    <div class="box has-text-centered p-5 mt-5">
+                        <p class="has-text-weight-medium mb-4">Nie masz jeszcze konta?</p>
+                        <a href="{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}"
+                           class="button is-info is-outlined is-fullwidth has-text-weight-bold">
+                            <span class="icon"><i class="fas fa-user-plus"></i></span>
+                            <span>Zarejestruj się</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
+    </section>
+
+    <style>
+        .is-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .is-divider::before, .is-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dbdbdb;
+        }
+
+        .is-divider::before {
+            margin-right: .75em;
+        }
+
+        .is-divider::after {
+            margin-left: .75em;
+        }
+
+        #div_id_password {
+            margin-bottom: 0;
+        }
+    </style>
 {% endblock %}
