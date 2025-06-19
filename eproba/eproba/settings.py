@@ -23,6 +23,9 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 # When DEV is set to true, the app will show a dev label in the top right corner
 DEV = os.environ.get("DEV", "") == "true"
 
+# API version
+API_VERSION = "0.1.0"  # Current API version of the app
+
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
 CSRF_TRUSTED_ORIGINS = os.environ.get(
@@ -132,7 +135,7 @@ OAUTH2_PROVIDER = {
     "SCOPES": {
         "openid": "Dostęp do OpenID Connect",
         "profile": "Wyświetlanie i edytowanie twojego profilu",
-        "email": "Wyświetlanie twojego adresu e-mail",
+        "email": "Wyświetlanie i edytowanie twojego adresu email",
         "read": "Odczytywanie zawartości i danych na twoim koncie [wycofane]",
         "write": "Modyfikacja zawartoci i danych na twoim koncie [wycofane]",
     },
@@ -148,8 +151,9 @@ CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 CONSTANCE_CONFIG = {
     "ADS_WEB": (True, "Ads (web)"),
     "ADS_MOBILE": (True, "Ads (mobile)"),
-    "WEB_MAINTENANCE_MODE": (False, "Web app maintenance"),
-    "API_MAINTENANCE_MODE": (False, "API maintenance"),
+    "WEB_MAINTENANCE_MODE": (False, "Web app maintenance [deprecated]"),
+    "API_MAINTENANCE_MODE": (False, "API maintenance [deprecated]"),
+    "MAINTENANCE_MODE": (False, "Maintenance mode"),
     "MINIMUM_APP_VERSION": (20240900, "Minimum app version"),
     "REQUIRE_EMAIL_VERIFICATION": (True, "Require email verification"),
 }

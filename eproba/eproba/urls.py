@@ -72,6 +72,7 @@ from rest_framework import routers
 from .sitemaps import Sitemap
 from .utils import (
     ApiConfigView,
+    LegacyApiConfigView,
 )
 
 handler404 = "apps.core.views.handler404"
@@ -118,7 +119,8 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
-    path("api/api-config/", ApiConfigView.as_view()),
+    path("api/api-config/", LegacyApiConfigView.as_view()),
+    path("api/config/", ApiConfigView.as_view()),
     path(
         "api/user/",
         UserInfo.as_view(
