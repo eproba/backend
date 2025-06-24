@@ -1,7 +1,9 @@
+import os
 import uuid
 
 from apps.teams.models import OrganizationChoice, Team
 from apps.users.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UUIDField
 from django.utils import timezone
@@ -17,6 +19,23 @@ TASK_CATEGORY = (
     ("general", "Ogólne"),
     ("individual", "Indywidualne"),
 )
+
+
+def template_image_upload_path(instance, filename):
+    """Generate upload path for template images."""
+    ext = filename.split(".")[-1]
+    filename = f"{instance.id}.{ext}"
+    return os.path.join("template_images", filename)
+
+
+def validate_template_image(file):
+    """Validate the uploaded template image."""
+    valid_extensions = ["jpg", "jpeg", "png", "svg"]
+    ext = file.name.split(".")[-1].lower()
+    if ext not in valid_extensions:
+        raise ValidationError(f"Unsupported file extension: {ext}")
+    if file.size > 5 * 1024 * 1024:  # 5MB limit
+        raise ValidationError("File size exceeds the limit of 5MB.")
 
 
 class Worksheet(models.Model):
@@ -48,6 +67,14 @@ class Worksheet(models.Model):
         default="",
         blank=True,
         verbose_name="Notatki do próby, ukryte przed użytkownikami",
+    )
+    template = models.ForeignKey(
+        "TemplateWorksheet",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="worksheets",
+        verbose_name="Szablon próby",
     )
 
     def __str__(self):
@@ -117,6 +144,14 @@ class TemplateWorksheet(models.Model):
     description = models.TextField(blank=True, default="", verbose_name="Opis szablonu")
     template_notes = models.TextField(
         blank=True, default="", verbose_name="Notatki do szablonu"
+    )
+    image = models.FileField(
+        upload_to=template_image_upload_path,
+        validators=[validate_template_image],
+        blank=True,
+        null=True,
+        verbose_name="Obrazek szablonu",
+        help_text="Obsługiwane formaty: JPG, PNG, SVG. Maksymalny rozmiar: 5MB",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

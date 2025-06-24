@@ -24,7 +24,7 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 DEV = os.environ.get("DEV", "") == "true"
 
 # API version
-API_VERSION = "0.1.0"  # Current API version of the app
+API_VERSION = "0.2.0"  # Current API version of the app
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "tinymce",
     "treebeard",
     "corsheaders",
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 # Middleware
@@ -271,11 +272,15 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 
+# Media files (User uploaded content)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.environ.get("DJANGO_MEDIA_ROOT", BASE_DIR / "media")
+
 # API Documentation
 SPECTACULAR_SETTINGS = {
     "TITLE": "Epoba API",
     "DESCRIPTION": "API for Eproba",
-    "VERSION": "1.0.0",
+    "VERSION": API_VERSION,
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api",
     "COMPONENT_SPLIT_REQUEST": True,

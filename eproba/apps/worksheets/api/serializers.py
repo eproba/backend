@@ -83,6 +83,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
         source="supervisor.rank_nickname", read_only=True
     )
     is_deleted = serializers.BooleanField(source="deleted", read_only=True)
+    template = serializers.SerializerMethodField()
 
     class Meta:
         model = Worksheet
@@ -101,6 +102,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
             "is_archived",
             "tasks",
             "notes",
+            "template",
         ]
 
     def to_representation(self, instance):
@@ -123,12 +125,24 @@ class WorksheetSerializer(serializers.ModelSerializer):
             )
 
         # Hide notes field if user doesn't have sufficient permissions
-        if request.user.function < 4:
-            data.pop("notes", None)
+        if request and hasattr(request, "user") and request.user.is_authenticated:
+            if request.user.function < 4:
+                data.pop("notes", None)
         else:
             data.pop("notes", None)
 
         return data
+
+    def get_template(self, obj):
+        """Return template information if worksheet has a template."""
+        if obj.template:
+            return {
+                "id": obj.template.id,
+                "name": obj.template.name,
+                "description": obj.template.description,
+                "image": obj.template.image.url if obj.template.image else None,
+            }
+        return None
 
     def validate_user_id(self, value):
         """Validate that the user exists."""
@@ -186,7 +200,6 @@ class WorksheetSerializer(serializers.ModelSerializer):
         processed_task_ids = set()
 
         for task_data in tasks_data:
-            task_data["worksheet"] = worksheet.id
             task_id = task_data.get("id")
 
             if task_id and str(task_id) in existing_tasks:
@@ -197,12 +210,12 @@ class WorksheetSerializer(serializers.ModelSerializer):
                     task_instance, data=task_data, context=self.context, partial=True
                 )
                 task_serializer.is_valid(raise_exception=True)
-                task_serializer.save()
+                task_serializer.save(worksheet=worksheet)
             else:
                 # Create new task using TaskSerializer
                 task_serializer = TaskSerializer(data=task_data, context=self.context)
                 task_serializer.is_valid(raise_exception=True)
-                saved_task = task_serializer.save()
+                saved_task = task_serializer.save(worksheet=worksheet)
                 processed_task_ids.add(str(saved_task.id))
 
         # Remove tasks that are no longer in the data
@@ -223,6 +236,7 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "template_notes",
+            "image",
             "tasks",
             "created_at",
             "updated_at",
@@ -232,8 +246,33 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a template worksheet with nested template tasks."""
+        request = self.context.get("request")
+
         # Extract tasks data before creating template worksheet
         tasks_data = validated_data.pop("tasks", [])
+
+        # Validate that the team and organization exist
+        if (
+            not validated_data.get("team")
+            and validated_data.get("organization") is None
+        ):
+            raise serializers.ValidationError(
+                "Either team or organization must be provided."
+            )
+
+        # Only one of team or organization should be provided
+        if validated_data.get("team"):
+            validated_data.pop("organization", None)
+        elif validated_data.get("organization") is not None:
+            validated_data.pop("team", None)
+            if (
+                not request.user.is_staff
+                and request.user.patrol.team.organization
+                != validated_data["organization"]
+            ):
+                raise serializers.ValidationError(
+                    "Organization must match the user's patrol organization and user must be staff."
+                )
 
         # Create template worksheet instance
         template_worksheet = TemplateWorksheet.objects.create(**validated_data)
@@ -247,17 +286,37 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
         """Create template tasks for a template worksheet using TemplateTaskSerializer."""
         for task_data in tasks_data:
             if task_data.get("task"):  # Only create if task name exists
-                task_data["template"] = template_worksheet.id
                 task_serializer = TemplateTaskSerializer(
                     data=task_data, context=self.context
                 )
                 task_serializer.is_valid(raise_exception=True)
-                task_serializer.save()
+                task_serializer.save(template=template_worksheet)
 
     def update(self, instance, validated_data):
         """Update a template worksheet with nested template tasks."""
+        request = self.context.get("request")
+
         # Extract tasks data before updating template worksheet
         tasks_data = validated_data.pop("tasks", None)
+
+        # Only one of team or organization should be provided
+        if validated_data.get("team"):
+            validated_data.pop("organization", None)
+            instance.team = validated_data.get("team")
+            instance.organization = None
+        elif validated_data.get("organization") is not None:
+            validated_data.pop("team", None)
+            if (
+                not request.user.is_staff
+                and request.user.patrol.team.organization
+                != validated_data["organization"]
+            ):
+                raise serializers.ValidationError(
+                    "Organization must match the user's patrol organization and user must be staff."
+                )
+            else:
+                instance.organization = validated_data.get("organization")
+                instance.team = None
 
         # Update template worksheet fields using Django's standard approach
         for attr, value in validated_data.items():
@@ -281,7 +340,6 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
         processed_task_ids = set()
 
         for task_data in tasks_data:
-            task_data["template"] = template_worksheet.id
             task_id = task_data.get("id")
 
             if task_id and str(task_id) in existing_tasks:
@@ -292,17 +350,29 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
                     task_instance, data=task_data, context=self.context, partial=True
                 )
                 task_serializer.is_valid(raise_exception=True)
-                task_serializer.save()
+                task_serializer.save(template=template_worksheet)
             else:
                 # Create new template task using TemplateTaskSerializer
                 task_serializer = TemplateTaskSerializer(
                     data=task_data, context=self.context
                 )
                 task_serializer.is_valid(raise_exception=True)
-                saved_task = task_serializer.save()
+                saved_task = task_serializer.save(template=template_worksheet)
                 processed_task_ids.add(str(saved_task.id))
 
         # Remove template tasks that are no longer in the data
         task_ids_to_remove = set(existing_tasks.keys()) - processed_task_ids
         if task_ids_to_remove:
             template_worksheet.tasks.filter(id__in=task_ids_to_remove).delete()
+
+    def validate(self, attrs):
+        """Custom validation for TemplateWorksheet."""
+        return super().validate(attrs)
+
+
+class TemplateWorksheetSummarySerializer(serializers.ModelSerializer):
+    """Serializer for template summary without tasks - used for linking templates to worksheets."""
+
+    class Meta:
+        model = TemplateWorksheet
+        fields = ["id", "name", "description", "image"]

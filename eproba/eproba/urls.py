@@ -49,6 +49,7 @@ from apps.worksheets.api.views import (
     WorksheetViewSet,
 )
 from django.conf import settings
+from django.conf.urls.static import static
 
 # from apps.users.views.login_hub import login_from_hub, login_hub
 from django.contrib import admin
@@ -237,4 +238,4 @@ urlpatterns = [
     ),
     path("tinymce/", include("tinymce.urls")),
     path("wiki/", include("apps.wiki.urls")),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

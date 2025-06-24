@@ -1,3 +1,5 @@
+import json
+
 from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
 from apps.users.tasks import clear_tokens
@@ -5,9 +7,10 @@ from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
 from apps.worksheets.tasks import remove_expired_deleted_worksheets
 from apps.worksheets.utils import send_notification
 from django.db.models import Q
+from django.http import QueryDict
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework import viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.exceptions import ParseError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +29,67 @@ from .serializers import (
     TemplateWorksheetSerializer,
     WorksheetSerializer,
 )
+
+
+class MultipartNestedSupportMixin:
+    """
+    Mixin to handle multipart form data with nested JSON fields.
+    Transforms JSON string fields to proper Python objects for serializers.
+    """
+
+    def transform_request_data(self, data):
+        """Transform data structure to dictionary and parse JSON string fields."""
+        # Transform data structure to dictionary
+        force_dict_data = data
+        if type(force_dict_data) is QueryDict:
+            force_dict_data = force_dict_data.dict()
+
+        # Transform JSON string to dictionary for each many field
+        serializer = self.get_serializer()
+
+        for key, value in serializer.get_fields().items():
+            if isinstance(value, serializers.ListSerializer) or isinstance(
+                value, serializers.ModelSerializer
+            ):
+                if key in force_dict_data and type(force_dict_data[key]) is str:
+                    if force_dict_data[key] == "":
+                        force_dict_data[key] = None
+                    else:
+                        try:
+                            force_dict_data[key] = json.loads(force_dict_data[key])
+                        except json.JSONDecodeError:
+                            pass
+
+        return force_dict_data
+
+    def create(self, request, *args, **kwargs):
+        """Override create to handle multipart nested data."""
+        force_dict_data = self.transform_request_data(request.data)
+        serializer = self.get_serializer(data=force_dict_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
+    def update(self, request, *args, **kwargs):
+        """Override update to handle multipart nested data."""
+        force_dict_data = self.transform_request_data(request.data)
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=force_dict_data, partial=partial
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class WorksheetViewSet(viewsets.ModelViewSet):
@@ -138,7 +202,7 @@ class TaskDetails(viewsets.ModelViewSet):
         clear_tokens()
 
 
-class TemplateWorksheetViewSet(ModelViewSet):
+class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
     permission_classes = [IsAuthenticated, IsAllowedToReadOrManageTemplateWorksheet]
     serializer_class = TemplateWorksheetSerializer
 
@@ -152,7 +216,10 @@ class TemplateWorksheetViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         # Automatically set the team to the user's team if not provided
-        if not serializer.validated_data.get("team"):
+        if (
+            not serializer.validated_data.get("team")
+            and serializer.validated_data.get("organization") is None
+        ):
             serializer.save(team=self.request.user.patrol.team)
         else:
             serializer.save()

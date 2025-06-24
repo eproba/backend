@@ -12,6 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(
         read_only=True, required=False, source="patrol.team.name"
     )
+    organization = serializers.IntegerField(
+        read_only=True, required=False, source="patrol.team.organization"
+    )
     gender = serializers.CharField(
         read_only=True, required=False, source="gender_string"
     )
@@ -35,6 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
             "patrol_name",
             "team",
             "team_name",
+            "organization",
             "rank",
             "scout_rank",
             "instructor_rank",
@@ -56,6 +60,9 @@ class PublicUserSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(
         read_only=True, required=False, source="patrol.team.name"
     )
+    organization = serializers.IntegerField(
+        read_only=True, required=False, source="patrol.team.organization"
+    )
     gender = serializers.CharField(
         read_only=True, required=False, source="gender_string"
     )
@@ -73,6 +80,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "patrol_name",
             "team",
             "team_name",
+            "organization",
             "rank",
             "scout_rank",
             "instructor_rank",

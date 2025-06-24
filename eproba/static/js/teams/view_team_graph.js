@@ -145,7 +145,7 @@ async function renderTeamGraph(data) {
     // calculate remaining height for the tree from 100vh - distance from top of the page to the top of the box
     const boxRect = box.getBoundingClientRect();
     const top = boxRect.top;
-    const height = window.innerHeight - top - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom) - 20;
+    const height = Math.min(window.innerHeight - top - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom) - 20, window.innerHeight * 0.8);
 
     const options = {
         contentKey: 'data',
