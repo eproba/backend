@@ -69,6 +69,14 @@ class TemplateTaskSerializer(serializers.ModelSerializer):
         fields = ["id", "task", "description", "template_notes", "category", "order"]
 
 
+class TemplateWorksheetSummarySerializer(serializers.ModelSerializer):
+    """Serializer for template summary without tasks - used for linking templates to worksheets."""
+
+    class Meta:
+        model = TemplateWorksheet
+        fields = ["id", "name", "description", "image"]
+
+
 class WorksheetSerializer(serializers.ModelSerializer):
     """
     Serializer for a Worksheet model with nested task management.
@@ -83,7 +91,10 @@ class WorksheetSerializer(serializers.ModelSerializer):
         source="supervisor.rank_nickname", read_only=True
     )
     is_deleted = serializers.BooleanField(source="deleted", read_only=True)
-    template = serializers.SerializerMethodField()
+    template = TemplateWorksheetSummarySerializer(read_only=True)
+    template_id = serializers.UUIDField(
+        source="template.id", write_only=True, required=False
+    )
 
     class Meta:
         model = Worksheet
@@ -103,6 +114,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
             "tasks",
             "notes",
             "template",
+            "template_id",
         ]
 
     def to_representation(self, instance):
@@ -133,17 +145,6 @@ class WorksheetSerializer(serializers.ModelSerializer):
 
         return data
 
-    def get_template(self, obj):
-        """Return template information if worksheet has a template."""
-        if obj.template:
-            return {
-                "id": obj.template.id,
-                "name": obj.template.name,
-                "description": obj.template.description,
-                "image": obj.template.image.url if obj.template.image else None,
-            }
-        return None
-
     def validate_user_id(self, value):
         """Validate that the user exists."""
         if value:
@@ -157,8 +158,20 @@ class WorksheetSerializer(serializers.ModelSerializer):
         # Extract tasks data before creating worksheet
         tasks_data = validated_data.pop("tasks", [])
 
+        # Handle template relationship
+        template_data = validated_data.pop("template", None)
+
         # Create worksheet instance
         worksheet = Worksheet.objects.create(**validated_data)
+
+        # Set template if provided
+        if template_data and template_data.get("id"):
+            try:
+                template = TemplateWorksheet.objects.get(id=template_data["id"])
+                worksheet.template = template
+                worksheet.save()
+            except TemplateWorksheet.DoesNotExist:
+                pass
 
         # Create tasks
         self._create_tasks(worksheet, tasks_data)
@@ -177,6 +190,15 @@ class WorksheetSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Extract tasks data before updating worksheet
         tasks_data = validated_data.pop("tasks", None)
+
+        # Handle template relationship
+        template_data = validated_data.pop("template", None)
+        if template_data and template_data.get("id"):
+            try:
+                template = TemplateWorksheet.objects.get(id=template_data["id"])
+                instance.template = template
+            except TemplateWorksheet.DoesNotExist:
+                pass
 
         # Update worksheet fields using Django's standard approach
         for attr, value in validated_data.items():
@@ -368,11 +390,3 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """Custom validation for TemplateWorksheet."""
         return super().validate(attrs)
-
-
-class TemplateWorksheetSummarySerializer(serializers.ModelSerializer):
-    """Serializer for template summary without tasks - used for linking templates to worksheets."""
-
-    class Meta:
-        model = TemplateWorksheet
-        fields = ["id", "name", "description", "image"]
