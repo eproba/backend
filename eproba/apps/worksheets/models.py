@@ -30,7 +30,7 @@ def template_image_upload_path(instance, filename):
 
 def validate_template_image(file):
     """Validate the uploaded template image."""
-    valid_extensions = ["jpg", "jpeg", "png", "svg"]
+    valid_extensions = ["jpg", "jpeg", "png", "svg", "gif"]
     ext = file.name.split(".")[-1].lower()
     if ext not in valid_extensions:
         raise ValidationError(f"Unsupported file extension: {ext}")
@@ -151,7 +151,7 @@ class TemplateWorksheet(models.Model):
         blank=True,
         null=True,
         verbose_name="Obrazek szablonu",
-        help_text="Obsługiwane formaty: JPG, PNG, SVG. Maksymalny rozmiar: 5MB",
+        help_text="Obsługiwane formaty: JPG, PNG, SVG oraz GIF. Maksymalny rozmiar: 5MB",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
