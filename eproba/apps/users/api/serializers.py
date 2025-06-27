@@ -108,3 +108,31 @@ class ChangePasswordSerializer(serializers.Serializer):
                 raise serializers.ValidationError({"old_password": "Niepoprawne hasło"})
 
         return data
+
+
+class ResendEmailVerificationSerializer(serializers.Serializer):
+    """Serializer for resending email verification"""
+
+    pass  # No fields needed, we'll use the authenticated user
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    """Serializer for verifying email with token"""
+
+    user_id = serializers.UUIDField(required=True)
+    token = serializers.UUIDField(required=True)
+
+    def validate(self, attrs):
+        try:
+            user = User.objects.get(id=attrs["user_id"])
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid user ID")
+
+        if user.email_verification_token != attrs["token"]:
+            raise serializers.ValidationError("Invalid verification token")
+
+        if user.email_verified:
+            raise serializers.ValidationError("Email is already verified")
+
+        attrs["user"] = user
+        return attrs

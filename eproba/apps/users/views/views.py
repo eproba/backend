@@ -48,7 +48,7 @@ def signup(request):
                 target=send_verification_email_to_user, args=(user,), daemon=True
             )
             send_email_thread.start()
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             if not user.patrol and request.GET.get("ignore_patrol") is None:
                 return redirect(
                     f"{reverse('select_patrol')}?{urlencode(request.GET, doseq=True)}"
@@ -164,7 +164,7 @@ def verify_email(request, user_id, token):
     )  # Invalidate the token and generate a new one for later use
     user.save()
     messages.add_message(request, messages.SUCCESS, "Adres email został zweryfikowany.")
-    login(request, user)
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     return redirect(reverse("frontpage"))
 
 

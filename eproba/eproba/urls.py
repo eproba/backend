@@ -16,6 +16,7 @@ Including another URLconf
 
 from apps.blog.api.views import PostViewSet
 from apps.blog.sitemaps import PostSitemap
+from apps.core.api.views import ContactAPIView
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
 from apps.teams.api.views import (
     DistrictViewSet,
@@ -23,7 +24,13 @@ from apps.teams.api.views import (
     TeamRequestViewSet,
     TeamViewSet,
 )
-from apps.users.api.views import ChangePasswordView, UserInfo, UserViewSet
+from apps.users.api.views import (
+    ChangePasswordView,
+    ResendVerificationEmailView,
+    UserInfo,
+    UserViewSet,
+    VerifyEmailView,
+)
 from apps.users.views import (
     change_password,
     delete_account,
@@ -129,6 +136,12 @@ urlpatterns = [
         ),
     ),
     path("api/user/password/", ChangePasswordView.as_view(), name="change_password"),
+    path("api/user/verify-email/", VerifyEmailView.as_view(), name="api_verify_email"),
+    path(
+        "api/user/verify-email/resend/",
+        ResendVerificationEmailView.as_view(),
+        name="api_resend_verification_email",
+    ),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
         TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
@@ -150,6 +163,7 @@ urlpatterns = [
         "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/<str:action>/",
         TaskActionView.as_view(),
     ),
+    path("api/contact/", ContactAPIView.as_view(), name="contact"),
     path("contact/", contactView, name="contact"),
     path("worksheets/", include("apps.worksheets.urls")),
     path(

@@ -1,18 +1,32 @@
+import uuid
+
 from apps.users.models import User
+from apps.users.utils import send_verification_email_to_user
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Value
 from django.db.models.functions import Concat
 from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import APIException
+from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 from rest_framework.views import APIView
 
 from .permissions import IsAllowedToManageUserOrReadOnly
-from .serializers import ChangePasswordSerializer, PublicUserSerializer, UserSerializer
+from .serializers import (
+    ChangePasswordSerializer,
+    PublicUserSerializer,
+    ResendEmailVerificationSerializer,
+    UserSerializer,
+    VerifyEmailSerializer,
+)
 
 
 class UserViewSet(
@@ -132,18 +146,17 @@ class UserInfo(
         serializer.save()
 
 
-class ChangePasswordView(APIView):
+class ChangePasswordView(GenericAPIView):
     """
     API view for changing user password.
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
 
     def post(self, request):
         user = request.user
-        serializer = ChangePasswordSerializer(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
             try:
@@ -161,3 +174,57 @@ class ChangePasswordView(APIView):
             )
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class ResendVerificationEmailView(GenericAPIView):
+    """
+    API view for resending email verification to authenticated user.
+    """
+
+    serializer_class = ResendEmailVerificationSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        user = request.user
+
+        if user.email_verified:
+            return Response(
+                {"detail": "Email is already verified"}, status=HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            send_verification_email_to_user(user)
+            return Response(
+                {"detail": "Verification email sent successfully"}, status=HTTP_200_OK
+            )
+        except Exception as e:
+            raise APIException({"detail": str(e)}, code=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyEmailView(GenericAPIView):
+    """
+    API view for verifying email with token.
+    """
+
+    serializer_class = VerifyEmailSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        user = serializer.validated_data["user"]
+
+        user.email_verified = True
+        user.email_verification_token = (
+            uuid.uuid4()
+        )  # Generate new token to invalidate old one
+        user.save()
+
+        return Response({"detail": "Email verified successfully"}, status=HTTP_200_OK)
