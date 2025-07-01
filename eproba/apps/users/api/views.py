@@ -17,7 +17,6 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
-from rest_framework.views import APIView
 
 from .permissions import IsAllowedToManageUserOrReadOnly
 from .serializers import (

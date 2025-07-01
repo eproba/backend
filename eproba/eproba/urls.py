@@ -48,9 +48,8 @@ from apps.users.views import (
 )
 from apps.worksheets.api.views import (
     SubmitTask,
-    TaskActionView,
-    TaskDetails,
     TasksToBeChecked,
+    TaskViewSet,
     TemplateWorksheetViewSet,
     UnsubmitTask,
     WorksheetViewSet,
@@ -144,24 +143,50 @@ urlpatterns = [
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
-        TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
+        TaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/",
-        TaskDetails.as_view({"get": "retrieve", "patch": "partial_update"}),
+        TaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
     path("api/worksheets/tasks/tbc/", TasksToBeChecked.as_view()),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/submit",
-        SubmitTask.as_view(),  # Outdated URL
+        SubmitTask.as_view(),  # Legacy separate view
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/unsubmit",  # Outdated URL
-        UnsubmitTask.as_view(),
+        UnsubmitTask.as_view(),  # Legacy separate view
     ),
     path(
-        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/<str:action>/",
-        TaskActionView.as_view(),
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/submit/",
+        TaskViewSet.as_view({"post": "submit"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/unsubmit/",
+        TaskViewSet.as_view({"post": "unsubmit"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/accept/",
+        TaskViewSet.as_view({"post": "accept"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/reject/",
+        TaskViewSet.as_view({"post": "reject"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/clear-status/",
+        TaskViewSet.as_view({"post": "clear_status"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/approvers/",
+        TaskViewSet.as_view({"get": "get_approvers"}),
+    ),
+    path(
+        "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/note/",
+        TaskViewSet.as_view(
+            {"post": "manage_note", "put": "manage_note", "delete": "manage_note"}
+        ),
     ),
     path("api/contact/", ContactAPIView.as_view(), name="contact"),
     path("contact/", contactView, name="contact"),

@@ -39,7 +39,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
         # Hide notes field if user doesn't have sufficient permissions
         if request and hasattr(request, "user") and request.user.is_authenticated:
-            if request.user.function < 4:
+            if request.user.function < 4 and request.user != instance.worksheet.user:
                 data.pop("notes", None)
         else:
             data.pop("notes", None)
@@ -138,7 +138,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
 
         # Hide notes field if user doesn't have sufficient permissions
         if request and hasattr(request, "user") and request.user.is_authenticated:
-            if request.user.function < 4:
+            if request.user.function < 4 and request.user != instance.user:
                 data.pop("notes", None)
         else:
             data.pop("notes", None)

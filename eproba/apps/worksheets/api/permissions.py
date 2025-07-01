@@ -43,7 +43,7 @@ class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
 
 class IsTaskOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, task):
-        return request.user == task.worksheet.user.user
+        return request.user == task.worksheet.user
 
 
 class IsAllowedToReadOrManageTemplateWorksheet(permissions.BasePermission):

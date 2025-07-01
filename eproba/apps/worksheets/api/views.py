@@ -11,7 +11,8 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import serializers, status, viewsets
-from rest_framework.exceptions import ParseError, PermissionDenied
+from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed, ParseError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -170,36 +171,35 @@ class WorksheetViewSet(viewsets.ModelViewSet):
             serializer.validated_data["user"] = user
         serializer.save()
 
+    @action(
+        detail=True, methods=["post", "put", "delete"], url_name="note", url_path="note"
+    )
+    def manage_note(self, request, id=None):
+        """Manage notes on worksheet"""
+        worksheet = self.get_object()
 
-class TaskDetails(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAllowedToManageTaskOrReadOnlyForOwner]
-    serializer_class = TaskSerializer
-    lookup_field = "id"
-
-    def get_queryset(self):
-        user = self.request.user
-        qs = Task.objects.filter(
-            worksheet__id=self.kwargs["worksheet_id"], id=self.kwargs["id"]
-        )
-        if user.function >= 5:
-            return qs
-        if user.patrol and user.function >= 2:
-            return qs.filter(
-                Q(
-                    worksheet__user__patrol__team=user.patrol.team,
-                    worksheet__is_archived=False,
+        if request.method in ["POST", "PUT"]:
+            note_content = request.data.get("notes", "")
+            if not isinstance(note_content, str):
+                return Response(
+                    {"detail": "Note must be a string"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-                | Q(worksheet__supervisor=user, worksheet__is_archived=False)
-            )
-        return qs.filter(worksheet__user=user)
 
-    def perform_update(self, serializer):
-        if serializer.validated_data.get("status") in [0, 2]:
-            serializer.instance.approval_date = timezone.now()
-            serializer.instance.approver = self.request.user
-        serializer.save()
-        serializer.instance.worksheet.save()
-        clear_tokens()
+            worksheet.notes = note_content
+            worksheet.save()
+
+            return Response(self.get_serializer(worksheet).data)
+
+        elif request.method == "DELETE":
+            worksheet.notes = ""
+            worksheet.save()
+
+            return Response(self.get_serializer(worksheet).data)
+
+        raise MethodNotAllowed(
+            method=request.method,
+        )
 
 
 class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
@@ -279,42 +279,43 @@ class UnsubmitTask(APIView):
         return Response({"message": "Task unsubmitted"})
 
 
-class TaskActionView(APIView):
+class TaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for task CRUD operations and actions.
+    """
+
+    serializer_class = TaskSerializer
+    lookup_field = "id"
+
+    def get_queryset(self):
+        return Task.objects.filter(worksheet__id=self.kwargs.get("worksheet_id"))
+
     def get_permissions(self):
-        if self.kwargs.get("action") in ["submit", "unsubmit", "approvers"]:
+        """Set permissions based on action"""
+        if self.action in ["submit", "unsubmit", "get_approvers"]:
             return [IsAuthenticated(), IsTaskOwner()]
-        else:  # accept, reject, clear
+        elif self.action in ["accept", "reject", "clear_status"]:
             return [IsAuthenticated()]  # TODO: implement IsAllowedToManageTask
+        elif self.action == "manage_note":
+            return [IsAuthenticated()]  # TODO: implement IsAllowedToAccessTaskNote
+        elif self.action in ["retrieve", "partial_update", "update"]:
+            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnlyForOwner()]
+        return super().get_permissions()
 
-    def post(self, request, *args, **kwargs):
-        action = kwargs.get("action")
-        task = get_object_or_404(
-            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
-        )
+    def perform_update(self, serializer):
+        """Override update behavior from old TaskDetails"""
+        if serializer.validated_data.get("status") in [0, 2]:
+            serializer.instance.approval_date = timezone.now()
+            serializer.instance.approver = self.request.user
+        serializer.save()
+        serializer.instance.worksheet.save()
+        clear_tokens()
 
-        if action == "submit":
-            return self.submit_task(request, task)
-        elif action == "unsubmit":
-            return self.unsubmit_task(task)
-        elif action == "accept":
-            return self.accept_task(request, task)
-        elif action == "reject":
-            return self.reject_task(request, task)
-        elif action == "clear":
-            return self.clear_status(request, task)
-        raise ParseError("Invalid action")
+    @action(detail=True, methods=["post"])
+    def submit(self, request, worksheet_id=None, id=None):
+        """Submit task for approval"""
+        task = self.get_object()
 
-    def get(self, request, *args, **kwargs):
-        action = kwargs.get("action")
-        task = get_object_or_404(
-            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
-        )
-
-        if action == "approvers":
-            return self.get_available_approvers(request, task)
-        raise ParseError("Invalid action")
-
-    def submit_task(self, request, task):
         if request.data.get("approver") is None:
             return Response({"detail": "Approver is required"}, status=422)
         if task.status == 1:
@@ -333,9 +334,13 @@ class TaskActionView(APIView):
             body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
             link=reverse("worksheets:check_tasks"),
         )
-        return Response(TaskSerializer(task).data)
+        return Response(self.get_serializer(task).data)
 
-    def unsubmit_task(self, task):
+    @action(detail=True, methods=["post"])
+    def unsubmit(self, request, worksheet_id=None, id=None):
+        """Unsubmit task"""
+        task = self.get_object()
+
         if task.status != 1:
             raise ParseError("Task is not submitted")
 
@@ -343,10 +348,14 @@ class TaskActionView(APIView):
         task.approver = None
         task.approval_date = None
         task.save()
-        return Response(TaskSerializer(task).data)
+        return Response(self.get_serializer(task).data)
 
-    def accept_task(self, request, task):
+    @action(detail=True, methods=["post"])
+    def accept(self, request, worksheet_id=None, id=None):
+        """Accept task"""
+        task = self.get_object()
         old_status = task.status
+
         task.status = 2
         task.approver = request.user
         task.approval_date = timezone.now()
@@ -355,15 +364,19 @@ class TaskActionView(APIView):
 
         if old_status != 2:
             send_notification(
-                targets=task.approver,
+                targets=task.worksheet.user,
                 title="Zadanie zaakceptowane",
                 body=f"Twoje zadanie zostało zaakceptowane przez {request.user}",
                 link=reverse("worksheets:check_tasks"),
             )
-        return Response(TaskSerializer(task).data)
+        return Response(self.get_serializer(task).data)
 
-    def reject_task(self, request, task):
+    @action(detail=True, methods=["post"])
+    def reject(self, request, worksheet_id=None, id=None):
+        """Reject task"""
+        task = self.get_object()
         old_status = task.status
+
         task.status = 3
         task.approval_date = timezone.now()
         task.approver = request.user
@@ -377,16 +390,51 @@ class TaskActionView(APIView):
                 body=f"Twoje zadanie zostało odrzucone przez {request.user}",
                 link=f"https://eproba.zhr.pl/worksheets/{task.worksheet.id}",
             )
-        return Response(TaskSerializer(task).data)
+        return Response(self.get_serializer(task).data)
 
-    def clear_status(self, request, task):
+    @action(detail=True, methods=["post"])
+    def clear_status(self, request, worksheet_id=None, id=None):
+        """Clear task status"""
+        task = self.get_object()
+
         task.status = 0
         task.approval_date = None
         task.approver = None
         task.save()
-        return Response(TaskSerializer(task).data)
+        return Response(self.get_serializer(task).data)
 
-    def get_available_approvers(self, request, task):
+    @action(detail=True, methods=["post", "put", "delete"], url_name="note")
+    def manage_note(self, request, worksheet_id=None, id=None):
+        task = self.get_object()
+
+        if request.method in ["POST", "PUT"]:
+            note_content = request.data.get("notes", "")
+            if not isinstance(note_content, str):
+                return Response(
+                    {"detail": "Note must be a string"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            task.notes = note_content
+            task.save()
+
+            return Response(self.get_serializer(task).data)
+
+        elif request.method == "DELETE":
+            task.notes = ""
+            task.save()
+
+            return Response(self.get_serializer(task).data)
+
+        raise MethodNotAllowed(
+            method=request.method,
+        )
+
+    @action(detail=True, methods=["get"], url_name="approvers")
+    def get_approvers(self, request, worksheet_id=None, id=None):
+        """Get available approvers for task"""
+        task = self.get_object()
+
         if task.status in [1, 2]:
             raise PermissionDenied(
                 "Task already submitted or approved, so you don't need that information"
