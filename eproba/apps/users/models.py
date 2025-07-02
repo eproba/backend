@@ -35,7 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField("email address", unique=True)
+    email = models.EmailField("Email", unique=True)
     nickname = models.CharField(max_length=20, blank=True, null=True)
     first_name = models.CharField(max_length=20, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)

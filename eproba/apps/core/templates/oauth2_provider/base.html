@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pl">
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>{% block title %}Autoryzacja OAuth - Epróba{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-oauth-primary: #4285f4;
+            --color-oauth-success: #34a853;
+            --color-oauth-danger: #ea4335;
+            --color-oauth-warning: #fbbc04;
+        }
+    </style>
+    <style>
+        :root {
+            --logo-color: #4285f4;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --logo-color: #e6edf3;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        {% block oauth_content %}
+        {% endblock %}
+    </div>
+</div>
+</body>
+</html>

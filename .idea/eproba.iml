@@ -35,6 +35,7 @@
     <orderEntry type="library" name="sortablejs" level="application" />
     <orderEntry type="library" name="apextree" level="application" />
     <orderEntry type="library" name="apexcharts" level="application" />
+    <orderEntry type="library" name="bulma" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

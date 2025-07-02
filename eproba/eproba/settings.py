@@ -134,11 +134,14 @@ AUTHENTICATION_BACKENDS = (
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
     "SCOPES": {
-        "openid": "Dostęp do OpenID Connect",
-        "profile": "Wyświetlanie i edytowanie twojego profilu",
-        "email": "Wyświetlanie i edytowanie twojego adresu email",
-        "read": "Odczytywanie zawartości i danych na twoim koncie [wycofane]",
-        "write": "Modyfikacja zawartoci i danych na twoim koncie [wycofane]",
+        "openid": "OpenID Connect (twój identyfikator)",
+        "profile": "Twój profil",
+        "email": "Adres email",
+        "teams": "Drużyny i zastępy",
+        "worksheets": "Próby harcerskie",
+        "wiki": "Artykuły wiki",
+        "read": "Odczytywanie całej zawartości i danych na twoim koncie [wycofane]",
+        "write": "Modyfikacja całej zawartoci i danych na twoim koncie [wycofane]",
     },
     "OIDC_ENABLED": True,
     "OAUTH2_VALIDATOR_CLASS": "apps.users.oauth_validators.CustomOAuth2Validator",

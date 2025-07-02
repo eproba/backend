@@ -127,8 +127,9 @@ def google_auth_receiver(request):
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
     if created:
-        return redirect(f"{reverse('signup')}?next={state}&finish_signup=true")
-
+        return redirect(
+            f"{reverse('signup')}?{urlencode({'next': state, 'finish_signup': 'true'})}"
+        )
     return redirect(state or reverse("frontpage"))
 
 

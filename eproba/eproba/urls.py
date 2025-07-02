@@ -31,6 +31,7 @@ from apps.users.api.views import (
     UserViewSet,
     VerifyEmailView,
 )
+from apps.users.oauth_views import AuthorizationView as CustomAuthorizationView
 from apps.users.views import (
     change_password,
     delete_account,
@@ -239,6 +240,9 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("signup/finalize/", finish_signup, name="finish_signup"),
     path("team/", include("apps.teams.urls")),
+    path(
+        "oauth2/authorize/", CustomAuthorizationView.as_view(), name="oauth2_authorize"
+    ),
     path(
         "oauth2/",
         include(

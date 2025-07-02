@@ -6,5 +6,4 @@ class UsersConfig(AppConfig):
     verbose_name = "Użytkownicy"
 
     def ready(self):
-        # noinspection PyUnresolvedReferences
-        from . import signals
+        from . import signals # noqa: F401

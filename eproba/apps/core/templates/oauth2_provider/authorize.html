@@ -1,0 +1,350 @@
+{% extends "oauth2_provider/base.html" %}
+{% load i18n %}
+
+{% block title %}Autoryzacja aplikacji - Epróba{% endblock %}
+
+{% block oauth_content %}
+    <!-- Error handling section -->
+    {% if error %}
+        <div class="relative max-w-md mx-auto">
+            <div class="bg-red-50/90 dark:bg-red-900/20 backdrop-blur-sm border-2 border-red-200/60 dark:border-red-600/30 rounded-2xl p-6 shadow-lg shadow-red-500/10">
+                <div class="flex items-center mb-4">
+                    <div class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/25 mr-3">
+                        <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100">Error: {{ error.error }}</h2>
+                </div>
+                <p class="text-red-700 dark:text-red-300 mb-6">{{ error.description }}</p>
+
+                <!-- Go back button -->
+                <div class="flex justify-center">
+                    <button onclick="window.history.back()"
+                            class="group relative inline-flex items-center justify-center px-6 py-2.5 border border-red-300/60 dark:border-red-600/60 text-sm font-semibold rounded-xl text-red-700 dark:text-red-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-400 dark:hover:border-red-500 transition-all duration-300 hover:shadow-lg cursor-pointer">
+                        <i class="fas fa-arrow-left mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="relative">Wróć</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Glassmorphism Background -->
+        <div class="relative">
+            <!-- Animated Background Gradients -->
+            <div class="absolute inset-0 -z-10">
+                <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-indigo-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            </div>
+
+            <!-- Main Authorization Card -->
+            <div class="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 shadow-2xl rounded-2xl p-6">
+
+                <!-- Brand Header -->
+                <div class="text-center mb-6">
+                    <!-- SVG Logo -->
+                    <div class="mb-4 opacity-80">
+                        <svg viewBox="2.344402499999999 4.60938125 157.86092312499997 35.39154375"
+                             class="w-28 h-8 mx-auto filter drop-shadow-sm">
+                            <path d="M19.688 40 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 q0 -0.8203125 0.56640625 -1.38671875 t1.3672 -0.56641 l15.41 0 q0.80078125 0 1.3671875 0.56640625 t0.56641 1.3867 q0 0.80078125 -0.56640625 1.3671875 t-1.3672 0.56641 z M19.688 15.859000000000002 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 l15.41 0 q0.80078125 0 1.3671875 0.56640625 t0.56641 1.3672 t-0.56641 1.3672 t-1.3672 0.56641 z M19.688 27.93 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.377 t1.3672 -0.57617 l15.41 0 q0.80078125 0 1.3671875 0.576171875 t0.56641 1.377 t-0.56641 1.3672 t-1.3672 0.56641 z M28.439409375 40 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.469 0 q1.9140625 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.3515625 -1.728515625 t-1.2207 -1.6699 t-2.4512 -0.70313 l-2.2461 0 q-0.80078125 0 -1.376953125 -0.56640625 t-0.57617 -1.3672 t0.57617 -1.3672 t1.377 -0.56641 l2.2461 0 q2.59765625 0 4.35546875 1.162109375 t2.6465 2.9883 t0.88867 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.5078125 0.5859375 -1.30859375 1.171875 t-1.9434 0.97656 t-2.666 0.39063 l-8.5156 0 l0 10.137 q0 0.80078125 -0.56640625 1.3671875 t-1.3867 0.56641 z M28.439409375 15.859000000000002 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 q0.8203125 0 1.38671875 0.56640625 t0.56641 1.3672 t-0.56641 1.3672 t-1.3867 0.56641 z M53.81245625 40 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.469 0 q1.9140625 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.3515625 -1.728515625 t-1.2207 -1.6699 t-2.4512 -0.70313 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 q2.578125 0 4.3359375 1.162109375 t2.6563 2.9883 t0.89844 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.5078125 0.5859375 -1.30859375 1.162109375 t-1.9434 0.97656 t-2.666 0.40039 l-8.5156 0 l0 10.137 q0 0.80078125 -0.576171875 1.3671875 t-1.377 0.56641 z M70.21915625 40 q-1.07421875 0 -1.73828125 -1.09375 l-2.5586 -5.1758 q-0.1953125 -0.44921875 -0.1953125 -0.87890625 q0 -1.15234375 1.07421875 -1.71875 q0.4296875 -0.1953125 0.87890625 -0.1953125 q1.171875 0 1.73828125 1.09375 l2.5391 5.1758 q0.1953125 0.44921875 0.1953125 0.87890625 q0 1.15234375 -1.07421875 1.71875 q-0.4296875 0.1953125 -0.859375 0.1953125 z M89.028953125 10.625 q-0.76171875 0 -1.38671875 -0.56640625 q-0.56640625 -0.60546875 -0.56640625 -1.3671875 q0 -0.78125 0.56640625 -1.38671875 l2.1289 -2.1289 q0.60546875 -0.56640625 1.38671875 -0.56640625 q0.76171875 0 1.34765625 0.5859375 t0.58594 1.3672 q0 0.76171875 -0.5859375 1.34765625 l-2.1289 2.1289 q-0.60546875 0.5859375 -1.34765625 0.5859375 z M90.064953125 40 q3.88671875 0 7.060546875 -1.89453125 t5.0684 -5.0781 t1.8945 -7.0313 q0 -3.73046875 -1.9140625 -7.0703125 q-1.85546875 -3.14453125 -5 -5.01953125 q-0.48828125 -0.25390625 -0.9765625 -0.25390625 q-1.07421875 0 -1.66015625 0.9375 q-0.29296875 0.48828125 -0.29296875 0.99609375 q0 1.07421875 0.95703125 1.66015625 q2.36328125 1.40625 3.69140625 3.73046875 t1.3281 5.0195 q0 2.79296875 -1.3671875 5.087890625 t-3.6719 3.6621 t-5.1172 1.3672 q-2.7734375 0 -5.078125 -1.3671875 t-3.6719 -3.6621 t-1.3672 -5.0879 q0 -0.8203125 0.1171875 -1.62109375 l0.039063 -0.33203 q0 -0.625 -0.41015625 -1.19140625 q-0.546875 -0.72265625 -1.50390625 -0.72265625 q-0.6640625 0 -1.220703125 0.41015625 t-0.73242 1.2109 q-0.15625 1.11328125 -0.15625 2.24609375 q0 3.84765625 1.884765625 7.03125 t5.0684 5.0781 t7.0313 1.8945 z M121.84421875 40 l-10.742 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.742 0 q1.93359375 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.341796875 -1.728515625 t-1.2207 -1.6699 t-2.4609 -0.70313 l-10.742 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 l10.742 0 q2.59765625 0 4.35546875 1.162109375 t2.6465 2.9883 t0.88867 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.25390625 0.29296875 -0.5859375 0.5859375 q1.26953125 1.19140625 1.9140625 2.783203125 t0.64453 3.2715 q0 3.06640625 -1.97265625 5.41015625 q-0.5078125 0.60546875 -1.30859375 1.181640625 t-1.9434 0.97656 t-2.666 0.40039 z M121.84421875 36.1133 q1.93359375 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.341796875 -1.728515625 t-1.2207 -1.6699 t-2.4609 -0.70313 l-8.8086 0 l0 8.1836 l8.8086 0 z M135.966803125 40 q-0.41015625 0 -0.8203125 -0.17578125 q-1.11328125 -0.546875 -1.11328125 -1.7578125 q0 -0.41015625 0.17578125 -0.83984375 l11.152 -24.121 q0.64453125 -1.1328125 1.77734375 -1.1328125 t1.7383 1.1328 l7.9883 17.305 q0.1953125 0.41015625 0.1953125 0.8203125 q0 1.19140625 -1.1328125 1.73828125 q-0.4296875 0.1953125 -0.83984375 0.1953125 q-1.171875 0 -1.71875 -1.1328125 l-6.2305 -13.496 l-9.3945 20.352 q-0.68359375 1.11328125 -1.77734375 1.11328125 z M158.271703125 39.941406 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 t1.3672 0.56641 t0.56641 1.3672 t-0.56641 1.3672 t-1.3672 0.56641 z"
+                                  style="fill: var(--logo-color)"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Title Section -->
+                    <div class="space-y-2">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            Autoryzacja aplikacji
+                        </h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                        <span class="font-semibold text-gray-900 dark:text-white">
+                            {% if application.name %}{{ application.name }}{% else %}Aplikacja zewnętrzna{% endif %}
+                        </span>
+                            chce uzyskać dostęp do Twojego konta.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- User Card -->
+                {% if user.is_authenticated %}
+                    <div class="group relative bg-gradient-to-r from-blue-50/60 to-indigo-50/60 dark:from-gray-800/60 dark:to-gray-700/60 backdrop-blur-sm border border-blue-100/50 dark:border-gray-600/30 rounded-xl p-4 mb-6">
+
+                        <div class="flex items-center">
+                            <div class="relative flex-shrink-0">
+                                <!-- avatar -->
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/25">
+                                    {% if user.first_name %}
+                                        {{ user.first_name|first|upper }}
+                                    {% else %}
+                                        {{ user.email|first|upper }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="ml-3 flex-1">
+                                <p class="font-semibold text-gray-900 dark:text-gray-100">
+                                    {% if user.first_name and user.last_name %}
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    {% elif user.first_name %}
+                                        {{ user.first_name }}
+                                    {% else %}
+                                        {{ user.email }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ user.email }}</p>
+                            </div>
+
+                            <div class="ml-3">
+                                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit"
+                                            class="group/btn relative inline-flex items-center px-3 py-2 border border-gray-200 dark:border-gray-600 text-xs font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 hover:shadow-md cursor-pointer">
+                                        <i class="fas fa-right-left mr-1.5 text-xs group-hover/btn:scale-110 transition-transform duration-200"></i>
+                                        Przełącz konto
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Permissions Section -->
+                {% if user_already_authorized %}
+                    <!-- Check if there are new scopes being requested -->
+                    {% if new_scopes_descriptions %}
+                        <!-- New Scopes Alert -->
+                        <div class="relative bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm border-2 border-amber-200/60 dark:border-amber-600/30 rounded-2xl p-4 mb-6 shadow-lg shadow-amber-500/10">
+                        <!-- floating icon -->
+                        <div class="absolute -top-3 left-4">
+                            <div class="w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/25">
+                                <i class="fas fa-plus text-white text-xs"></i>
+                            </div>
+                        </div>
+
+                        <div class="pt-1">
+                            <h4 class="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center">
+                                Nowe uprawnienia dla aplikacji
+                            </h4>
+
+                            <!-- New Scopes List -->
+                            <div class="space-y-2 mb-4">
+                                {% for scope in new_scopes_descriptions %}
+                                    <div class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-amber-200/50 dark:border-amber-700/30 rounded-xl p-3">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg flex items-center justify-center mr-3 mt-0.5">
+                                                <i class="fas fa-shield-halved text-amber-600 dark:text-amber-400 text-xs"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <span class="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">
+                                                    {{ scope }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Collapsible Previous Scopes -->
+                            {% if previous_scopes_descriptions %}
+                                <details class="group/details">
+                                    <summary
+                                            class="cursor-pointer list-none flex items-center justify-between p-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg border border-amber-200/30 dark:border-amber-700/20 hover:bg-white/70 dark:hover:bg-gray-700/70 transition-all duration-200">
+                                            <span class="flex items-center text-amber-700 dark:text-amber-300 text-sm font-medium">
+                                                <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                                Wcześniej autoryzowane ({{ previous_scopes_descriptions|length }})
+                                            </span>
+                                        <i class="fas fa-chevron-down text-amber-500 group-open/details:rotate-180 transition-transform duration-200 text-sm"></i>
+                                    </summary>
+                                    <div class="mt-3 space-y-2 max-h-32 overflow-y-auto">
+                                        {% for scope in previous_scopes_descriptions %}
+                                            <div class="bg-emerald-50/80 dark:bg-emerald-900/20 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-700/30 rounded-lg p-2">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-check-circle text-emerald-500 text-xs mt-1 mr-2"></i>
+                                                    <span class="text-xs text-gray-700 dark:text-gray-300 font-medium">
+                                                        {{ scope }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <!-- Already Authorized State -->
+                        <div class="relative bg-gradient-to-r from-emerald-50/80 to-teal-50/80 dark:from-emerald-900/20 dark:to-teal-900/20 backdrop-blur-sm border border-emerald-200/60 dark:border-emerald-700/30 rounded-2xl p-4 mb-6 shadow-lg shadow-emerald-500/10">
+                            <div class="absolute -top-3 left-4">
+                                <div class="w-6 h-6 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <h4 class="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-2 flex items-center">
+                                    Aplikacja już autoryzowana
+                                </h4>
+                                <p class="text-sm text-emerald-700 dark:text-emerald-300 mb-3">
+                                    Ta aplikacja ma już dostęp do Twojego konta.
+                                </p>
+
+                                <!-- Collapsible scope details -->
+                                <details class="group/details">
+                                    <summary
+                                            class="cursor-pointer list-none flex items-center justify-between p-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg border border-emerald-200/30 dark:border-emerald-700/20 hover:bg-white/70 dark:hover:bg-gray-700/70 transition-all duration-200">
+                                            <span class="flex items-center text-emerald-700 dark:text-emerald-300 text-sm font-medium">
+                                                <i class="fas fa-eye text-emerald-500 mr-2"></i>
+                                                Pokaż uprawnienia ({{ previous_scopes|length }})
+                                            </span>
+                                        <i class="fas fa-chevron-down text-emerald-500 group-open/details:rotate-180 transition-transform duration-200 text-sm"></i>
+                                    </summary>
+                                    <div class="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                                        {% for scope in previous_scopes_descriptions %}
+                                            <div class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-600/30 rounded-xl p-3">
+                                                <div class="flex items-center">
+                                                    <div class="w-6 h-6 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-lg flex items-center justify-center mr-2 mt-0.5">
+                                                        <i class="fas fa-check text-emerald-600 dark:text-emerald-400 text-xs"></i>
+                                                    </div>
+                                                    <span class="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                                        {{ scope }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- New Authorization -->
+                    {% if scopes %}
+                        <div class="relative bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 backdrop-blur-sm border border-blue-200/60 dark:border-blue-700/30 rounded-2xl p-4 mb-6 shadow-lg shadow-blue-500/10">
+                            <div class="absolute -top-3 left-4">
+                                <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+                                    <i class="fas fa-key text-white text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <h4 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center">
+                                    Żądane uprawnienia
+                                </h4>
+                                <div class="space-y-2 max-h-40 overflow-y-auto">
+                                    {% for scope in scopes_descriptions %}
+                                        <div class="group relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30 rounded-xl p-3">
+                                            <div class="flex items-center">
+                                                <div class="w-6 h-6 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg flex items-center justify-center mr-3 mt-0.5">
+                                                    <i class="fas fa-shield-halved text-blue-600 dark:text-blue-400 text-xs"></i>
+                                                </div>
+                                                <span class="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                                    {{ scope }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Authorization Form -->
+                <form method="post" action="{% url 'oauth2_provider:authorize' %}" class="space-y-4">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        {% if field.is_hidden %}
+                            {{ field }}
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Form errors display -->
+                    {% if form.errors %}
+                        <div class="bg-red-50/90 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/60 dark:border-red-600/30 rounded-xl p-4 mb-4">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                                <h4 class="font-semibold text-red-900 dark:text-red-100">Błędy formularza</h4>
+                            </div>
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p class="text-sm text-red-700 dark:text-red-300 mb-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50/90 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/60 dark:border-red-600/30 rounded-xl p-4 mb-4">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                                <h4 class="font-semibold text-red-900 dark:text-red-100">Błędy</h4>
+                            </div>
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm text-red-700 dark:text-red-300 mb-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-end pt-4">
+                        <button type="submit"
+                                class="group relative inline-flex items-center justify-center px-5 py-2.5 border border-gray-300/60 dark:border-gray-600/60 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:shadow-lg order-2 sm:order-1 cursor-pointer">
+                            <i class="fas fa-times mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                            <span class="relative">Anuluj</span>
+                        </button>
+
+                        <button type="submit" name="allow" value="Authorize"
+                                class="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold rounded-xl text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-500/30 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 transform hover:scale-105 transition-all duration-300 order-1 sm:order-2 cursor-pointer">
+                            <i class="fas fa-check mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                            <span class="relative">
+                                {% if user_already_authorized and not new_scopes_descriptions %}
+                                    Kontynuuj
+                                {% else %}
+                                    Zezwól na dostęp
+                                {% endif %}
+                            </span>
+                        </button>
+                    </div>
+                </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <!-- footer links -->
+                <div class="flex flex-wrap justify-center gap-6 text-sm mb-4">
+                    <a href="https://eproba.zhr.pl/about" target="_blank"
+                       class="group relative text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200">
+                        <span class="relative z-10">O stronie</span>
+                        <div class="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </a>
+                    <a href="https://eproba.zhr.pl/contact" target="_blank"
+                       class="group relative text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200">
+                        <span class="relative z-10">Kontakt</span>
+                        <div class="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </a>
+                    <a href="https://eproba.zhr.pl/terms/privacy-policy" target="_blank"
+                       class="group relative text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200">
+                        <span class="relative z-10">Polityka prywatności</span>
+                        <div class="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </a>
+                </div>
+
+                <!-- trust indicators -->
+                <div class="flex justify-center items-center space-x-4 mt-4 text-xs text-gray-400 dark:text-gray-500">
+                    <div class="flex items-center">
+                        <i class="fas fa-lock mr-1 text-green-500"></i>
+                        <span>Szyfrowane</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt mr-1 text-blue-500"></i>
+                        <span>OAuth 2.0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-1 text-emerald-500"></i>
+                        <span>Zweryfikowane</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

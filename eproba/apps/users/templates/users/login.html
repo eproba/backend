@@ -17,7 +17,7 @@
 
                             <!-- Forgot Password Link -->
                             <div class="has-text-right my-0">
-                                <a href="{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}"
+                                <a href="{% url 'password_reset' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}"
                                    class="has-text-grey is-size-7 has-text-weight-medium">
                                     <span>Zapomniałeś hasła?</span>
                                 </a>
@@ -54,7 +54,7 @@
                     <!-- Sign Up Card - More Distinct -->
                     <div class="box has-text-centered p-5 mt-5">
                         <p class="has-text-weight-medium mb-4">Nie masz jeszcze konta?</p>
-                        <a href="{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}"
+                        <a href="{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}"
                            class="button is-info is-outlined is-fullwidth has-text-weight-bold">
                             <span class="icon"><i class="fas fa-user-plus"></i></span>
                             <span>Zarejestruj się</span>

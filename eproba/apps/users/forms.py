@@ -8,6 +8,12 @@ from django.utils.safestring import mark_safe
 class SiteUserCreationForm(UserCreationForm):
     usable_password = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password1"].help_text = (
+            "Hasło musi mieć co najmniej 8 znaków i być chociaż w miarę silne."
+        )
+
     class Meta:
         model = User
         fields = (
