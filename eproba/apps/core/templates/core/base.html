@@ -6,7 +6,10 @@
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta name="google-site-verification" content="Oa-8rANmBab3FrKyY44hIe4K1937-KdaX9UEZLJs9bg"/>
     <title>{% if dev_mode %}DEV - {% endif %}{% block title %}Epróba{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    >
     <link rel="preload" href="{% static 'css/bulma-tooltip.min.css' %}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
@@ -43,19 +46,19 @@
 
     <!-- Google Tag Manager -->
     {% if not request.GET.embed %}
-    <script>(function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-            'gtm.start':
-                new Date().getTime(), event: 'gtm.js'
-        });
-        var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-        j.async = true;
-        j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-        f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-NN3D54WV');</script>
+        <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-NN3D54WV');</script>
     {% endif %}
     <!-- End Google Tag Manager -->
 
