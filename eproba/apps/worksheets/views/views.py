@@ -49,7 +49,8 @@ def print_worksheet(request, id):
             HTML(
                 string=render_to_string(
                     "worksheets/worksheet_pdf.html", {"worksheet": worksheet}
-                )
+                ),
+                base_url=request.build_absolute_uri(),
             ).write_pdf(),
             content_type="application/pdf",
         )
@@ -75,7 +76,8 @@ def print_worksheet_template(request, id):
                 string=render_to_string(
                     "worksheets/worksheet_pdf.html",
                     {"worksheet": worksheet_template, "is_template": True},
-                )
+                ),
+                base_url=request.build_absolute_uri(),
             ).write_pdf(),
             content_type="application/pdf",
         )

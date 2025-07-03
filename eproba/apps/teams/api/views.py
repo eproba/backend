@@ -1,8 +1,10 @@
+import threading
+
 from apps.teams.api.permissions import IsAllowedToAccessTeamRequest
 from apps.teams.api.serializers import TeamRequestSerializer
 from apps.teams.models import District, Patrol, Team, TeamRequest
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -17,6 +19,20 @@ from .serializers import (
     TeamListSerializer,
     TeamSerializer,
 )
+
+
+def send_team_request_email(team_request_obj):
+    """
+    Send email notification when a new team request is created
+    """
+    email = EmailMessage(
+        subject=f"Zgłoszenie o dodanie drużyny: {team_request_obj.team.name}",
+        body="Pojawiło się nowe zgłoszenie o dodanie drużyny. https://eproba.zhr.pl/team/requests/",
+        from_email=None,
+        to=["eproba@zhr.pl"],
+        headers={"Reply-To": team_request_obj.created_by.email},
+    )
+    email.send()
 
 
 class DistrictViewSet(viewsets.ModelViewSet):
@@ -70,6 +86,7 @@ class PatrolViewSet(viewsets.ModelViewSet):
 
 
 class TeamRequestViewSet(
+    mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -80,11 +97,27 @@ class TeamRequestViewSet(
     """
 
     serializer_class = TeamRequestSerializer
-    permission_classes = [IsAllowedToAccessTeamRequest]
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsAuthenticated()]
+        return [IsAllowedToAccessTeamRequest()]
+
+    def perform_create(self, serializer):
+        """
+        Create a new team request and send email notification
+        """
+        team_request = serializer.save()
+
+        # Send email notification in background
+        send_email_thread = threading.Thread(
+            target=send_team_request_email, args=(team_request,), daemon=True
+        )
+        send_email_thread.start()
 
     def get_queryset(self):
         """
-        Zwraca listę zgłoszeń drużyn z możliwością filtrowania po wielu statusach.
+        Retrieve all team requests, optionally filtered by status.
         """
         queryset = TeamRequest.objects.all().order_by("-created_at")
         status_filter = self.request.query_params.get("status")
@@ -101,7 +134,8 @@ class TeamRequestViewSet(
 
     def update(self, request, *args, **kwargs):
         """
-        Obsługuje standardowy PATCH na /api/team-requests/{id}/
+        Handle updating the status of a team request.
+        Allows changing the status, adding a note, and sending an email notification.
         """
         team_request = self.get_object()
 
@@ -144,7 +178,7 @@ class TeamRequestViewSet(
 
     def get_email_content(self, team_request, send_note):
         """
-        Generuje treść e-maila w zależności od statusu zgłoszenia.
+        Generates the email content based on the team request status.
         """
         team_name = team_request.team.name if team_request.team else "Twoja drużyna"
         note_text = (

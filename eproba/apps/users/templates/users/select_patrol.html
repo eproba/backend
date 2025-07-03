@@ -46,7 +46,11 @@
         </div>
         <div class="field">
             <div class="control">
-                <button class="button is-primary" type="submit" disabled id="submit-button">Zapisz</button>
+                <div class="buttons">
+                    <button class="button is-primary" type="submit" disabled id="submit-button">Zapisz</button>
+                    <a class="button" type="button"
+                       href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'frontpage' %}{% endif %}">Pomiń</a>
+                </div>
             </div>
         </div>
     </form>

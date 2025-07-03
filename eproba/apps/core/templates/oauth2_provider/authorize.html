@@ -30,7 +30,7 @@
         <!-- Glassmorphism Background -->
         <div class="relative">
             <!-- Animated Background Gradients -->
-            <div class="absolute inset-0 -z-10">
+            <div class="absolute inset-0 -z-10 overflow-hidden">
                 <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
                 <div class="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-indigo-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
             </div>
@@ -67,7 +67,7 @@
                 {% if user.is_authenticated %}
                     <div class="group relative bg-gradient-to-r from-blue-50/60 to-indigo-50/60 dark:from-gray-800/60 dark:to-gray-700/60 backdrop-blur-sm border border-blue-100/50 dark:border-gray-600/30 rounded-xl p-4 mb-6">
 
-                        <div class="flex items-center">
+                        <div class="flex items-center flex-wrap justify-center">
                             <div class="relative flex-shrink-0">
                                 <!-- avatar -->
                                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/25">
@@ -98,8 +98,10 @@
                                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                     <button type="submit"
                                             class="group/btn relative inline-flex items-center px-3 py-2 border border-gray-200 dark:border-gray-600 text-xs font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 hover:shadow-md cursor-pointer">
-                                        <i class="fas fa-right-left mr-1.5 text-xs group-hover/btn:scale-110 transition-transform duration-200"></i>
-                                        Przełącz konto
+                                        <i class="fas fa-right-left sm:mr-1.5 text-xs group-hover/btn:scale-110 transition-transform duration-200"></i>
+                                        <span class="hidden sm:inline">
+                                            Przełącz konto
+                                        </span>
                                     </button>
                                 </form>
                             </div>
@@ -180,10 +182,10 @@
 
                             <div class="pt-1">
                                 <h4 class="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-2 flex items-center">
-                                    Aplikacja już autoryzowana
+                                    Aplikacja ma już dostęp
                                 </h4>
                                 <p class="text-sm text-emerald-700 dark:text-emerald-300 mb-3">
-                                    Ta aplikacja ma już dostęp do Twojego konta.
+                                    Ta aplikacja ma już dostęp do wybranych uprawnień.
                                 </p>
 
                                 <!-- Collapsible scope details -->
