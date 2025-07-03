@@ -38,7 +38,8 @@ class AuthorizationView(BaseAuthorizationView):
                         context["previous_scopes"] = latest_token.scope.split()
                         all_scopes = get_scopes_backend().get_all_scopes()
                         context["previous_scopes_descriptions"] = [
-                            all_scopes[scope] for scope in context["previous_scopes"]
+                            all_scopes.get(scope, scope)
+                            for scope in context["previous_scopes"]
                         ]
                     else:
                         context["previous_scopes"] = []

@@ -71,7 +71,6 @@ INSTALLED_APPS = [
     "apps.worksheets.apps.WorksheetConfig",
     "apps.users.apps.UsersConfig",
     "apps.teams.apps.TeamsConfig",
-    "apps.wiki.apps.WikiConfig",
     "crispy_forms",
     "crispy_bulma",
     "fcm_django",
