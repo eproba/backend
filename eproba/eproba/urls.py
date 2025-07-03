@@ -280,5 +280,4 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("tinymce/", include("tinymce.urls")),
-    path("wiki/", include("apps.wiki.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

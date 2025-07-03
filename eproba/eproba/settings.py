@@ -139,7 +139,6 @@ OAUTH2_PROVIDER = {
         "email": "Adres email",
         "teams": "Drużyny i zastępy",
         "worksheets": "Próby harcerskie",
-        "wiki": "Artykuły wiki",
         "read": "Odczytywanie całej zawartości i danych na twoim koncie [wycofane]",
         "write": "Modyfikacja całej zawartoci i danych na twoim koncie [wycofane]",
     },
