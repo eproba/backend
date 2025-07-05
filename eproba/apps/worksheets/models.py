@@ -169,7 +169,7 @@ class TemplateTask(models.Model):
     template = models.ForeignKey(
         TemplateWorksheet, related_name="tasks", on_delete=models.CASCADE
     )
-    task = models.CharField(max_length=250, verbose_name="Zadanie szablonu")
+    task = models.CharField(max_length=250, blank=True, verbose_name="Zadanie szablonu")
     description = models.TextField(
         blank=True, default="", verbose_name="Opis zadania szablonu"
     )

@@ -307,7 +307,11 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
     def _create_template_tasks(self, template_worksheet, tasks_data):
         """Create template tasks for a template worksheet using TemplateTaskSerializer."""
         for task_data in tasks_data:
-            if task_data.get("task"):  # Only create if task name exists
+            if (
+                task_data.get("task")
+                or task_data.get("description")
+                or task_data.get("template_notes")
+            ):
                 task_serializer = TemplateTaskSerializer(
                     data=task_data, context=self.context
                 )
