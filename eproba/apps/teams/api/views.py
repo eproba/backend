@@ -14,7 +14,7 @@ from apps.users.models import (
 from apps.worksheets.models import Task, Worksheet
 from django.conf import settings
 from django.core.mail import EmailMessage, send_mail
-from django.db.models import Count, Max, Q
+from django.db.models import Count, Max, OuterRef, Q, Subquery
 from django.utils import timezone
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -619,13 +619,17 @@ class TeamStatisticsAPIView(APIView):
         """Get members who need attention (inactive in last 90 days)"""
         time_from = timezone.now() - timedelta(days=90)
 
+        # Subquery to check if user has recent completed tasks
+        recent_completed_tasks = User.objects.filter(
+            id=OuterRef("id"),
+            worksheets__tasks__approval_date__gte=time_from,
+            worksheets__tasks__status=2,
+            worksheets__deleted=False,
+        ).values("id")[:1]
+
         inactive = (
             User.objects.filter(patrol__team=team, is_active=True)
-            .exclude(
-                worksheets__tasks__approval_date__gte=time_from,
-                worksheets__tasks__status=2,
-                worksheets__deleted=False,
-            )
+            .exclude(id__in=Subquery(recent_completed_tasks))
             .annotate(
                 worksheet_count=Count(
                     "worksheets", filter=Q(worksheets__deleted=False), distinct=True
