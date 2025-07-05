@@ -22,6 +22,7 @@ from apps.teams.api.views import (
     DistrictViewSet,
     PatrolViewSet,
     TeamRequestViewSet,
+    TeamStatisticsAPIView,
     TeamViewSet,
 )
 from apps.users.api.views import (
@@ -190,6 +191,11 @@ urlpatterns = [
         ),
     ),
     path("api/contact/", ContactAPIView.as_view(), name="contact"),
+    path(
+        "api/team-statistics/",
+        TeamStatisticsAPIView.as_view(),
+        name="team_statistics_api",
+    ),
     path("contact/", contactView, name="contact"),
     path("worksheets/", include("apps.worksheets.urls")),
     path(

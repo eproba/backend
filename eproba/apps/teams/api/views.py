@@ -1,13 +1,25 @@
 import threading
+from datetime import timedelta
 
 from apps.teams.api.permissions import IsAllowedToAccessTeamRequest
 from apps.teams.api.serializers import TeamRequestSerializer
 from apps.teams.models import District, Patrol, Team, TeamRequest
+from apps.users.models import (
+    User,
+    instructor_rank_female,
+    instructor_rank_male,
+    scout_rank_female,
+    scout_rank_male,
+)
+from apps.worksheets.models import Task, Worksheet
 from django.conf import settings
 from django.core.mail import EmailMessage, send_mail
+from django.db.models import Count, Max, Q
+from django.utils import timezone
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .permissions import (
     IsAllowedToManagePatrolOrReadOnly,
@@ -224,3 +236,440 @@ Lub dla konkretnego zastępu:
                 f"Twoje zgłoszenie zostało zaktualizowane.{note_text}",
             ),
         )
+
+
+class TeamStatisticsAPIView(APIView):
+    """
+    API endpoint providing comprehensive team statistics for team leaders.
+
+    Provides metrics including:
+    - Team overview (member counts, activity)
+    - Rank distribution
+    - Worksheet/badge progress
+    - Activity trends
+    - Patrol comparisons
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if not user.patrol or user.function < 3:
+            return Response(
+                {"error": "Nie masz uprawnień do przeglądania statystyk drużyny."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        team = user.patrol.team
+        stats = self._calculate_team_statistics(team, user)
+
+        return Response(stats, status=status.HTTP_200_OK)
+
+    def _calculate_team_statistics(self, team, current_user):
+        """Calculate comprehensive team statistics"""
+        organization = team.organization
+
+        now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
+        seven_days_ago = now - timedelta(days=7)
+
+        # Basic team info
+        team_members = User.objects.filter(patrol__team=team, is_active=True)
+        total_members = team_members.count()
+
+        # TEAM OVERVIEW STATS
+        overview_stats = {
+            "total_members": total_members,
+            "verified_emails": team_members.filter(email_verified=True).count(),
+            "active_last_30_days": team_members.filter(
+                worksheets__updated_at__gte=thirty_days_ago, worksheets__deleted=False
+            )
+            .distinct()
+            .count(),
+            "patrols_count": team.patrols.count(),
+        }
+
+        # RANK DISTRIBUTION
+        rank_distribution = {
+            "scout_ranks": self._get_scout_rank_distribution(
+                team_members, organization
+            ),
+            "instructor_ranks": self._get_instructor_rank_distribution(
+                team_members, organization
+            ),
+            "functions": self._get_function_distribution(team_members, organization),
+        }
+
+        # WORKSHEET/BADGE PROGRESS
+        worksheets = Worksheet.objects.filter(user__patrol__team=team, deleted=False)
+
+        archived_worksheets = worksheets.filter(is_archived=True).count()
+
+        active_fully_completed = 0
+        for worksheet in worksheets.filter(is_archived=False):
+            total_tasks = worksheet.tasks.count()
+            if total_tasks > 0:
+                completed_tasks = worksheet.tasks.filter(status=2).count()
+                if total_tasks == completed_tasks:
+                    active_fully_completed += 1
+
+        worksheet_stats = {
+            "total_worksheets": worksheets.count(),
+            "active_worksheets": worksheets.filter(is_archived=False).count(),
+            "completed_worksheets": archived_worksheets + active_fully_completed,
+            "average_completion_rate": self._calculate_average_completion_rate(
+                worksheets
+            ),
+            "pending_approvals": Task.objects.filter(
+                worksheet__user__patrol__team=team, status=1, worksheet__deleted=False
+            ).count(),
+        }
+
+        # ACTIVITY TRENDS
+        activity_trends = {
+            "worksheets_created_last_7_days": worksheets.filter(
+                created_at__gte=seven_days_ago
+            ).count(),
+            "worksheets_created_last_30_days": worksheets.filter(
+                created_at__gte=thirty_days_ago
+            ).count(),
+            "tasks_completed_last_7_days": Task.objects.filter(
+                worksheet__user__patrol__team=team,
+                worksheet__deleted=False,
+                status=2,
+                approval_date__gte=seven_days_ago,
+            ).count(),
+            "tasks_completed_last_30_days": Task.objects.filter(
+                worksheet__user__patrol__team=team,
+                worksheet__deleted=False,
+                status=2,
+                approval_date__gte=thirty_days_ago,
+            ).count(),
+        }
+
+        # PATROL COMPARISONS
+        patrol_stats = self._get_patrol_statistics(team, organization)
+
+        # TOP PERFORMERS
+        top_performers = self._get_top_performers(team)
+
+        # INACTIVE MEMBERS (need attention)
+        inactive_members = self._get_inactive_members(team, thirty_days_ago)
+
+        return {
+            "team_info": {
+                "name": team.name,
+                "short_name": team.short_name,
+                "district": team.district.name,
+                "organization": team.get_organization_display(),
+                "is_verified": team.is_verified,
+            },
+            "overview": overview_stats,
+            "rank_distribution": rank_distribution,
+            "worksheet_progress": worksheet_stats,
+            "activity_trends": activity_trends,
+            "patrol_comparison": patrol_stats,
+            "top_performers": top_performers,
+            "members_needing_attention": inactive_members,
+            "generated_at": now.isoformat(),
+        }
+
+    def _get_scout_rank_distribution(self, team_members, organization):
+        """Get distribution of scout ranks with organization-specific labels"""
+        ranks = team_members.values("scout_rank").annotate(count=Count("id"))
+
+        if organization == 0:
+            scout_rank_labels = scout_rank_male
+        else:
+            scout_rank_labels = scout_rank_female
+
+        return [
+            {
+                "rank": scout_rank_labels.get(item["scout_rank"], "brak stopnia"),
+                "rank_value": item["scout_rank"],
+                "count": item["count"],
+            }
+            for item in ranks
+        ]
+
+    def _get_instructor_rank_distribution(self, team_members, organization):
+        """Get distribution of instructor ranks with organization-specific labels"""
+        ranks = team_members.values("instructor_rank").annotate(count=Count("id"))
+
+        if organization == 0:
+            instructor_rank_labels = instructor_rank_male
+        else:
+            instructor_rank_labels = instructor_rank_female
+
+        return [
+            {
+                "rank": instructor_rank_labels.get(
+                    item["instructor_rank"], "brak stopnia"
+                ),
+                "rank_value": item["instructor_rank"],
+                "count": item["count"],
+            }
+            for item in ranks
+        ]
+
+    def _get_function_distribution(self, team_members, organization):
+        """Get distribution of scout functions with organization-specific rank breakdown for bar graphs"""
+
+        if organization == 0:
+            function_choices = {
+                0: "Druh",
+                1: "Podzastępowy",
+                2: "Zastępowy",
+                3: "Przyboczny",
+                4: "Drużynowy",
+                5: "Wyższa funkcja",
+            }
+            scout_rank_labels = scout_rank_male
+        else:
+            function_choices = {
+                0: "Druhna",
+                1: "Podzastępowa",
+                2: "Zastępowa",
+                3: "Przyboczna",
+                4: "Drużynowa",
+                5: "Wyższa funkcja",
+            }
+            scout_rank_labels = scout_rank_female
+
+        functions = team_members.values("function").annotate(count=Count("id"))
+
+        function_data = []
+        for function_item in functions:
+            function_value = function_item["function"]
+            function_name = function_choices.get(function_value, "Unknown")
+
+            function_members = team_members.filter(function=function_value)
+            rank_distribution = function_members.values("scout_rank").annotate(
+                count=Count("id")
+            )
+
+            rank_breakdown = []
+            total_count = 0
+            for rank_item in rank_distribution:
+                rank_value = rank_item["scout_rank"]
+                rank_count = rank_item["count"]
+                total_count += rank_count
+
+                rank_breakdown.append(
+                    {
+                        "rank": scout_rank_labels.get(rank_value, "brak stopnia"),
+                        "rank_value": rank_value,
+                        "count": rank_count,
+                    }
+                )
+
+            rank_breakdown.sort(key=lambda x: x["rank_value"])
+
+            function_data.append(
+                {
+                    "function": function_name,
+                    "function_value": function_value,
+                    "total_count": total_count,
+                    "rank_breakdown": rank_breakdown,
+                }
+            )
+
+        function_data.sort(key=lambda x: x["function_value"])
+
+        return function_data
+
+    def _calculate_average_completion_rate(self, worksheets):
+        """Calculate average completion rate across all worksheets"""
+        active_worksheets = worksheets.filter(is_archived=False)
+        if not active_worksheets.exists():
+            return 0
+
+        total_rate = 0
+        count = 0
+
+        for worksheet in active_worksheets:
+            total_tasks = worksheet.tasks.count()
+            if total_tasks > 0:
+                completed_tasks = worksheet.tasks.filter(status=2).count()
+                total_rate += (completed_tasks / total_tasks) * 100
+                count += 1
+
+        return round(total_rate / count, 1) if count > 0 else 0
+
+    def _get_patrol_statistics(self, team, organization):
+        """Get statistics for each patrol"""
+        patrols = team.patrols.annotate(
+            member_count=Count("users", filter=Q(users__is_active=True), distinct=True)
+        )
+
+        patrol_data = []
+        for patrol in patrols:
+            member_count = getattr(patrol, "member_count", 0)
+
+            worksheet_count = Worksheet.objects.filter(
+                user__patrol=patrol, deleted=False
+            ).count()
+
+            completed_worksheets = Worksheet.objects.filter(
+                user__patrol=patrol, deleted=False, is_archived=True
+            ).count()
+
+            active_completed = 0
+            for worksheet in Worksheet.objects.filter(
+                user__patrol=patrol, deleted=False, is_archived=False
+            ):
+                total_tasks = worksheet.tasks.count()
+                if total_tasks > 0:
+                    completed_tasks = worksheet.tasks.filter(status=2).count()
+                    if total_tasks == completed_tasks:
+                        active_completed += 1
+
+            completed_worksheets += active_completed
+
+            average_completion_rate = 0
+            active_worksheets = Worksheet.objects.filter(
+                user__patrol=patrol, deleted=False, is_archived=False
+            )
+
+            if active_worksheets.exists():
+                total_completion_rate = 0
+                count = 0
+                for worksheet in active_worksheets:
+                    total_tasks = worksheet.tasks.count()
+                    if total_tasks > 0:
+                        completed_tasks = worksheet.tasks.filter(status=2).count()
+                        task_completion_rate = (completed_tasks / total_tasks) * 100
+                        total_completion_rate += task_completion_rate
+                        count += 1
+                average_completion_rate = (
+                    round(total_completion_rate / count, 1) if count > 0 else 0
+                )
+
+            patrol_data.append(
+                {
+                    "id": str(patrol.id),
+                    "name": patrol.name,
+                    "member_count": member_count,
+                    "worksheet_count": worksheet_count,
+                    "average_completion_rate": average_completion_rate,
+                    "average_rank": self._get_patrol_average_rank(patrol, organization),
+                }
+            )
+
+        return patrol_data
+
+    def _get_patrol_average_rank(self, patrol, organization):
+        """Calculate average scout rank for patrol"""
+        members = patrol.users.filter(is_active=True)
+        if not members.exists():
+            return "brak stopnia"
+
+        if organization == 0:
+            scout_rank_labels = scout_rank_male
+        else:
+            scout_rank_labels = scout_rank_female
+
+        total_rank = sum(member.scout_rank for member in members)
+        return scout_rank_labels.get(
+            round(total_rank / members.count(), 1), "brak stopnia"
+        )
+
+    def _get_top_performers(self, team):
+        """Get top performing scouts based on tasks completed in last 90 days"""
+        time_from = timezone.now() - timedelta(days=90)
+
+        members = (
+            User.objects.filter(patrol__team=team, is_active=True)
+            .annotate(
+                completed_tasks=Count(
+                    "worksheets__tasks",
+                    filter=Q(
+                        worksheets__tasks__status=2,
+                        worksheets__tasks__approval_date__gte=time_from,
+                        worksheets__deleted=False,
+                    ),
+                    distinct=True,
+                ),
+                total_worksheets=Count(
+                    "worksheets", filter=Q(worksheets__deleted=False), distinct=True
+                ),
+            )
+            .order_by("-completed_tasks")[:10]
+        )
+
+        top_performers = []
+        for member in members:
+            completed_tasks = getattr(member, "completed_tasks", 0)
+            if completed_tasks > 0:
+                top_performers.append(
+                    {
+                        "id": str(member.id),
+                        "name": member.full_name_nickname(),
+                        "patrol": member.patrol.name if member.patrol else None,
+                        "rank": member.rank() or "brak stopnia",
+                        "completed_tasks": completed_tasks,
+                        "total_worksheets": getattr(member, "total_worksheets", 0),
+                    }
+                )
+
+        return top_performers
+
+    def _get_inactive_members(self, team, since_date):
+        """Get members who need attention (inactive in last 90 days)"""
+        time_from = timezone.now() - timedelta(days=90)
+
+        inactive = (
+            User.objects.filter(patrol__team=team, is_active=True)
+            .exclude(
+                worksheets__tasks__approval_date__gte=time_from,
+                worksheets__tasks__status=2,
+                worksheets__deleted=False,
+            )
+            .annotate(
+                worksheet_count=Count(
+                    "worksheets", filter=Q(worksheets__deleted=False), distinct=True
+                ),
+                recent_completed_tasks=Count(
+                    "worksheets__tasks",
+                    filter=Q(
+                        worksheets__tasks__status=2,
+                        worksheets__tasks__approval_date__gte=time_from,
+                        worksheets__deleted=False,
+                    ),
+                    distinct=True,
+                ),
+                last_task_completion=Max(
+                    "worksheets__tasks__approval_date",
+                    filter=Q(worksheets__tasks__status=2, worksheets__deleted=False),
+                ),
+            )
+            .filter(recent_completed_tasks=0)
+            .order_by("last_task_completion")
+        )
+
+        inactive_members = []
+        for member in inactive:
+            worksheet_count = getattr(member, "worksheet_count", 0)
+            last_completion = getattr(member, "last_task_completion", None)
+
+            if last_completion:
+                days_since_last_activity = (timezone.now() - last_completion).days
+            else:
+                days_since_last_activity = (timezone.now() - member.created_at).days
+
+            inactive_members.append(
+                {
+                    "id": str(member.id),
+                    "name": member.full_name_nickname(),
+                    "patrol": member.patrol.name if member.patrol else None,
+                    "rank": member.rank() or "brak stopnia",
+                    "total_worksheets": worksheet_count,
+                    "days_inactive": days_since_last_activity,
+                    "last_activity": (
+                        last_completion.isoformat() if last_completion else None
+                    ),
+                }
+            )
+
+        return inactive_members

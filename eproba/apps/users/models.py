@@ -7,6 +7,32 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.db import models
 from django.db.models import UUIDField
 
+instructor_rank_male = {1: "przewodnik", 2: "podharcmistrz", 3: "harcmistrz"}
+
+instructor_rank_female = {
+    1: "przewodniczka",
+    2: "podharcmistrzyni",
+    3: "harcmistrzyni",
+}
+
+scout_rank_male = {
+    1: "biszkopt",
+    2: "młodzik",
+    3: "wywiadowca",
+    4: "ćwik",
+    5: "harcerz orli",
+    6: "harcerz Rzeczypospolitej",
+}
+
+scout_rank_female = {
+    1: "biszkopt",
+    2: "ochotniczka",
+    3: "tropicielka",
+    4: "samarytanka",
+    5: "wędrowniczka",
+    6: "harcerka Rzeczypospolitej",
+}
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     GENDER_CHOICES = [(0, "Mężczyzna"), (1, "Kobieta"), (2, "Inna")]
@@ -175,32 +201,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         _gender = (
             self.patrol.team.organization if self.patrol is not None else self.gender
         )
-
-        instructor_rank_male = {1: "przewodnik", 2: "podharcmistrz", 3: "harcmistrz"}
-
-        instructor_rank_female = {
-            1: "przewodniczka",
-            2: "podharcmistrzyni",
-            3: "harcmistrzyni",
-        }
-
-        scout_rank_male = {
-            1: "biszkopt",
-            2: "młodzik",
-            3: "wywiadowca",
-            4: "ćwik",
-            5: "harcerz orli",
-            6: "harcerz Rzeczypospolitej",
-        }
-
-        scout_rank_female = {
-            1: "biszkopt",
-            2: "ochotniczka",
-            3: "tropicielka",
-            4: "samarytanka",
-            5: "wędrowniczka",
-            6: "harcerka Rzeczypospolitej",
-        }
 
         if _gender == 0:
             instructor_rank = instructor_rank_male.get(self.instructor_rank, "")
