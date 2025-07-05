@@ -630,22 +630,12 @@ class TeamStatisticsAPIView(APIView):
                 worksheet_count=Count(
                     "worksheets", filter=Q(worksheets__deleted=False), distinct=True
                 ),
-                recent_completed_tasks=Count(
-                    "worksheets__tasks",
-                    filter=Q(
-                        worksheets__tasks__status=2,
-                        worksheets__tasks__approval_date__gte=time_from,
-                        worksheets__deleted=False,
-                    ),
-                    distinct=True,
-                ),
                 last_task_completion=Max(
                     "worksheets__tasks__approval_date",
                     filter=Q(worksheets__tasks__status=2, worksheets__deleted=False),
                 ),
             )
-            .filter(recent_completed_tasks=0)
-            .order_by("last_task_completion")
+            .order_by("last_task_completion", "created_at")
         )
 
         inactive_members = []
