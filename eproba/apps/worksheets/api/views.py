@@ -109,6 +109,8 @@ class WorksheetViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get("user") is not None:
             return qs.filter(user=user)
         if self.request.query_params.get("archived") is not None:
+            if not user.patrol:
+                return qs.filter(user=user, is_archived=True)
             return qs.filter(user__patrol__team=user.patrol.team, is_archived=True)
         if self.request.query_params.get("review") is not None:
             return qs.filter(

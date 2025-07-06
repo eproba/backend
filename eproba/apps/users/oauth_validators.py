@@ -20,27 +20,31 @@ class CustomOAuth2Validator(OAuth2Validator):
     )
 
     def get_additional_claims(self, request):
+        user = request.user
+        patrol = user.patrol if user.patrol else None
+        team = patrol.team if patrol and patrol.team else None
+
         return {
             # Standard claims
-            "email": request.user.email,
-            "email_verified": request.user.email_verified,
-            "nickname": request.user.nickname,
-            "name": request.user.full_name,
-            "given_name": request.user.first_name,
-            "family_name": request.user.last_name,
-            "gender": request.user.gender_string,
+            "email": user.email,
+            "email_verified": user.email_verified,
+            "nickname": user.nickname,
+            "name": user.full_name,
+            "given_name": user.first_name,
+            "family_name": user.last_name,
+            "gender": user.gender_string,
             # Custom claims
-            "patrol": request.user.patrol.id,
-            "patrol_name": request.user.patrol.name,
-            "team": request.user.patrol.team.id,
-            "team_name": request.user.patrol.team.name,
-            "rank": request.user.full_rank(),
-            "scout_rank": request.user.scout_rank,
-            "instructor_rank": request.user.instructor_rank,
-            "function": request.user.function,
-            "is_active": request.user.is_active,
-            "is_superuser": request.user.is_superuser,
-            "is_staff": request.user.is_staff,
+            "patrol": patrol.id if patrol else None,
+            "patrol_name": patrol.name if patrol else None,
+            "team": team.id if team else None,
+            "team_name": team.name if team else None,
+            "rank": user.full_rank(),
+            "scout_rank": user.scout_rank,
+            "instructor_rank": user.instructor_rank,
+            "function": user.function,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser,
+            "is_staff": user.is_staff,
         }
 
     def get_discovery_claims(self, request):
