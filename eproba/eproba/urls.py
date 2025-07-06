@@ -16,7 +16,7 @@ Including another URLconf
 
 from apps.blog.api.views import PostViewSet
 from apps.blog.sitemaps import PostSitemap
-from apps.core.api.views import ContactAPIView
+from apps.core.api.views import ApiConfigView, ContactAPIView
 from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
 from apps.teams.api.views import (
     DistrictViewSet,
@@ -80,7 +80,6 @@ from rest_framework import routers
 
 from .sitemaps import Sitemap
 from .utils import (
-    ApiConfigView,
     LegacyApiConfigView,
 )
 

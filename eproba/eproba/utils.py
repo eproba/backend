@@ -1,6 +1,5 @@
 from constance import config
 from constance.signals import config_updated
-from django.conf import settings
 from django.dispatch import receiver
 from maintenance_mode.core import set_maintenance_mode
 from rest_framework import permissions
@@ -19,19 +18,6 @@ class LegacyApiConfigView(APIView):
                 "ads": config.ADS_MOBILE,
                 "api_maintenance": config.API_MAINTENANCE_MODE,
                 "min_version": config.MINIMUM_APP_VERSION,
-            }
-        )
-
-
-class ApiConfigView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        return Response(
-            {
-                "maintenance": config.MAINTENANCE_MODE,
-                "server_version": eproba_version,
-                "api_version": settings.API_VERSION,
             }
         )
 
