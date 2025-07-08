@@ -12,7 +12,6 @@ from apps.users.models import (
     scout_rank_male,
 )
 from apps.worksheets.models import Task, Worksheet
-from django.conf import settings
 from django.core.mail import EmailMessage, send_mail
 from django.db.models import Count, Max, OuterRef, Q, Subquery
 from django.utils import timezone
@@ -179,7 +178,7 @@ class TeamRequestViewSet(
             send_mail(
                 subject,
                 message,
-                settings.DEFAULT_FROM_EMAIL,
+                None,
                 [team_request.created_by.email],
                 fail_silently=True,
             )

@@ -68,7 +68,12 @@ class CustomUserAdmin(UserAdmin):
         (
             "Dodatkowe informacje",
             {
-                "fields": ("created_at", "is_deleted", "deleted_at"),
+                "fields": (
+                    "created_at",
+                    "email_notifications",
+                    "is_deleted",
+                    "deleted_at",
+                ),
             },
         ),
     )

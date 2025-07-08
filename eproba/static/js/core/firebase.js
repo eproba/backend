@@ -90,7 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const notificationLink = document.createElement('a');
-            notificationLink.href = payload.fcmOptions.link;
+            if (payload.fcmOptions && payload.fcmOptions.link) {
+                notificationLink.href = payload.fcmOptions.link;
+            }
             notificationLink.innerHTML = `<strong>${payload.notification.title}</strong><br>`;
 
             const notificationBody = document.createTextNode(payload.notification.body);

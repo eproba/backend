@@ -120,6 +120,7 @@ class UserInfo(
         "email",
         "patrol",
         "is_active",
+        "email_notifications",
     ]
 
     def get_object(self):

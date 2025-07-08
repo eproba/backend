@@ -1,4 +1,4 @@
-from apps.users.utils import min_function, patrol_required
+from apps.users.utils import min_function, patrol_required, send_notification
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,7 +12,7 @@ try:
 except OSError:
     pass
 
-from apps.worksheets.utils import prepare_worksheet, send_notification
+from apps.worksheets.utils import prepare_worksheet
 
 from ...teams.models import Patrol
 from ..forms import SubmitTaskForm

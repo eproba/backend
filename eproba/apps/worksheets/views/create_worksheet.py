@@ -1,4 +1,4 @@
-from apps.worksheets.utils import send_notification
+from apps.users.utils import send_notification
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction

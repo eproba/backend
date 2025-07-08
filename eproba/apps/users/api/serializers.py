@@ -33,6 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
             "name",
             "email",
             "email_verified",
+            "email_notifications",
             "is_active",
             "patrol",
             "patrol_name",

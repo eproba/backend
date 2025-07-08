@@ -1,11 +1,21 @@
 import json
 import uuid
+from datetime import datetime
 
 from apps.teams.models import Patrol
-from apps.users.utils import UUIDEncoder
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 from django.db.models import UUIDField
+
+
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        elif isinstance(o, datetime):
+            return o.isoformat()
+        return json.JSONEncoder.default(self, o)
+
 
 instructor_rank_male = {1: "przewodnik", 2: "podharcmistrz", 3: "harcmistrz"}
 
@@ -61,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField("Email", unique=True)
+    email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=20, blank=True, null=True)
     first_name = models.CharField(max_length=20, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)
@@ -86,6 +96,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     scout_rank = models.IntegerField(choices=SCOUT_RANK_CHOICES, default=0)
     instructor_rank = models.IntegerField(choices=INSTRUCTOR_RANK_CHOICES, default=0)
     function = models.IntegerField(choices=FUNCTION_CHOICES, default=0)
+
+    email_notifications = models.BooleanField(
+        default=False,
+    )
 
     USERNAME_FIELD = "email"
 

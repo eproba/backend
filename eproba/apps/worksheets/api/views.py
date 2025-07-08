@@ -3,9 +3,9 @@ import json
 from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
 from apps.users.tasks import clear_tokens
+from apps.users.utils import send_notification
 from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
 from apps.worksheets.tasks import remove_expired_deleted_worksheets
-from apps.worksheets.utils import send_notification
 from django.db.models import Q
 from django.http import QueryDict
 from django.urls import reverse
