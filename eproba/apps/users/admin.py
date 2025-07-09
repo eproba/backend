@@ -109,6 +109,13 @@ class CustomUserAdmin(UserAdmin):
 
     readonly_fields = ("created_at",)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "patrol":
+            kwargs["queryset"] = db_field.related_model.objects.select_related(
+                "team"
+            ).order_by("team__short_name", "name")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def full_name(self, obj):
         return obj.full_name or obj.email
 

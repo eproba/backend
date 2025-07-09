@@ -145,6 +145,19 @@ class UserInfo(
 
         serializer.save()
 
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.is_active = False
+        user.is_deleted = True
+        user.is_staff = False
+        user.is_superuser = False
+        user.set_unusable_password()
+        user.email = f"deleted-{uuid.uuid4()}-{user.email}"
+        user.save()
+        return Response(
+            {"detail": "User account has been deleted."}, status=HTTP_200_OK
+        )
+
 
 class ChangePasswordView(GenericAPIView):
     """

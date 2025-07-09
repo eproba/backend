@@ -85,15 +85,17 @@
 <div style="display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px;">
     {% if is_template %}
         {% if worksheet.image %}
-            <img src="{{ worksheet.image.url }}" alt="Emblemat" style="max-width: 100px; max-height: 100px; flex-shrink: 0;">
+            <img src="{{ worksheet.image.url }}" alt="Emblemat"
+                 style="max-width: 100px; max-height: 100px; flex-shrink: 0;">
         {% endif %}
     {% else %}
         {% if worksheet.template.image %}
-            <img src="{{ worksheet.template.image.url }}" alt="Emblemat" style="max-width: 100px; max-height: 100px; flex-shrink: 0;">
+            <img src="{{ worksheet.template.image.url }}" alt="Emblemat"
+                 style="max-width: 100px; max-height: 100px; flex-shrink: 0;">
         {% endif %}
     {% endif %}
     <div style="flex: 1;">
-        <p style="font-size: 0.9em; color: grey; margin: 0;">{{ worksheet.description }}</p>
+        <p style="font-size: 0.9em; color: grey; margin: 0; white-space: pre-wrap;">{{ worksheet.description }}</p>
     </div>
 </div>
 
@@ -139,7 +141,7 @@
                 {% endif %}
                 {% if task.description %}
                     <br>
-                    <p style="font-size: small; color: dimgrey">{{ task.description }}</p>
+                    <p style="font-size: small; color: dimgrey; white-space: pre-wrap;">{{ task.description }}</p>
                 {% endif %}
             </td>
             {% if task.status == 2 %}
