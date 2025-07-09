@@ -54,7 +54,10 @@ try:
 except FileNotFoundError:
     LOGGER.warning("Firebase credentials file not found. Notifications are disabled.")
     FIREBASE_APP = None
-FCM_DJANGO_SETTINGS = {"APP_VERBOSE_NAME": "Powiadomienia (FCM)"}
+FCM_DJANGO_SETTINGS = {
+    "APP_VERBOSE_NAME": "Powiadomienia (FCM)",
+    "DELETE_INACTIVE_DEVICES": True,
+}
 
 # Application definition
 INSTALLED_APPS = [

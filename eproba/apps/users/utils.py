@@ -117,7 +117,7 @@ def send_email_notification(targets: list[User], subject: str, message: str, lin
     try:
         send_mail(
             subject,
-            f"{message}\n\nLink: {link}",
+            f"{message}\n\nLink: {urllib.parse.urljoin("https://eproba.zhr.pl", link)}",
             None,
             recipient_emails,
         )

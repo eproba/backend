@@ -367,9 +367,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if old_status != 2:
             send_notification(
                 targets=task.worksheet.user,
-                title="Zadanie zaakceptowane",
+                title=f"Zadanie zaakceptowane: {task.task}",
                 body=f"Twoje zadanie zostało zaakceptowane przez {request.user}",
-                link=reverse("worksheets:check_tasks"),
+                link=f"worksheets#{task.worksheet.id}",
             )
         return Response(self.get_serializer(task).data)
 
@@ -388,9 +388,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if old_status not in [0, 3]:
             send_notification(
                 targets=task.worksheet.user,
-                title="Zadanie odrzucone",
+                title=f"Zadanie odrzucone: {task.task}",
                 body=f"Twoje zadanie zostało odrzucone przez {request.user}",
-                link=f"https://eproba.zhr.pl/worksheets/{task.worksheet.id}",
+                link=f"worksheets#{task.worksheet.id}",
             )
         return Response(self.get_serializer(task).data)
 
