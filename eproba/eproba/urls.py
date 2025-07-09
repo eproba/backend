@@ -198,34 +198,34 @@ urlpatterns = [
     path("contact/", contactView, name="contact"),
     path("worksheets/", include("apps.worksheets.urls")),
     path(
-        "login/",
+        "api/login/",
         LoginView.as_view(
             template_name="users/login.html", redirect_authenticated_user=True
         ),
         name="login",
     ),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    path("api/logout/", LogoutView.as_view(), name="logout"),
     # path("lh/", login_hub),
     # path("_login/<uuid:user_id>/", login_from_hub),
     path("news/", include("apps.blog.urls")),
     path(
-        "password-reset/",
+        "api/password-reset/",
         PasswordResetView.as_view(template_name="users/password_reset.html"),
         name="password_reset",
     ),
     path(
-        "password-reset-complete/",
+        "api/password-reset-complete/",
         password_reset_complete,
         name="password_reset_complete",
     ),
     path(
-        "password-reset-confirm/<uidb64>/<token>/",
+        "api/password-reset-confirm/<uidb64>/<token>/",
         PasswordResetConfirmView.as_view(
             template_name="users/password_reset_confirm.html"
         ),
         name="password_reset_confirm",
     ),
-    path("password-reset-done/", password_reset_done, name="password_reset_done"),
+    path("api/password-reset-done/", password_reset_done, name="password_reset_done"),
     path("profile/edit/", edit_profile, name="edit_profile"),
     path("profile/change-password/", change_password, name="change_password"),
     path("profile/set-password/", set_password, name="set_password"),
@@ -242,8 +242,8 @@ urlpatterns = [
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
     ),
-    path("signup/", signup, name="signup"),
-    path("signup/finalize/", finish_signup, name="finish_signup"),
+    path("api/signup/", signup, name="signup"),
+    path("api/signup/finalize/", finish_signup, name="finish_signup"),
     path("team/", include("apps.teams.urls")),
     path(
         "oauth2/authorize/", CustomAuthorizationView.as_view(), name="oauth2_authorize"
@@ -265,11 +265,11 @@ urlpatterns = [
         RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
     ),
     path(
-        "google-auth-receiver/",
+        "api/google-auth-receiver/",
         google_auth_receiver,
         name="google_auth_receiver",
     ),
-    path("select-patrol/", select_patrol, name="select_patrol"),
+    path("api/select-patrol/", select_patrol, name="select_patrol"),
     path(
         "send-verification-email/",
         send_verification_email,

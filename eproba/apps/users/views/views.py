@@ -121,7 +121,7 @@ def google_auth_receiver(request):
         messages.add_message(
             request,
             messages.ERROR,
-            "Konto jest deaktywowane, nie możesz się zalogować.",
+            "Konto jest dezaktywowane, nie możesz się zalogować.",
         )
 
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
