@@ -7,7 +7,7 @@ function update_device_list() {
             console.error('Failed to parse device info:', e);
             console.warn('Assuming the device contains only name.');
             element.querySelector('.card-content .media .media-content .title').textContent = element.dataset.deviceInfo;
-            element.querySelector('.card-content > div > div > figure > img').src = 'https://eproba.zhr.pl/static/images/logo-background-200x200.png';
+            element.querySelector('.card-content > div > div > figure > img').src = 'https://eproba.zhr.pl/api/static/images/logo-background-200x200.png';
             element.querySelector('.card-content > div > div > figure > img').style.borderRadius = '8px';
             element.querySelector('.card-image figure img').src = `https://faisalman.github.io/ua-parser-js/images/types/mobile.png`;
             return;
@@ -27,7 +27,7 @@ function update_device_list() {
             element.querySelector('.card-content > div > div > figure > img').src = `https://faisalman.github.io/ua-parser-js/images/browsers/${browserImageMap[browser]}`;
         } else {
             if (browser === 'app') {
-                element.querySelector('.card-content > div > div > figure > img').src = 'https://eproba.zhr.pl/static/images/logo-background-200x200.png';
+                element.querySelector('.card-content > div > div > figure > img').src = 'https://eproba.zhr.pl/api/static/images/logo-background-200x200.png';
                 element.querySelector('.card-content > div > div > figure > img').style.borderRadius = '8px';
             }
         }

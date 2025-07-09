@@ -179,7 +179,7 @@ MAINTENANCE_MODE_IGNORE_URLS = (
     r"^/terms-of-service",
     r"^/site-management",
     r"^/login",
-    r"^/static/images/icons/favicon.svg",
+    r"^/api/static/images/icons/favicon.svg",
 )
 
 # Templates
