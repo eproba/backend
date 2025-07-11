@@ -160,6 +160,14 @@ class WorksheetViewSet(viewsets.ModelViewSet):
             # Default to current user if no user specified
             serializer.save(user=self.request.user)
 
+        if serializer.instance.user != self.request.user:
+            send_notification(
+                targets=serializer.instance.user,
+                title=f'Próba "{serializer.instance.name}" została utworzona dla Ciebie',
+                body=f'Próba "{serializer.instance.name}" została utworzona przez {self.request.user.full_name_nickname()}',
+                link=f"worksheets#{serializer.instance.id}",
+            )
+
     def perform_update(self, serializer):
         user_data = serializer.validated_data.get("user")
         user_id = user_data.get("id") if user_data else None
@@ -332,9 +340,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         send_notification(
             targets=task.approver,
-            title="Nowe zadanie do sprawdzenia",
+            title="Nowe zadanie do sprawdzenia: {task.task}",
             body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
-            link=reverse("worksheets:check_tasks"),
+            link=f"worksheets/review#{task.worksheet.id}",
         )
         return Response(self.get_serializer(task).data)
 
@@ -364,7 +372,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.save()
         task.worksheet.save()  # Update worksheet timestamp
 
-        if old_status != 2:
+        if old_status != 2 and request.user != task.worksheet.user:
             send_notification(
                 targets=task.worksheet.user,
                 title=f"Zadanie zaakceptowane: {task.task}",
@@ -385,7 +393,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.save()
         task.worksheet.save()  # Update worksheet timestamp
 
-        if old_status not in [0, 3]:
+        if old_status not in [0, 3] and request.user != task.worksheet.user:
             send_notification(
                 targets=task.worksheet.user,
                 title=f"Zadanie odrzucone: {task.task}",

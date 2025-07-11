@@ -1,7 +1,7 @@
 import uuid
 
 from apps.users.models import User
-from apps.users.utils import send_verification_email_to_user
+from apps.users.utils import send_notification, send_verification_email_to_user
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Value
@@ -133,13 +133,23 @@ class UserInfo(
                 raise serializers.ValidationError(
                     f"Field '{field}' is not allowed to be updated."
                 )
-        if data.get("patrol", self.request.user.patrol) != self.request.user.patrol:
+        new_patrol = data.get("patrol", self.request.user.patrol)
+        if new_patrol != self.request.user.patrol:
             if (
-                not data.get("patrol")
+                not new_patrol
                 or not self.request.user.patrol
-                or data["patrol"].team != self.request.user.patrol.team
+                or new_patrol.team != self.request.user.patrol.team
             ):
                 data["function"] = 0
+                if new_patrol:
+                    send_notification(
+                        User.objects.filter(
+                            Q(patrol__team=new_patrol.team) & Q(function=4)
+                        ),
+                        f"{self.request.user.full_name_nickname()} dołączył do twojej drużyny",
+                        f"{self.request.user.full_name_nickname()} dołączył do zaspołu {new_patrol.name} w twojej drużynie.",
+                        "team",  # TODO: make link point to specific user page
+                    )
             elif self.request.user.function <= 2:
                 data["function"] = 0
 

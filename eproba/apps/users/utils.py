@@ -4,6 +4,7 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.db.models.manager import BaseManager
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -79,31 +80,42 @@ def send_verification_email_to_user(user):
         logger.error(f"Failed to send verification email to {user.email}: {e}")
 
 
-def send_fcm_notification(targets: list[User], title: str, body: str, link: str):
+def send_fcm_notification(
+    targets: list[User] | BaseManager[User],
+    title: str,
+    body: str,
+    link: str | None = None,
+):
     """Send FCM (Firebase Cloud Messaging) notification to users."""
     if settings.FIREBASE_APP is None:
         logger.warning("Firebase app is not initialized, notifications are disabled.")
         return
     try:
-        FCMDevice.objects.filter(user__in=targets).send_message(
-            Message(
-                webpush=WebpushConfig(
-                    notification=WebpushNotification(
-                        title=title,
-                        body=body,
-                    ),
-                    fcm_options=WebpushFCMOptions(
-                        link=urllib.parse.urljoin("https://eproba.zhr.pl", link)
-                    ),
-                ),
+        webpush_config = WebpushConfig(
+            notification=WebpushNotification(
+                title=title,
+                body=body,
             )
+        )
+
+        if link:
+            webpush_config.fcm_options = WebpushFCMOptions(
+                link=urllib.parse.urljoin("https://eproba.zhr.pl", link)
+            )
+
+        FCMDevice.objects.filter(user__in=targets).send_message(
+            Message(webpush=webpush_config)
         )
     except Exception as e:
         logger.error(f"Error while sending FCM notification: {e}")
-        pass
 
 
-def send_email_notification(targets: list[User], subject: str, message: str, link: str):
+def send_email_notification(
+    targets: list[User] | BaseManager[User],
+    subject: str,
+    message: str,
+    link: str | None = None,
+):
     """Send email notification to users who have email notifications enabled."""
 
     # Filter users who have email notifications enabled
@@ -115,9 +127,15 @@ def send_email_notification(targets: list[User], subject: str, message: str, lin
     recipient_emails = [user.email for user in enabled_users]
 
     try:
+        email_message = message
+        if link:
+            email_message += (
+                f"\n\nLink: {urllib.parse.urljoin('https://eproba.zhr.pl', link)}"
+            )
+
         send_mail(
             subject,
-            f"{message}\n\nLink: {urllib.parse.urljoin("https://eproba.zhr.pl", link)}",
+            email_message,
             None,
             recipient_emails,
         )
@@ -125,10 +143,17 @@ def send_email_notification(targets: list[User], subject: str, message: str, lin
         logger.error(f"Failed to send email notification: {e}")
 
 
-def send_notification(targets: list[User] | User, title: str, body: str, link: str):
+def send_notification(
+    targets: list[User] | BaseManager[User] | User,
+    title: str,
+    body: str,
+    link: str | None = None,
+):
     """Send both FCM and email notifications to users."""
-    if not isinstance(targets, list):
+    if isinstance(targets, User):
         targets = [targets]
+    elif isinstance(targets, BaseManager):
+        targets = list(targets.all())
 
     send_fcm_notification(targets, title, body, link)
     send_email_notification(targets, title, body, link)
