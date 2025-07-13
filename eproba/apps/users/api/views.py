@@ -9,7 +9,7 @@ from django.db.models.functions import Concat
 from rest_framework import mixins, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -29,10 +29,17 @@ from .serializers import (
 
 
 class UserViewSet(
-    mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
 ):
     permission_classes = [IsAuthenticated, IsAllowedToManageUserOrReadOnly]
-    serializer_class = PublicUserSerializer
+
+    def get_serializer_class(self):
+        if self.request.user.function >= 3:
+            return UserSerializer
+        return PublicUserSerializer
 
     def get_queryset(self):
         # Check if a list of IDs is provided in the query string
@@ -58,12 +65,9 @@ class UserViewSet(
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("Cannot assign a higher function than your own.")
+        if data.get("email") and data["email"] != self.request.user.email:
+            self.request.user.email_verified = False
         serializer.save()
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = get_object_or_404(User, pk=kwargs["pk"])
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
 
     @action(detail=False, methods=["get"])
     def search(self, request):
@@ -133,8 +137,12 @@ class UserInfo(
                 raise serializers.ValidationError(
                     f"Field '{field}' is not allowed to be updated."
                 )
-        new_patrol = data.get("patrol", self.request.user.patrol)
-        if new_patrol != self.request.user.patrol:
+        if data.get("email") and data["email"] != self.request.user.email:
+            self.request.user.email_verified = False
+            self.request.user.email_verification_token = uuid.uuid4()
+            send_verification_email_to_user(self.request.user)
+        new_patrol = data.get("patrol")
+        if new_patrol and new_patrol != self.request.user.patrol:
             if (
                 not new_patrol
                 or not self.request.user.patrol
