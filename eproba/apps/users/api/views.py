@@ -59,12 +59,7 @@ class UserViewSet(
         return User.objects.filter(patrol__team_id=self.request.user.patrol.team.id)
 
     def perform_update(self, serializer):
-        # Example check for promotion restrictions
         data = serializer.validated_data
-        if data and data.get("function", 0) > self.request.user.function:
-            from rest_framework.exceptions import PermissionDenied
-
-            raise PermissionDenied("Cannot assign a higher function than your own.")
         if data.get("email") and data["email"] != self.request.user.email:
             self.request.user.email_verified = False
         serializer.save()
@@ -108,14 +103,18 @@ class UserViewSet(
         return Response(serializer.data)
 
 
-class UserInfo(
+class CurrentUserViewSet(
     viewsets.GenericViewSet,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
 ):
-    permission_classes = [IsAuthenticated]
+    """
+    API view for managing the current authenticated user.
+    """
+
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
     ALLOWED_UPDATE_FIELDS = [
         "nickname",
@@ -155,8 +154,8 @@ class UserInfo(
                             Q(patrol__team=new_patrol.team) & Q(function=4)
                         ),
                         f"{self.request.user.full_name_nickname()} dołączył do twojej drużyny",
-                        f"{self.request.user.full_name_nickname()} dołączył do zaspołu {new_patrol.name} w twojej drużynie.",
-                        "team",  # TODO: make link point to specific user page
+                        f"{self.request.user.full_name_nickname()} dołączył do zastępu {new_patrol.name} w twojej drużynie.",
+                        f"team?highlightedUserId={self.request.user.id}",
                     )
             elif self.request.user.function <= 2:
                 data["function"] = 0
@@ -182,8 +181,8 @@ class ChangePasswordView(GenericAPIView):
     API view for changing user password.
     """
 
-    permission_classes = [IsAuthenticated]
     serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = request.user
@@ -213,6 +212,7 @@ class ResendVerificationEmailView(GenericAPIView):
     """
 
     serializer_class = ResendEmailVerificationSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)

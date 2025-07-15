@@ -1,6 +1,29 @@
 from apps.users.api.serializers import PublicUserSerializer
+from apps.users.models import User
 from apps.worksheets.models import Task, TemplateTask, TemplateWorksheet, Worksheet
 from rest_framework import serializers
+
+
+class ScopeField(serializers.Field):
+    def to_representation(self, obj):
+        if obj.organization is not None:
+            return "organization"
+        elif obj.team is not None:
+            return "team"
+        return None
+
+    def to_internal_value(self, data):
+        request = self.parent.context.get("request")
+        user = getattr(request, "user", None)
+        if data == "team":
+            if user and hasattr(user, "patrol"):
+                return {"team": user.patrol.team, "organization": None}
+            raise serializers.ValidationError("User is not assigned to a patrol.")
+        elif data == "organization":
+            if user and hasattr(user, "patrol"):
+                return {"organization": user.patrol.team.organization, "team": None}
+            raise serializers.ValidationError("User is not assigned to a patrol.")
+        raise serializers.ValidationError("Invalid scope value.")
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -148,8 +171,6 @@ class WorksheetSerializer(serializers.ModelSerializer):
     def validate_user_id(self, value):
         """Validate that the user exists."""
         if value:
-            from apps.users.models import User
-
             if not User.objects.filter(id=value).exists():
                 raise serializers.ValidationError("User does not exist")
         return value
@@ -250,6 +271,7 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
     """Serializer for TemplateWorksheet model with nested template tasks."""
 
     tasks = TemplateTaskSerializer(many=True, required=False)
+    scope = ScopeField(source="*")
 
     class Meta:
         model = TemplateWorksheet
@@ -262,39 +284,21 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
             "tasks",
             "created_at",
             "updated_at",
-            "team",
-            "organization",
+            "scope",
         ]
 
     def create(self, validated_data):
         """Create a template worksheet with nested template tasks."""
-        request = self.context.get("request")
-
         # Extract tasks data before creating template worksheet
         tasks_data = validated_data.pop("tasks", [])
 
-        # Validate that the team and organization exist
-        if (
-            not validated_data.get("team")
-            and validated_data.get("organization") is None
-        ):
-            raise serializers.ValidationError(
-                "Either team or organization must be provided."
-            )
+        team = validated_data.pop("team", None)
+        organization = validated_data.pop("organization", None)
 
-        # Only one of team or organization should be provided
-        if validated_data.get("team"):
-            validated_data.pop("organization", None)
-        elif validated_data.get("organization") is not None:
-            validated_data.pop("team", None)
-            if (
-                not request.user.is_staff
-                and request.user.patrol.team.organization
-                != validated_data["organization"]
-            ):
-                raise serializers.ValidationError(
-                    "Organization must match the user's patrol organization and user must be staff."
-                )
+        if team:
+            validated_data["team"] = team
+        elif organization is not None:
+            validated_data["organization"] = organization
 
         # Create template worksheet instance
         template_worksheet = TemplateWorksheet.objects.create(**validated_data)
@@ -320,29 +324,12 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update a template worksheet with nested template tasks."""
-        request = self.context.get("request")
-
         # Extract tasks data before updating template worksheet
         tasks_data = validated_data.pop("tasks", None)
 
-        # Only one of team or organization should be provided
-        if validated_data.get("team"):
-            validated_data.pop("organization", None)
-            instance.team = validated_data.get("team")
-            instance.organization = None
-        elif validated_data.get("organization") is not None:
-            validated_data.pop("team", None)
-            if (
-                not request.user.is_staff
-                and request.user.patrol.team.organization
-                != validated_data["organization"]
-            ):
-                raise serializers.ValidationError(
-                    "Organization must match the user's patrol organization and user must be staff."
-                )
-            else:
-                instance.organization = validated_data.get("organization")
-                instance.team = None
+        if "team" in validated_data or "organization" in validated_data:
+            instance.team = validated_data.pop("team", None)
+            instance.organization = validated_data.pop("organization", None)
 
         # Update template worksheet fields using Django's standard approach
         for attr, value in validated_data.items():

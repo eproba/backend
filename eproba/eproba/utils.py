@@ -1,6 +1,7 @@
 from constance import config
 from constance.signals import config_updated
 from django.dispatch import receiver
+from drf_spectacular.utils import extend_schema
 from maintenance_mode.core import set_maintenance_mode
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from rest_framework.views import APIView
 from eproba import __version__ as eproba_version  # noqa: F401
 
 
+@extend_schema(deprecated=True)
 class LegacyApiConfigView(APIView):
     permission_classes = (permissions.AllowAny,)
 

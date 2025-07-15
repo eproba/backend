@@ -1,7 +1,10 @@
 import threading
 from datetime import timedelta
 
-from apps.teams.api.permissions import IsAllowedToAccessTeamRequest
+from apps.teams.api.permissions import (
+    IsAllowedToAccessTeamRequest,
+    IsAllowedToAccessTeamStats,
+)
 from apps.teams.api.serializers import TeamRequestSerializer
 from apps.teams.models import District, Patrol, Team, TeamRequest
 from apps.users.models import (
@@ -16,6 +19,7 @@ from django.core.mail import EmailMessage, send_mail
 from django.db.models import Count, Max, OuterRef, Q, Subquery
 from django.utils import timezone
 from rest_framework import mixins, status, viewsets
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,7 +31,7 @@ from .permissions import (
 from .serializers import (
     DistrictSerializer,
     PatrolSerializer,
-    TeamListSerializer,
+    TeamMetaSerializer,
     TeamSerializer,
 )
 
@@ -46,13 +50,18 @@ def send_team_request_email(team_request_obj):
     email.send()
 
 
-class DistrictViewSet(viewsets.ModelViewSet):
+class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
 
 
-class TeamViewSet(viewsets.ModelViewSet):
+class TeamViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = [IsAuthenticated, IsAllowedToManageTeamOrReadOnly]
 
     def get_queryset(self):
@@ -71,12 +80,8 @@ class TeamViewSet(viewsets.ModelViewSet):
         return qs
 
     def get_serializer_class(self):
-        if (
-            self.action == "list"
-            and self.request.GET.get("with_patrols") != "true"
-            and not self.request.GET.get("user") is not None
-        ):
-            return TeamListSerializer
+        if self.action == "list" and not self.request.GET.get("user") is not None:
+            return TeamMetaSerializer
         return TeamSerializer
 
 
@@ -88,11 +93,12 @@ class PatrolViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         # Prevent deletion if patrol has active users
         if instance.users.filter(is_active=True).exists():
-            from rest_framework.exceptions import APIException
-
             exc = APIException("Patrol has active users.")
             exc.status_code = 409
             raise exc
+        instance.users.filter(is_active=False).update(
+            patrol=instance.team.patrols.first()
+        )
         instance.delete()
 
 
@@ -108,11 +114,10 @@ class TeamRequestViewSet(
     """
 
     serializer_class = TeamRequestSerializer
-
-    def get_permissions(self):
-        if self.action == "create":
-            return [IsAuthenticated()]
-        return [IsAllowedToAccessTeamRequest()]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToAccessTeamRequest,
+    ]
 
     def perform_create(self, serializer):
         """
@@ -198,21 +203,12 @@ class TeamRequestViewSet(
             else ""
         )
 
-        patrol_links = "\n".join(
-            [
-                f"{patrol.name}: {patrol.get_registration_link()}"
-                for patrol in team_request.team.patrols.all()
-            ]
-        )
-
         email_templates = {
             "approved": (
                 "Twoje zgłoszenie zostało zaakceptowane!",
                 f"""Drużyna {team_name} została zaakceptowana, możesz teraz korzystać ze wszystkich funkcji Epróby.
 
-Możesz udostępnić link do częściowo wypełnionej rejestracji członkom swojej drużyny: {team_request.team.get_registration_link()}.
-Lub dla konkretnego zastępu: 
-{patrol_links}{note_text}""",
+Link: https://eproba.zhr.pl{note_text}""",
             ),
             "rejected": (
                 "Twoje zgłoszenie zostało odrzucone",
@@ -249,17 +245,10 @@ class TeamStatisticsAPIView(APIView):
     - Patrol comparisons
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAllowedToAccessTeamStats]
 
     def get(self, request):
         user = request.user
-
-        if not user.patrol or user.function < 3:
-            return Response(
-                {"error": "Nie masz uprawnień do przeglądania statystyk drużyny."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         team = user.patrol.team
         stats = self._calculate_team_statistics(team, user)
 

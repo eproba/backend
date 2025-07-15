@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
@@ -10,6 +11,7 @@ from django.db.models import Q
 from django.http import QueryDict
 from django.urls import reverse
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, ParseError, PermissionDenied
@@ -20,8 +22,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from .permissions import (
-    IsAllowedToManageTaskOrReadOnlyForOwner,
-    IsAllowedToManageWorksheetOrReadOnlyForOwner,
+    IsAllowedToAccessTaskNotes,
+    IsAllowedToAccessWorksheetNotes,
+    IsAllowedToManageTaskOrReadOnly,
+    IsAllowedToManageWorksheetOrReadOnly,
     IsAllowedToReadOrManageTemplateWorksheet,
     IsTaskOwner,
 )
@@ -94,17 +98,18 @@ class MultipartNestedSupportMixin:
 
 
 class WorksheetViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAllowedToManageWorksheetOrReadOnlyForOwner]
+    permission_classes = [IsAuthenticated, IsAllowedToManageWorksheetOrReadOnly]
     serializer_class = WorksheetSerializer
     lookup_field = "id"
 
     def get_queryset(self):
+        qs = Worksheet.objects.all()
+        if self.action == "retrieve":
+            return qs.filter(deleted=False)
+
         user = self.request.user
         last_sync = self.request.query_params.get("last_sync")
-        qs = Worksheet.objects.all()
         if last_sync:
-            from datetime import datetime
-
             qs = qs.filter(updated_at__gt=datetime.fromtimestamp(int(last_sync)))
         if self.request.query_params.get("user") is not None:
             return qs.filter(user=user)
@@ -122,9 +127,6 @@ class WorksheetViewSet(viewsets.ModelViewSet):
                 Q(team=user.patrol.team)
                 | Q(team=None, organization=user.patrol.team.organization)
             )
-        # if user.function >= 5:
-        #     return qs.filter(is_archived=False)
-        # TODO: After updating function levels, change the above line to make more sense
         if user.patrol and user.function >= 2:
             return qs.filter(
                 Q(user__patrol__team=user.patrol.team, is_archived=False)
@@ -151,8 +153,6 @@ class WorksheetViewSet(viewsets.ModelViewSet):
             # Only function level 2+ can create worksheets for others
             if user_id != self.request.user.id and self.request.user.function < 2:
                 raise PermissionDenied("You can't create worksheets for other user")
-
-            from apps.users.models import User
 
             user = User.objects.get(id=user_id)
             serializer.save(user=user)
@@ -182,7 +182,11 @@ class WorksheetViewSet(viewsets.ModelViewSet):
         serializer.save()
 
     @action(
-        detail=True, methods=["post", "put", "delete"], url_name="note", url_path="note"
+        detail=True,
+        methods=["post", "put", "delete"],
+        url_name="note",
+        url_path="note",
+        permission_classes=[IsAuthenticated, IsAllowedToAccessWorksheetNotes],
     )
     def manage_note(self, request, id=None):
         """Manage notes on worksheet"""
@@ -225,20 +229,30 @@ class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        # Automatically set the team to the user's team if not provided
         if (
-            not serializer.validated_data.get("team")
-            and serializer.validated_data.get("organization") is None
+            serializer.validated_data.get("scope") == "organization"
+            and not self.request.user.is_staff
         ):
-            serializer.save(team=self.request.user.patrol.team)
-        else:
-            serializer.save()
+            raise PermissionDenied("You can't create organization templates")
+        serializer.save()
 
     def perform_update(self, serializer):
-        # Optionally, you might check if the user is allowed to change the team
+        if (
+            serializer.validated_data.get("scope") == "organization"
+            and not self.request.user.is_staff
+        ):
+            raise PermissionDenied(
+                "You can't update this template to organization scope"
+            )
+        if (
+            serializer.validated_data.get("scope") == "team"
+            and not self.request.user.function >= 3
+        ):
+            raise PermissionDenied("You can't update this template to team scope")
         serializer.save()
 
 
+@extend_schema(deprecated=True)
 class TasksToBeChecked(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = WorksheetSerializer
@@ -249,6 +263,7 @@ class TasksToBeChecked(ListAPIView):
         ).distinct()
 
 
+@extend_schema(deprecated=True)
 class SubmitTask(APIView):
     permission_classes = [IsAuthenticated, IsTaskOwner]
 
@@ -273,6 +288,7 @@ class SubmitTask(APIView):
         return Response({"message": "Task submitted"})
 
 
+@extend_schema(deprecated=True)
 class UnsubmitTask(APIView):
     permission_classes = [IsAuthenticated, IsTaskOwner]
 
@@ -305,11 +321,11 @@ class TaskViewSet(viewsets.ModelViewSet):
         if self.action in ["submit", "unsubmit", "get_approvers"]:
             return [IsAuthenticated(), IsTaskOwner()]
         elif self.action in ["accept", "reject", "clear_status"]:
-            return [IsAuthenticated()]  # TODO: implement IsAllowedToManageTask
+            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnly()]
         elif self.action == "manage_note":
-            return [IsAuthenticated()]  # TODO: implement IsAllowedToAccessTaskNote
+            return [IsAuthenticated(), IsAllowedToAccessTaskNotes()]
         elif self.action in ["retrieve", "partial_update", "update"]:
-            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnlyForOwner()]
+            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnly()]
         return super().get_permissions()
 
     def perform_update(self, serializer):
@@ -322,7 +338,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         clear_tokens()
 
     @action(detail=True, methods=["post"])
-    def submit(self, request, worksheet_id=None, id=None):
+    def submit(self, request, *args, **kwargs):
         """Submit task for approval"""
         task = self.get_object()
 
@@ -340,14 +356,14 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         send_notification(
             targets=task.approver,
-            title="Nowe zadanie do sprawdzenia: {task.task}",
+            title=f"Nowe zadanie do sprawdzenia: {task.task}",
             body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
             link=f"worksheets/review#{task.worksheet.id}",
         )
         return Response(self.get_serializer(task).data)
 
     @action(detail=True, methods=["post"])
-    def unsubmit(self, request, worksheet_id=None, id=None):
+    def unsubmit(self, request, *args, **kwargs):
         """Unsubmit task"""
         task = self.get_object()
 
@@ -361,7 +377,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(self.get_serializer(task).data)
 
     @action(detail=True, methods=["post"])
-    def accept(self, request, worksheet_id=None, id=None):
+    def accept(self, request, *args, **kwargs):
         """Accept task"""
         task = self.get_object()
         old_status = task.status
@@ -382,7 +398,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(self.get_serializer(task).data)
 
     @action(detail=True, methods=["post"])
-    def reject(self, request, worksheet_id=None, id=None):
+    def reject(self, request, *args, **kwargs):
         """Reject task"""
         task = self.get_object()
         old_status = task.status
@@ -403,7 +419,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response(self.get_serializer(task).data)
 
     @action(detail=True, methods=["post"])
-    def clear_status(self, request, worksheet_id=None, id=None):
+    def clear_status(self, request, *args, **kwargs):
         """Clear task status"""
         task = self.get_object()
 
@@ -413,8 +429,12 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.save()
         return Response(self.get_serializer(task).data)
 
-    @action(detail=True, methods=["post", "put", "delete"], url_name="note")
-    def manage_note(self, request, worksheet_id=None, id=None):
+    @action(
+        detail=True,
+        methods=["post", "put", "delete"],
+        url_name="note",
+    )
+    def manage_note(self, request, *args, **kwargs):
         task = self.get_object()
 
         if request.method in ["POST", "PUT"]:
@@ -441,7 +461,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=["get"], url_name="approvers")
-    def get_approvers(self, request, worksheet_id=None, id=None):
+    def get_approvers(self, request, *args, **kwargs):
         """Get available approvers for task"""
         task = self.get_object()
 
@@ -458,18 +478,23 @@ class TaskViewSet(viewsets.ModelViewSet):
         if task.worksheet.user.patrol:
             available_approvers.extend(
                 User.objects.filter(
-                    patrol=task.worksheet.user.patrol,
-                    function__gte=2,
+                    patrol__team=task.worksheet.user.patrol.team,
+                    function__gte=3,
                 ).exclude(id=task.worksheet.user.id)
             )
 
-            if task.worksheet.user.patrol.team:
+            if task.category == "general":
                 available_approvers.extend(
                     User.objects.filter(
                         patrol__team=task.worksheet.user.patrol.team,
-                        function__gte=3,
-                    ).exclude(id=task.worksheet.user.id)
+                        function__gte=2,
+                    )
                 )
 
         available_approvers = list(set(available_approvers))
         return Response(PublicUserSerializer(available_approvers, many=True).data)
+
+
+@extend_schema(deprecated=True)
+class LegacyTaskViewSet(TaskViewSet):
+    pass

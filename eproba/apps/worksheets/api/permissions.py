@@ -1,44 +1,26 @@
 from rest_framework import permissions
 
 
-class IsAllowedToManageWorksheetOrReadOnlyForOwner(permissions.BasePermission):
+class IsAllowedToManageWorksheetOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, worksheet):
         if request.method in permissions.SAFE_METHODS:
-            return (
-                (
-                    request.user.function >= 2
-                    and request.user.function >= worksheet.user.function
-                    and request.user.patrol.team == worksheet.user.patrol.team
-                )
-                or worksheet.user == request.user
-                or worksheet.supervisor == request.user
-            )
+            return True
 
         return (
             request.user.function >= 2
-            and request.user.function >= worksheet.user.function
+            and (
+                request.user.function >= worksheet.user.function
+                or request.user.function >= 4
+            )
             and request.user.patrol.team == worksheet.user.patrol.team
         ) or worksheet.supervisor == request.user
 
 
-class IsAllowedToManageTaskOrReadOnlyForOwner(permissions.BasePermission):
+class IsAllowedToManageTaskOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, task):
-        if request.method in permissions.SAFE_METHODS:
-            return (
-                (
-                    request.user.function >= 2
-                    and request.user.function >= task.worksheet.user.function
-                    and request.user.patrol.team == task.worksheet.user.patrol.team
-                )
-                or task.worksheet.user == request.user
-                or task.worksheet.supervisor == request.user
-            )
-
-        return (
-            request.user.function >= 2
-            and request.user.function >= task.worksheet.user.function
-            and request.user.patrol.team == task.worksheet.user.patrol.team
-        ) or task.worksheet.supervisor == request.user
+        return IsAllowedToManageWorksheetOrReadOnly().has_object_permission(
+            request, view, task.worksheet
+        )
 
 
 class IsTaskOwner(permissions.BasePermission):
@@ -47,10 +29,16 @@ class IsTaskOwner(permissions.BasePermission):
 
 
 class IsAllowedToReadOrManageTemplateWorksheet(permissions.BasePermission):
-    def has_object_permission(self, request, view, template_worksheet):
-        if request.user.function < 2:
+    def has_permission(self, request, view):
+        if not request.user.patrol:
             return False
 
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.function >= 2 or request.user.is_staff
+
+        return request.user.function >= 3 or request.user.is_staff
+
+    def has_object_permission(self, request, view, template_worksheet):
         is_team_template = template_worksheet.team == request.user.patrol.team
 
         is_org_template = (
@@ -61,10 +49,26 @@ class IsAllowedToReadOrManageTemplateWorksheet(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return is_team_template or is_org_template
 
-        if is_org_template and (
-            not request.user.is_staff
-            or not request.user.has_perm("worksheets.change_templateworksheet")
-        ):
-            return False
+        if is_org_template:
+            return request.user.is_staff and request.user.has_perm(
+                "worksheets.change_templateworksheet"
+            )
 
-        return is_team_template or is_org_template
+        if is_team_template:
+            return request.user.function >= 3
+
+        return False
+
+
+class IsAllowedToAccessWorksheetNotes(permissions.BasePermission):
+    def has_object_permission(self, request, view, worksheet):
+        return (
+            request.user.function >= 4 or worksheet.supervisor == request.user
+        ) and request.user != worksheet.user
+
+
+class IsAllowedToAccessTaskNotes(permissions.BasePermission):
+    def has_object_permission(self, request, view, task):
+        return IsAllowedToAccessWorksheetNotes().has_object_permission(
+            request, view, task.worksheet
+        )

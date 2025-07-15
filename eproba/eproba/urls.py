@@ -27,8 +27,8 @@ from apps.teams.api.views import (
 )
 from apps.users.api.views import (
     ChangePasswordView,
+    CurrentUserViewSet,
     ResendVerificationEmailView,
-    UserInfo,
     UserViewSet,
     VerifyEmailView,
 )
@@ -49,6 +49,7 @@ from apps.users.views import (
     view_profile,
 )
 from apps.worksheets.api.views import (
+    LegacyTaskViewSet,
     SubmitTask,
     TasksToBeChecked,
     TaskViewSet,
@@ -131,7 +132,7 @@ urlpatterns = [
     path("api/config/", ApiConfigView.as_view()),
     path(
         "api/user/",
-        UserInfo.as_view(
+        CurrentUserViewSet.as_view(
             {"get": "retrieve", "patch": "partial_update", "delete": "destroy"}
         ),
     ),
@@ -144,7 +145,7 @@ urlpatterns = [
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
-        TaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
+        LegacyTaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/",

@@ -1,3 +1,4 @@
+from apps.users.models import User
 from rest_framework import permissions
 
 
@@ -7,13 +8,21 @@ class IsAllowedToManageUserOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.function >= 3
-            and request.user.function >= user.function
-            and request.user.patrol
-            and user.patrol
+            request.user.patrol is not None
+            and user.patrol is not None
             and request.user.patrol.team == user.patrol.team
-        ) or (
-            request.user.function >= 3
-            and request.user.function >= user.function
-            and not user.patrol
+            and (
+                request.user.function >= 4
+                or (
+                    request.user.function >= 3
+                    and (
+                        user.function < 4
+                        or not User.objects.filter(
+                            patrol__team=request.user.patrol.team,
+                            is_active=True,
+                            function__gt=3,
+                        ).exists()
+                    )
+                )
+            )
         )
