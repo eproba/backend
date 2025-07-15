@@ -154,13 +154,14 @@ OAUTH2_PROVIDER = {
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
-    "ADS_WEB": (True, "Ads (web)"),
-    "ADS_MOBILE": (True, "Ads (mobile)"),
+    "ADS_WEB": (False, "Ads (web)"),
+    "ADS_MOBILE": (False, "Ads (mobile)"),
     "WEB_MAINTENANCE_MODE": (False, "Web app maintenance [deprecated]"),
     "API_MAINTENANCE_MODE": (False, "API maintenance [deprecated]"),
     "MAINTENANCE_MODE": (False, "Maintenance mode"),
     "MINIMUM_APP_VERSION": (20240900, "Minimum app version"),
     "REQUIRE_EMAIL_VERIFICATION": (True, "Require email verification"),
+    "EOL_SCREEN_ENABLED": (False, "Enable EOL screen for an old android app"),
 }
 
 # Maintenance mode
