@@ -27,7 +27,7 @@ class LegacyApiConfigView(APIView):
                 "eol_screen_title": "Nowa wersja Epróby jest już dostępna!",
                 "eol_screen_description": "Ta wersja aplikacji zostaje wycofana. Aby korzystać z najnowszych funkcji i poprawek, pobierz nową wersję aplikacji.",
                 "eol_screen_button_text": "Pobierz nową wersję",
-                "eol_screen_button_url": "https://dev-eproba.zhr.pl/", # test URL should be updated to the actual download link
+                "eol_screen_button_url": "https://dev-eproba.zhr.pl/",  # test URL should be updated to the actual download link
             }
         )
 
