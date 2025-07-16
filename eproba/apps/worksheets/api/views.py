@@ -16,11 +16,12 @@ from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, ParseError, PermissionDenied
 from rest_framework.generics import ListAPIView, get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from ..views import print_worksheet, print_worksheet_template
 from .permissions import (
     IsAllowedToAccessTaskNotes,
     IsAllowedToAccessWorksheetNotes,
@@ -215,10 +216,27 @@ class WorksheetViewSet(viewsets.ModelViewSet):
             method=request.method,
         )
 
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="generate_worksheet_pdf",
+        url_path="pdf",
+        permission_classes=[AllowAny],
+    )
+    def generate_pdf(self, request, id):
+        """
+        Endpoint to generate a PDF of the worksheet.
+        """
+        return print_worksheet(
+            request,
+            id,
+        )
+
 
 class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
     permission_classes = [IsAuthenticated, IsAllowedToReadOrManageTemplateWorksheet]
     serializer_class = TemplateWorksheetSerializer
+    lookup_field = "id"
 
     def get_queryset(self):
         if not self.request.user.patrol:
@@ -250,6 +268,22 @@ class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
         ):
             raise PermissionDenied("You can't update this template to team scope")
         serializer.save()
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="generate_template_pdf",
+        url_path="pdf",
+        permission_classes=[AllowAny],
+    )
+    def generate_pdf(self, request, id):
+        """
+        Endpoint to generate a PDF of the worksheet.
+        """
+        return print_worksheet_template(
+            request,
+            id,
+        )
 
 
 @extend_schema(deprecated=True)
