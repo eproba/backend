@@ -472,7 +472,10 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         available_approvers = []
 
-        if task.worksheet.supervisor:
+        if (
+            task.worksheet.supervisor
+            and task.worksheet.supervisor != task.worksheet.user
+        ):
             available_approvers.append(task.worksheet.supervisor)
 
         if task.worksheet.user.patrol:
@@ -488,7 +491,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                     User.objects.filter(
                         patrol__team=task.worksheet.user.patrol.team,
                         function__gte=2,
-                    )
+                    ).exclude(id=task.worksheet.user.id)
                 )
 
         available_approvers = list(set(available_approvers))

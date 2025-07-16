@@ -18,6 +18,7 @@ class WorksheetAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {"fields": ["user", "supervisor"]}),
         (None, {"fields": ["name", "is_archived", "deleted", "template"]}),
+        (None, {"fields": ["final_challenge", "final_challenge_description"]}),
     ]
 
     inlines = [TaskInline]

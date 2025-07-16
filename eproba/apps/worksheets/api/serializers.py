@@ -138,6 +138,8 @@ class WorksheetSerializer(serializers.ModelSerializer):
             "notes",
             "template",
             "template_id",
+            "final_challenge",
+            "final_challenge_description",
         ]
 
     def to_representation(self, instance):

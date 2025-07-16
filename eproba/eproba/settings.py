@@ -24,7 +24,7 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 DEV = os.environ.get("DEV", "") == "true"
 
 # API version
-API_VERSION = "0.6.0"  # Current API version of the app
+API_VERSION = "0.7.0"  # Current API version of the app
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"

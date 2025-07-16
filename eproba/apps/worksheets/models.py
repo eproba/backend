@@ -61,8 +61,12 @@ class Worksheet(models.Model):
         default=False, verbose_name="Próba zarchiwizowana?"
     )
     deleted = models.BooleanField(default=False, verbose_name="Usunięta?")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Data utworzenia próby"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, verbose_name="Data ostatniej aktualizacji próby"
+    )
     notes = models.TextField(
         default="",
         blank=True,
@@ -75,6 +79,18 @@ class Worksheet(models.Model):
         blank=True,
         related_name="worksheets",
         verbose_name="Szablon próby",
+    )
+
+    final_challenge = models.CharField(
+        max_length=250,
+        default="",
+        blank=True,
+        verbose_name="Próba końcowa (bieg)",
+    )
+    final_challenge_description = models.TextField(
+        default="",
+        blank=True,
+        verbose_name="Opis próby końcowej (biegu)",
     )
 
     def __str__(self):
