@@ -64,8 +64,14 @@ RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
 # add execute permissions to entrypoint.sh
 RUN chmod +x  $APP_HOME/entrypoint.sh
 
+# ensure autobackup.sh has UNIX line endings and is executable
+RUN sed -i 's/\r$//g' $APP_HOME/autobackup.sh && chmod +x $APP_HOME/autobackup.sh
+
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
+
+# create backups directory and set permissions
+RUN mkdir -p $APP_HOME/backups && chown -R app:app $APP_HOME/backups
 
 # create cron log directory
 RUN mkdir /var/log/cron && chown -R app:app /var/log/cron

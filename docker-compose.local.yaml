@@ -1,5 +1,5 @@
 services:
-  web:
+  backend:
     depends_on:
       - db
     build: ./eproba
@@ -29,13 +29,13 @@ services:
       - PGTZ=${TZ}
   nginx:
     depends_on:
-      - web
+      - backend
     image: nginx:1.27.1-alpine
     restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
       - ./nginx-conf:/etc/nginx/conf.d
-#      - certbot-etc:/etc/letsencrypt
+    #      - certbot-etc:/etc/letsencrypt
     networks:
       - app-network
     environment:

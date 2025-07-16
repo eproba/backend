@@ -1,1 +1,1 @@
-0 0 * * * /home/app/web/autobackup.sh
+0 0 * * * /home/app/web/autobackup.sh >> /var/log/cron/backups.log 2>&1

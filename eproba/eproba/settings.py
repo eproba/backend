@@ -294,6 +294,7 @@ DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
 DBBACKUP_STORAGE_OPTIONS = {
     "location": os.environ.get("DBBACKUP_STORAGE_LOCATION", BASE_DIR / "backups"),
 }
+DBBACKUP_CLEANUP_KEEP = 30  # Keep the last 30 backups
 
 # TinyMCE
 TINYMCE_DEFAULT_CONFIG = {

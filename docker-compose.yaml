@@ -1,5 +1,5 @@
 services:
-  web:
+  backend:
     depends_on:
       - db
     image: antonicz/eproba:latest
@@ -29,7 +29,7 @@ services:
       - PGTZ=${TZ}
   nginx:
     depends_on:
-      - web
+      - backend
     image: nginx:1.27.4-alpine
     restart: always
     volumes:
