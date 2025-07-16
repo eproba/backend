@@ -241,13 +241,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
-    {
-        "NAME": "pwned_passwords_django.validators.PwnedPasswordsValidator",
-        "OPTIONS": {
-            "error_message": "To hasło zostało znalezione w bazie haseł, które zostały ujawnione w wyniku różnych ataków.",
-            "help_message": "Twoje hasło nie może być używane w zbyt wielu miejscach.",
-        },
-    },
 ]
 
 # Emails

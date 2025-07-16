@@ -54,6 +54,12 @@ def signup(request):
                     f"{reverse('select_patrol')}?{urlencode(request.GET, doseq=True)}"
                 )
             return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Wystąpił błąd podczas rejestracji użytkownika: {user_form.errors.as_text()}",
+            )
 
     user_form = SiteUserCreationForm()
     terms_of_service_form = TermsOfServiceForm()
