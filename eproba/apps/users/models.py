@@ -151,19 +151,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     def full_name_nickname(self):
         return (
             f"{self.first_name} {self.last_name} „{self.nickname}”"
-            if self.first_name is not None
-            and self.last_name is not None
-            and self.nickname is not None
+            if self.first_name and self.last_name and self.nickname
             else (
                 f"{self.first_name} {self.last_name}"
-                if self.first_name is not None and self.last_name is not None
+                if self.first_name and self.last_name
                 else (
                     self.first_name
-                    if self.first_name is not None
+                    if self.first_name
                     else (
                         self.last_name
-                        if self.last_name is not None
-                        else self.nickname if self.nickname is not None else None
+                        if self.last_name
+                        else self.nickname if self.nickname else None
                     )
                 )
             )
