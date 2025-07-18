@@ -343,7 +343,7 @@ class TeamStatisticsAPIView(APIView):
         top_performers = self._get_top_performers(team)
 
         # INACTIVE MEMBERS (need attention)
-        inactive_members = self._get_inactive_members(team, thirty_days_ago)
+        inactive_members = self._get_inactive_members(team)
 
         return {
             "team_info": {
@@ -603,7 +603,7 @@ class TeamStatisticsAPIView(APIView):
 
         return top_performers
 
-    def _get_inactive_members(self, team, since_date):
+    def _get_inactive_members(self, team):
         """Get members who need attention (inactive in last 90 days)"""
         time_from = timezone.now() - timedelta(days=90)
 
@@ -616,7 +616,9 @@ class TeamStatisticsAPIView(APIView):
         ).values("id")[:1]
 
         inactive = (
-            User.objects.filter(patrol__team=team, is_active=True)
+            User.objects.filter(
+                patrol__team=team, is_active=True, created_at__lt=time_from
+            )
             .exclude(id__in=Subquery(recent_completed_tasks))
             .annotate(
                 worksheet_count=Count(
