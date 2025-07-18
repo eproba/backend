@@ -126,6 +126,21 @@ urlpatterns = [
         TemplateView.as_view(template_name="sites/terms_of_service.html"),
         name="terms",
     ),
+    path(
+        "terms/gdpr/",
+        TemplateView.as_view(template_name="sites/gdpr.html"),
+        name="gdpr",
+    ),
+    path(
+        "terms/privacy-policy/",
+        TemplateView.as_view(template_name="sites/privacy_policy.html"),
+        name="privacy-policy",
+    ),
+    path(
+        "terms/terms-of-service/",
+        TemplateView.as_view(template_name="sites/terms_of_service.html"),
+        name="terms",
+    ),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/api-config/", LegacyApiConfigView.as_view()),
