@@ -22,7 +22,7 @@ class LegacyApiConfigView(APIView):
                 "ads": config.ADS_MOBILE,
                 "api_maintenance": config.API_MAINTENANCE_MODE,
                 "min_version": config.MINIMUM_APP_VERSION,
-                "eol_date": datetime.date(2025, 8, 30).isoformat(),
+                "eol_date": datetime.date(2025, 9, 30).isoformat(),
                 "eol_screen_enabled": config.EOL_SCREEN_ENABLED,
                 "eol_screen_title": "Nowa wersja Epróby jest już dostępna!",
                 "eol_screen_description": "Ta wersja aplikacji zostaje wycofana. Aby korzystać z najnowszych funkcji i poprawek, pobierz nową wersję aplikacji.",

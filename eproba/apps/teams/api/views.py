@@ -560,7 +560,7 @@ class TeamStatisticsAPIView(APIView):
 
         total_rank = sum(member.scout_rank for member in members)
         return scout_rank_labels.get(
-            round(total_rank / members.count(), 1), "brak stopnia"
+            round(total_rank / members.count()), "brak stopnia"
         )
 
     def _get_top_performers(self, team):

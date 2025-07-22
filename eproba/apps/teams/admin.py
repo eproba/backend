@@ -11,8 +11,8 @@ class DistrictAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ("name", "short_name", "district", "is_verified")
-    list_filter = ("district", "is_verified")
+    list_display = ("name", "short_name", "district", "organization", "is_verified")
+    list_filter = ("district", "is_verified", "organization")
     search_fields = ("name", "short_name")
 
 

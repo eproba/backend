@@ -49,6 +49,14 @@ class UserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
         ]
+        read_only_fields = [
+            "id",
+            "is_staff",
+            "is_superuser",
+            "is_deleted",
+            "has_password",
+            "email_verified",
+        ]
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
@@ -89,6 +97,13 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "gender",
             "is_staff",
             "is_superuser",
+        ]
+        read_only_fields = [
+            "id",
+            "is_staff",
+            "is_superuser",
+            "is_deleted",
+            "email_verified",
         ]
 
 

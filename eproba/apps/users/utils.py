@@ -58,6 +58,11 @@ def patrol_required(function):
 
 
 def send_verification_email_to_user(user):
+    if user.email_verified or user.email.endswith("@eproba.zhr.pl"):
+        logger.info(
+            f"User {user.email} already verified or using eproba email, skipping verification email."
+        )
+        return
     name = (
         user.first_name
         if user.first_name
@@ -119,7 +124,11 @@ def send_email_notification(
     """Send email notification to users who have email notifications enabled."""
 
     # Filter users who have email notifications enabled
-    enabled_users = [user for user in targets if user.email_notifications]
+    enabled_users = [
+        user
+        for user in targets
+        if user.email_notifications and not user.email.endswith("@eproba.zhr.pl")
+    ]
 
     if not enabled_users:
         return

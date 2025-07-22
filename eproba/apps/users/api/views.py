@@ -14,6 +14,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
+    HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
@@ -32,9 +33,15 @@ class UserViewSet(
     mixins.UpdateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
+    """
+    API view for managing users.
+    """
+
     permission_classes = [IsAuthenticated, IsAllowedToManageUserOrReadOnly]
+    lookup_field = "id"
 
     def get_serializer_class(self):
         if self.request.user.function >= 3:
@@ -60,9 +67,31 @@ class UserViewSet(
 
     def perform_update(self, serializer):
         data = serializer.validated_data
-        if data.get("email") and data["email"] != self.request.user.email:
-            self.request.user.email_verified = False
         serializer.save()
+        user = self.get_object()
+        if data.get("email") and data["email"] != user.email:
+            user.email_verified = False
+            user.save()
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new user.
+        Only users with function >= 3 can create new users.
+        Generates a random password and returns it in the response.
+        """
+        if request.user.function < 3:
+            return Response(
+                {"detail": "You do not have permission to create users."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        response = super().create(request, *args, **kwargs)
+        user = User.objects.get(id=response.data["id"])
+        new_password = uuid.uuid4().hex[:12]
+        user.set_password(new_password)
+        user.save()
+        response.data["new_password"] = new_password
+        response.status_code = HTTP_201_CREATED
+        return response
 
     @action(detail=False, methods=["get"])
     def search(self, request):
@@ -99,8 +128,31 @@ class UserViewSet(
         if not search_outside_team:
             users = users.filter(patrol__team=self.request.user.patrol.team)
 
-        serializer = self.get_serializer(users, many=True)
+        serializer = PublicUserSerializer(users, many=True)
         return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAllowedToManageUserOrReadOnly],
+        url_path="reset-password",
+    )
+    def reset_password(self, request, id=None):
+        """
+        Reset the password for a user.
+        """
+        user = self.get_object()
+
+        new_password = uuid.uuid4().hex[:12]
+        user.set_password(new_password)
+        user.save()
+        return Response(
+            {
+                "detail": "Password has been reset successfully.",
+                "new_password": new_password,
+            },
+            status=HTTP_200_OK,
+        )
 
 
 class CurrentUserViewSet(
