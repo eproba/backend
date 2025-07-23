@@ -1,4 +1,5 @@
 import urllib.parse
+import uuid
 from functools import wraps
 
 from django.conf import settings
@@ -69,11 +70,44 @@ def send_verification_email_to_user(user):
         else user.nickname if user.nickname else user.email
     )
 
+    user.email_verification_token = uuid.uuid4()
+    user.save()
+
     subject = "Weryfikacja adresu email"
     message = render_to_string(
         "users/email/verification_email.html",
         {
             "name": name,
+            "verification_link": f"https://eproba.zhr.pl{reverse('verify_email', kwargs={'user_id': user.id, 'token': user.email_verification_token})}",
+        },
+    )
+    try:
+        send_mail(
+            subject, strip_tags(message), None, [user.email], html_message=message
+        )
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")
+
+
+def send_created_account_email(user, password):
+    if user.email.endswith("@eproba.zhr.pl"):
+        logger.info(
+            f"User {user.email} is using eproba email, skipping verification email."
+        )
+        return
+    name = (
+        user.first_name
+        if user.first_name
+        else user.nickname if user.nickname else user.email
+    )
+
+    subject = "Twoje konto w Epróbie"
+    message = render_to_string(
+        "users/email/created_account_email.html",
+        {
+            "name": name,
+            "email": user.email,
+            "password": password,
             "verification_link": f"https://eproba.zhr.pl{reverse('verify_email', kwargs={'user_id': user.id, 'token': user.email_verification_token})}",
         },
     )

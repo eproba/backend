@@ -83,7 +83,6 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "nickname",
             "first_name",
             "last_name",
-            "email_verified",
             "is_active",
             "patrol",
             "patrol_name",
@@ -103,7 +102,6 @@ class PublicUserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "is_deleted",
-            "email_verified",
         ]
 
 

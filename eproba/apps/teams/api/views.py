@@ -269,7 +269,9 @@ class TeamStatisticsAPIView(APIView):
         # TEAM OVERVIEW STATS
         overview_stats = {
             "total_members": total_members,
-            "verified_emails": team_members.filter(email_verified=True).count(),
+            "verified_emails": team_members.filter(
+                Q(email_verified=True) | Q(email__endswith="@eproba.zhr.pl")
+            ).count(),
             "active_last_30_days": team_members.filter(
                 worksheets__updated_at__gte=thirty_days_ago, worksheets__deleted=False
             )

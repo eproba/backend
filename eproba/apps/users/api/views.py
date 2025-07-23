@@ -1,9 +1,15 @@
 import uuid
 
 from apps.users.models import User
-from apps.users.utils import send_notification, send_verification_email_to_user
+from apps.users.utils import (
+    send_created_account_email,
+    send_notification,
+    send_verification_email_to_user,
+)
+from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db.models import Q, Value
 from django.db.models.functions import Concat
 from rest_framework import mixins, serializers, viewsets
@@ -28,6 +34,8 @@ from .serializers import (
     VerifyEmailSerializer,
 )
 
+logger = settings.LOGGER
+
 
 class UserViewSet(
     mixins.UpdateModelMixin,
@@ -49,6 +57,9 @@ class UserViewSet(
         return PublicUserSerializer
 
     def get_queryset(self):
+        if self.action in ["retrieve", "update"]:
+            # For retrieve and update actions, return a single user by ID
+            return User.objects.filter(id=self.kwargs["id"])
         # Check if a list of IDs is provided in the query string
         ids = self.request.query_params.get("ids")
         if ids:
@@ -65,23 +76,39 @@ class UserViewSet(
 
         return User.objects.filter(patrol__team_id=self.request.user.patrol.team.id)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if (
+            instance.patrol is not None
+            and instance.patrol.team == request.user.patrol.team
+        ):
+            serializer = self.get_serializer(instance)
+        else:
+            serializer = PublicUserSerializer(instance)
+        return Response(serializer.data)
+
     def perform_update(self, serializer):
         data = serializer.validated_data
-        serializer.save()
         user = self.get_object()
         if data.get("email") and data["email"] != user.email:
             user.email_verified = False
             user.save()
+        serializer.save()
 
     def create(self, request, *args, **kwargs):
         """
         Create a new user.
-        Only users with function >= 3 can create new users.
+        Only users with function >= 3 can create new users and users can only be created within the same team.
         Generates a random password and returns it in the response.
         """
         if request.user.function < 3:
             return Response(
                 {"detail": "You do not have permission to create users."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        if request.user.patrol is None:
+            return Response(
+                {"detail": "You must be assigned to a patrol to create users."},
                 status=HTTP_400_BAD_REQUEST,
             )
         response = super().create(request, *args, **kwargs)
@@ -91,7 +118,29 @@ class UserViewSet(
         user.save()
         response.data["new_password"] = new_password
         response.status_code = HTTP_201_CREATED
+        if not user.email.endswith("@eproba.zhr.pl"):
+            send_created_account_email(user, new_password)
+        else:
+            try:
+                send_mail(
+                    "Utworzyłeś nowego użytkownika",
+                    f"Utworzyłeś nowego użytkownika {user.full_name_nickname()} w swojej drużynie.\n\nDane logowania:\nEmail: {user.email}\nHasło: {new_password}",
+                    None,
+                    [self.request.user.email],
+                )
+            except Exception as e:
+                logger.error(
+                    f"Failed to send email about created user to {self.request.user.email}: {e}"
+                )
         return response
+
+    def perform_create(self, serializer):
+        data = serializer.validated_data
+        if data.get("patrol") and data["patrol"].team != self.request.user.patrol.team:
+            raise serializers.ValidationError(
+                {"patrol": "You can only create users in your own patrol."}
+            )
+        serializer.save()
 
     @action(detail=False, methods=["get"])
     def search(self, request):
@@ -154,6 +203,27 @@ class UserViewSet(
             status=HTTP_200_OK,
         )
 
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="email-available",
+    )
+    def check_email_available(self, request):
+        """
+        Check if an email is available for registration.
+        Returns True if the email is available, False otherwise.
+        """
+        email = request.query_params.get("email")
+        if not email:
+            return Response(
+                {"detail": "Email query parameter is required."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        is_available = not User.objects.filter(email=email).exists()
+        return Response({"available": is_available}, status=HTTP_200_OK)
+
 
 class CurrentUserViewSet(
     viewsets.GenericViewSet,
@@ -183,21 +253,19 @@ class CurrentUserViewSet(
 
     def perform_update(self, serializer):
         data = serializer.validated_data
+        instance = self.get_object()
         for field in data.keys():
             if field not in self.ALLOWED_UPDATE_FIELDS:
                 raise serializers.ValidationError(
                     f"Field '{field}' is not allowed to be updated."
                 )
-        if data.get("email") and data["email"] != self.request.user.email:
-            self.request.user.email_verified = False
-            self.request.user.email_verification_token = uuid.uuid4()
-            send_verification_email_to_user(self.request.user)
+        email_changed = data.get("email") and data["email"] != instance.email
         new_patrol = data.get("patrol")
-        if new_patrol and new_patrol != self.request.user.patrol:
+        if new_patrol and new_patrol != instance.patrol:
             if (
                 not new_patrol
-                or not self.request.user.patrol
-                or new_patrol.team != self.request.user.patrol.team
+                or not instance.patrol
+                or new_patrol.team != instance.patrol.team
             ):
                 data["function"] = 0
                 if new_patrol:
@@ -205,14 +273,18 @@ class CurrentUserViewSet(
                         User.objects.filter(
                             Q(patrol__team=new_patrol.team) & Q(function=4)
                         ),
-                        f"{self.request.user.full_name_nickname()} dołączył do twojej drużyny",
-                        f"{self.request.user.full_name_nickname()} dołączył do zastępu {new_patrol.name} w twojej drużynie.",
-                        f"team?highlightedUserId={self.request.user.id}",
+                        f"{instance.full_name_nickname()} dołączył do twojej drużyny",
+                        f"{instance.full_name_nickname()} dołączył do zastępu {new_patrol.name} w twojej drużynie.",
+                        f"team?highlightedUserId={instance.id}",
                     )
             elif self.request.user.function <= 2:
                 data["function"] = 0
 
         serializer.save()
+        if email_changed:
+            instance.email_verified = False
+            instance.save()
+            send_verification_email_to_user(instance)
 
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
