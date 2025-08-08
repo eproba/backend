@@ -16,12 +16,6 @@ def user_deactivated(sender: User, instance: User, **kwargs):
                 RefreshToken.objects.filter(user=instance).delete()
                 instance.function = 0
                 instance.is_staff = False
-                instance.save(
-                    update_fields=[
-                        "function",
-                        "is_staff",
-                    ]
-                )
         except sender.DoesNotExist:
             # User is being created for the first time, no tokens to deactivate
             pass
