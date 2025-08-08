@@ -27,7 +27,7 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ("email", "nickname", "first_name", "last_name")
     ordering = ("email",)
 
-    fieldsets = (
+    base_fieldsets = (
         (
             "Podstawowe informacje",
             {
@@ -53,25 +53,31 @@ class CustomUserAdmin(UserAdmin):
                 )
             },
         ),
+    )
+
+    permission_fieldsets = (
         (
             "Uprawnienia",
             {
                 "fields": (
                     "is_staff",
-                    "is_active",
                     "is_superuser",
                     "user_permissions",
                     "groups",
                 )
             },
         ),
+    )
+
+    additional_fieldsets = (
         (
             "Dodatkowe informacje",
             {
                 "fields": (
-                    "created_at",
                     "email_notifications",
+                    "is_active",
                     "is_deleted",
+                    "created_at",
                     "deleted_at",
                 ),
             },
@@ -107,7 +113,7 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
-    readonly_fields = ("created_at",)
+    readonly_fields = ("created_at", "deleted_at")
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "patrol":
@@ -128,8 +134,17 @@ class CustomUserAdmin(UserAdmin):
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
-            return self.fieldsets
-        return self.fieldsets[:2]
+            return (
+                self.base_fieldsets
+                + self.permission_fieldsets
+                + self.additional_fieldsets
+            )
+        return self.base_fieldsets + self.additional_fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return self.readonly_fields
+        return self.readonly_fields + ("is_deleted",)
 
 
 admin.site.register(User, CustomUserAdmin)
