@@ -34,7 +34,15 @@ class TemplateTaskInline(admin.TabularInline):
 
 class TemplateWorksheetAdmin(admin.ModelAdmin):
     list_display = ("name", "team", "organization")
-    fields = ("name", "description", "template_notes", "image", "team", "organization")
+    fields = (
+        "name",
+        "description",
+        "template_notes",
+        "image",
+        "team",
+        "organization",
+        "priority",
+    )
     inlines = [TemplateTaskInline]
 
 

@@ -171,6 +171,11 @@ class TemplateWorksheet(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    priority = models.IntegerField(
+        default=0,
+        verbose_name="Priorytet szablonu",
+        help_text="Szablony o wyższym priorytecie będą wyświetlane wyżej na liście.",
+    )
 
     def __str__(self):
         return self.name
