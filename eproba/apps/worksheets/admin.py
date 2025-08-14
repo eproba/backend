@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Task, TemplateTask, TemplateWorksheet, Worksheet
+from .models import Task, TemplateTask, TemplateTaskGroup, TemplateWorksheet, Worksheet
 
 
 class TaskInline(admin.TabularInline):
@@ -32,6 +32,11 @@ class TemplateTaskInline(admin.TabularInline):
     extra = 1
 
 
+class TemplateGroupInline(admin.TabularInline):
+    model = TemplateTaskGroup
+    extra = 0
+
+
 class TemplateWorksheetAdmin(admin.ModelAdmin):
     list_display = ("name", "team", "organization")
     fields = (
@@ -43,7 +48,7 @@ class TemplateWorksheetAdmin(admin.ModelAdmin):
         "organization",
         "priority",
     )
-    inlines = [TemplateTaskInline]
+    inlines = [TemplateTaskInline, TemplateGroupInline]
 
 
 admin.site.register(TemplateWorksheet, TemplateWorksheetAdmin)

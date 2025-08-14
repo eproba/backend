@@ -1,6 +1,12 @@
 from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
-from apps.worksheets.models import Task, TemplateTask, TemplateWorksheet, Worksheet
+from apps.worksheets.models import (
+    Task,
+    TemplateTask,
+    TemplateTaskGroup,
+    TemplateWorksheet,
+    Worksheet,
+)
 from rest_framework import serializers
 
 
@@ -90,6 +96,14 @@ class TemplateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateTask
         fields = ["id", "task", "description", "template_notes", "category", "order"]
+
+
+class TemplateTaskGroupSerializer(serializers.ModelSerializer):
+    """Serializer for TemplateTaskGroup model."""
+
+    class Meta:
+        model = TemplateTaskGroup
+        fields = ["id", "name", "description", "min_tasks", "max_tasks", "tasks"]
 
 
 class TemplateWorksheetSummarySerializer(serializers.ModelSerializer):
@@ -273,6 +287,7 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
     """Serializer for TemplateWorksheet model with nested template tasks."""
 
     tasks = TemplateTaskSerializer(many=True, required=False)
+    task_groups = TemplateTaskGroupSerializer(many=True, required=False, read_only=True)
     scope = ScopeField(source="*")
 
     class Meta:
@@ -288,6 +303,7 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
             "updated_at",
             "scope",
             "priority",
+            "task_groups",
         ]
 
     def create(self, validated_data):

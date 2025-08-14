@@ -185,6 +185,58 @@ class TemplateWorksheet(models.Model):
         verbose_name_plural = "Szablony"
 
 
+class TemplateTaskGroup(models.Model):
+    """Defines a group of template tasks where user must pick a constrained number."""
+
+    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    template = models.ForeignKey(
+        TemplateWorksheet,
+        related_name="task_groups",
+        on_delete=models.CASCADE,
+        verbose_name="Szablon",
+    )
+    name = models.CharField(
+        max_length=120,
+        verbose_name="Nazwa grupy",
+        help_text="Wyświetlana nazwa grupy zadań",
+    )
+    description = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Opis",
+        help_text="Instrukcja / kontekst dla użytkownika",
+    )
+    min_tasks = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Minimalny wybór",
+        help_text="Minimalna liczba zadań do wybrania (puste = brak)",
+    )
+    max_tasks = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Maksymalny wybór",
+        help_text="Maksymalna liczba zadań (puste = brak limitu)",
+    )
+
+    class Meta:
+        verbose_name = "Grupa zadań szablonu"
+        verbose_name_plural = "Grupy zadań szablonu"
+
+    def __str__(self):
+        return f"{self.name} ({self.template.name})"
+
+    def clean(self):
+        if (
+            self.min_tasks is not None
+            and self.max_tasks is not None
+            and self.min_tasks > self.max_tasks
+        ):
+            raise ValidationError(
+                "Minimalna liczba nie może być większa niż maksymalna."
+            )
+
+
 class TemplateTask(models.Model):
     id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     template = models.ForeignKey(
@@ -196,6 +248,15 @@ class TemplateTask(models.Model):
     )
     template_notes = models.TextField(
         blank=True, default="", verbose_name="Notatki do zadania szablonu"
+    )
+    group = models.ForeignKey(
+        TemplateTaskGroup,
+        related_name="tasks",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Grupa zadań szablonu",
+        help_text="Opcjonalna grupa z ograniczeniami wyboru",
     )
     category = models.CharField(
         max_length=20,
@@ -213,3 +274,9 @@ class TemplateTask(models.Model):
     class Meta:
         verbose_name = "Zadanie szablonu"
         verbose_name_plural = "Zadania szablonu"
+
+    def clean(self):
+        if self.group and self.group.template != self.template:
+            raise ValidationError(
+                "Zadanie musi należeć do tego samego szablonu co grupa zadań."
+            )
