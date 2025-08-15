@@ -93,6 +93,8 @@ class TaskSerializer(serializers.ModelSerializer):
 class TemplateTaskSerializer(serializers.ModelSerializer):
     """Serializer for TemplateTask model."""
 
+    id = serializers.UUIDField(required=False)
+
     class Meta:
         model = TemplateTask
         fields = ["id", "task", "description", "template_notes", "category", "order"]
@@ -253,7 +255,7 @@ class WorksheetSerializer(serializers.ModelSerializer):
         Update tasks for a worksheet using TaskSerializer.
         """
         # Get current tasks mapped by ID for efficient lookup
-        existing_tasks = {str(task.id): task for task in worksheet.tasks.all()}
+        existing_tasks = {task.id: task for task in worksheet.tasks.all()}
 
         # Track which task IDs are being updated/created
         processed_task_ids = set()
@@ -261,10 +263,10 @@ class WorksheetSerializer(serializers.ModelSerializer):
         for task_data in tasks_data:
             task_id = task_data.get("id")
 
-            if task_id and str(task_id) in existing_tasks:
+            if task_id and task_id in existing_tasks:
                 # Update existing task using TaskSerializer
-                processed_task_ids.add(str(task_id))
-                task_instance = existing_tasks[str(task_id)]
+                processed_task_ids.add(task_id)
+                task_instance = existing_tasks[task_id]
                 task_serializer = TaskSerializer(
                     task_instance, data=task_data, context=self.context, partial=True
                 )
@@ -366,7 +368,7 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
         Update template tasks for a template worksheet using TemplateTaskSerializer.
         """
         # Get current template tasks mapped by ID for efficient lookup
-        existing_tasks = {str(task.id): task for task in template_worksheet.tasks.all()}
+        existing_tasks = {task.id: task for task in template_worksheet.tasks.all()}
 
         # Track which task IDs are being updated/created
         processed_task_ids = set()
@@ -374,10 +376,10 @@ class TemplateWorksheetSerializer(serializers.ModelSerializer):
         for task_data in tasks_data:
             task_id = task_data.get("id")
 
-            if task_id and str(task_id) in existing_tasks:
+            if task_id and task_id in existing_tasks:
                 # Update existing template task using TemplateTaskSerializer
-                processed_task_ids.add(str(task_id))
-                task_instance = existing_tasks[str(task_id)]
+                processed_task_ids.add(task_id)
+                task_instance = existing_tasks[task_id]
                 task_serializer = TemplateTaskSerializer(
                     task_instance, data=task_data, context=self.context, partial=True
                 )
