@@ -43,12 +43,24 @@ def view_worksheets(request):
 
 def print_worksheet(request, id):
     worksheet = get_object_or_404(Worksheet, id=id)
+    # Prepare task lists ordered by 'order'
+    tasks_qs = worksheet.tasks.all().order_by("order")
+    general_tasks = list(tasks_qs.filter(category="general"))
+    individual_tasks = list(tasks_qs.filter(category="individual"))
+    has_both = bool(general_tasks) and bool(individual_tasks)
 
     try:
         response = HttpResponse(
             HTML(
                 string=render_to_string(
-                    "worksheets/worksheet_pdf.html", {"worksheet": worksheet}
+                    "worksheets/worksheet_pdf.html",
+                    {
+                        "worksheet": worksheet,
+                        "all_tasks": list(tasks_qs),
+                        "general_tasks": general_tasks,
+                        "individual_tasks": individual_tasks,
+                        "has_both_categories": has_both,
+                    },
                 ),
                 base_url=request.build_absolute_uri(),
             ).write_pdf(),
@@ -70,12 +82,24 @@ def print_worksheet(request, id):
 def print_worksheet_template(request, id):
     worksheet_template = get_object_or_404(TemplateWorksheet, id=id)
 
+    # Template tasks ordered by 'order'
+    tasks_qs = worksheet_template.tasks.all().order_by("order")
+    general_tasks = list(tasks_qs.filter(category="general"))
+    individual_tasks = list(tasks_qs.filter(category="individual"))
+    has_both = bool(general_tasks) and bool(individual_tasks)
     try:
         response = HttpResponse(
             HTML(
                 string=render_to_string(
                     "worksheets/worksheet_pdf.html",
-                    {"worksheet": worksheet_template, "is_template": True},
+                    {
+                        "worksheet": worksheet_template,
+                        "is_template": True,
+                        "all_tasks": list(tasks_qs),
+                        "general_tasks": general_tasks,
+                        "individual_tasks": individual_tasks,
+                        "has_both_categories": has_both,
+                    },
                 ),
                 base_url=request.build_absolute_uri(),
             ).write_pdf(),
