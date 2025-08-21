@@ -108,14 +108,14 @@
 {% endif %}
 <div {% if not request.GET.embed %} class="container" id="container" {% endif %}
                                     style="display: flex; flex-direction: column;">
-    {% if not request.GET.embed %}
+    {% if not request.GET.embed and not request.path|slice:5 == '/api/' %}
         {% include "core/navbar.html" %}
     {% endif %}
     <br>
     {% block subnavbarcontent %}
     {% endblock %}
     <div {% if not request.GET.embed %} class="container px-3" {% else %} class="px-4" {% endif %}
-                                        style="position: relative; {% if not request.GET.embed %} margin-bottom: 10vh {% endif %};display: flex; flex-direction: column;width: 100%;">
+                                        style="position: relative; {% if not request.GET.embed and not request.path|slice:5 == '/api/' %} margin-bottom: 10vh {% endif %};display: flex; flex-direction: column;width: 100%;">
         {% block content %}
         {% endblock %}
     </div>
@@ -124,7 +124,7 @@
 {% if not request.GET.embed %}
     {% block footer %}
         <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-            <div style="border-top: 1px solid #dee2e6; padding-bottom: 0.5rem"></div>
+            <div style="border-top: 1px solid #a1a1a180; padding-bottom: 0.5rem"></div>
             <p class="has-text-centered">
                 <strong>Epróba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source
                 code
