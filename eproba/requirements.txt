@@ -18,5 +18,5 @@ drf-spectacular==0.28.0
 django-dbbackup==4.3.0
 django-treebeard==4.7.1
 django-tinymce==4.1.0
-django-cors-headers==4.7.0
+django-cors-headers==4.9.0
 django-cleanup==9.0.0
