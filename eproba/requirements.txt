@@ -2,7 +2,7 @@ django==5.2.5
 django-crispy-forms==2.4
 crispy-bulma==0.12.0
 djangorestframework==3.16.1
-whitenoise==6.9.0
+whitenoise==6.11.0
 unidecode==1.4.0
 weasyprint==66.0
 fcm-django==2.3.1
