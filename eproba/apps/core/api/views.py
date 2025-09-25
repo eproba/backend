@@ -22,6 +22,10 @@ class ContactAPIView(GenericAPIView):
             subject = serializer.validated_data["subject"]
             from_email = serializer.validated_data["from_email"]
             message = serializer.validated_data["message"]
+            type_ = serializer.validated_data.get("type", "general")
+
+            if type_ == "bug":
+                subject = "[Zgłoszenie błędu] " + subject
 
             try:
                 email = EmailMessage(
