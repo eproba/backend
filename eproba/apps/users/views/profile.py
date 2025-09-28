@@ -1,5 +1,4 @@
 import uuid
-from urllib.parse import urlencode
 
 from apps.teams.models import Patrol
 from apps.users.forms import TermsOfServiceForm, UserChangeForm
@@ -62,8 +61,6 @@ def finish_signup(request):
                 if patrol:
                     user.patrol = patrol
                     user.save()
-            if not user.patrol and request.GET.get("ignore_patrol") is None:
-                return redirect(f"{reverse('select_patrol')}?{urlencode(query_params)}")
             return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
         else:
             messages.add_message(request, messages.ERROR, "Wystąpił błąd.")

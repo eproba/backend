@@ -2,7 +2,7 @@ import threading
 import uuid
 from urllib.parse import urlencode
 
-from apps.teams.models import District, Patrol
+from apps.teams.models import Patrol
 from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm
 from apps.users.models import User
 from apps.users.utils import send_verification_email_to_user
@@ -49,10 +49,6 @@ def signup(request):
             )
             send_email_thread.start()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            if not user.patrol and request.GET.get("ignore_patrol") is None:
-                return redirect(
-                    f"{reverse('select_patrol')}?{urlencode(request.GET, doseq=True)}"
-                )
             return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
     else:
         user_form = SiteUserCreationForm()
@@ -194,27 +190,3 @@ def send_verification_email(request):
         "Wysłaliśmy do ciebie maila z linkiem weryfikacyjnym.",
     )
     return redirect(request.GET.get("next", reverse("frontpage")))
-
-
-@login_required
-def select_patrol(request):
-    if request.method == "POST":
-        patrol_id = request.POST.get("patrol")
-        if patrol_id:
-            request.user.patrol_id = patrol_id
-            request.user.save()
-            messages.add_message(
-                request, messages.SUCCESS, "Jednostka została wybrana."
-            )
-            return redirect(request.GET.get("next", reverse("frontpage")))
-        else:
-            messages.add_message(
-                request, messages.ERROR, "Jednostka nie została wybrana."
-            )
-            return redirect(reverse("select_patrol"))
-    if request.user.patrol_id:
-        return redirect(request.GET.get("next", reverse("frontpage")))
-
-    districts = District.objects.all()
-
-    return render(request, "users/select_patrol.html", {"districts": districts})

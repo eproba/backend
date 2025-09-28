@@ -41,7 +41,6 @@ from apps.users.views import (
     google_auth_receiver,
     password_reset_complete,
     password_reset_done,
-    select_patrol,
     send_verification_email,
     set_password,
     signup,
@@ -285,7 +284,6 @@ urlpatterns = [
         google_auth_receiver,
         name="google_auth_receiver",
     ),
-    path("api/select-patrol/", select_patrol, name="select_patrol"),
     path(
         "send-verification-email/",
         send_verification_email,
