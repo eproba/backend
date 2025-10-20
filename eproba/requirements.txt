@@ -13,7 +13,7 @@ django-constance==4.3.2
 django-maintenance-mode==0.22.0
 google-api-python-client==2.183.0
 python-dotenv==1.1.1
-psycopg[binary]==3.2.10
+psycopg[binary]==3.2.11
 drf-spectacular==0.28.0
 django-dbbackup==5.0.0
 django-treebeard==4.7.1
