@@ -7,10 +7,13 @@ class IsAllowedToManageWorksheetOrReadOnly(permissions.BasePermission):
             return True
 
         return (
-            request.user.function >= 2
-            and (
-                request.user.function >= worksheet.user.function
-                or request.user.function >= 4
+            (
+                request.user.function >= 4
+                or (
+                    request.user.function >= 2
+                    and request.user.function >= worksheet.user.function
+                    and request.user != worksheet.user
+                )
             )
             and request.user.patrol.team == worksheet.user.patrol.team
         ) or worksheet.supervisor == request.user

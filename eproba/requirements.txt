@@ -1,4 +1,4 @@
-django==5.2.6
+django==5.2.7
 django-crispy-forms==2.4
 crispy-bulma==0.12.0
 djangorestframework==3.16.1
@@ -7,13 +7,13 @@ unidecode==1.4.0
 weasyprint==66.0
 fcm-django==2.3.1
 gunicorn==23.0.0
-django-oauth-toolkit==3.0.1
+django-oauth-toolkit==3.1.0
 pre-commit==4.3.0
 django-constance==4.3.2
 django-maintenance-mode==0.22.0
-google-api-python-client==2.183.0
-python-dotenv==1.1.1
-psycopg[binary]==3.2.10
+google-api-python-client==2.185.0
+python-dotenv==1.2.1
+psycopg[binary]==3.2.12
 drf-spectacular==0.28.0
 django-dbbackup==5.0.0
 django-treebeard==4.7.1
