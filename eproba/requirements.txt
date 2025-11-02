@@ -17,6 +17,6 @@ psycopg[binary]==3.2.12
 drf-spectacular==0.29.0
 django-dbbackup==5.0.0
 django-treebeard==4.7.1
-django-tinymce==4.1.0
+django-tinymce==5.0.0
 django-cors-headers==4.9.0
 django-cleanup==9.0.0
