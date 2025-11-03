@@ -11,10 +11,10 @@ django-oauth-toolkit==3.1.0
 pre-commit==4.3.0
 django-constance==4.3.2
 django-maintenance-mode==0.22.0
-google-api-python-client==2.185.0
+google-api-python-client==2.186.0
 python-dotenv==1.2.1
 psycopg[binary]==3.2.12
-drf-spectacular==0.28.0
+drf-spectacular==0.29.0
 django-dbbackup==5.0.0
 django-treebeard==4.7.1
 django-tinymce==4.1.0
