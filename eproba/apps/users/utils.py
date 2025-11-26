@@ -33,7 +33,7 @@ def min_function(_min_function):
                 messages.error(
                     request, "Nie masz uprawnień do przeglądania tej strony."
                 )
-                return redirect(reverse("frontpage"))
+                return redirect(reverse("root"))
 
         return wrap
 
@@ -48,7 +48,7 @@ def patrol_required(function):
         else:
             if request.user.is_authenticated:
                 messages.error(request, "Nie jesteś przypisany do żadnej jednostki.")
-                return redirect(reverse("frontpage"))
+                return redirect(reverse("root"))
             else:
                 messages.error(
                     request, "Musisz być zalogowany, aby przeglądać tę stronę."
@@ -78,7 +78,7 @@ def send_verification_email_to_user(user):
         "users/email/verification_email.html",
         {
             "name": name,
-            "verification_link": f"https://eproba.zhr.pl{reverse('verify_email', kwargs={'user_id': user.id, 'token': user.email_verification_token})}",
+            "verification_link": f"https://eproba.zhr.pl/verify-email/{user.id}/{user.email_verification_token}",
         },
     )
     try:
@@ -108,7 +108,7 @@ def send_created_account_email(user, password):
             "name": name,
             "email": user.email,
             "password": password,
-            "verification_link": f"https://eproba.zhr.pl{reverse('verify_email', kwargs={'user_id': user.id, 'token': user.email_verification_token})}",
+            "verification_link": f"https://eproba.zhr.pl/verify-email/{user.id}/{user.email_verification_token}",
         },
     )
     try:

@@ -6,7 +6,7 @@
     <script src="{% static 'js/users/predict_gender.js' %}" async></script>
 {% endblock %}
 {% block content %}
-    <h1 class="title has-text-weight-bold">{{ info }}</h1>
+    <h1 class="title has-text-weight-bold mt-6">{{ info }}</h1>
     <form method="post">
         {% csrf_token %}
         {% for form in forms %}

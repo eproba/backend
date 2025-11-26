@@ -2,136 +2,49 @@
 <html lang="pl">
 {% load static %}
 <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <meta name="google-site-verification" content="Oa-8rANmBab3FrKyY44hIe4K1937-KdaX9UEZLJs9bg"/>
-    <title>{% if dev_mode %}DEV - {% endif %}{% block title %}Epróba{% endblock %}</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>
+        {% if dev_mode %}DEV - {% endif %}{% block title %}Epróba{% endblock %}
+    </title>
     <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
-    >
-    <link rel="preload" href="{% static 'css/bulma-tooltip.min.css' %}" as="style"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="{% static 'css/bulma-tooltip.min.css' %}">
-    </noscript>
+    />
     <link href="{% static 'css/stylesheet.css' %}" rel="stylesheet" type="text/css">
-    <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.32/ua-parser.min.js"
-            integrity="sha512-QyFNWdGOdhSDvdDfS8tzVVg+UgnwLYmPybDSityYxHUg7mTVrw5dWRYdiUHNUOWVtLkJqTB8/LhrUCRPfkrEFg=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="{% static 'js/core/navbar.js' %}"></script>
+    <link
+            rel="icon"
+            href="{% static 'images/icons/favicon.svg' %}"
+            type="image/svg+xml"
+    />
+    <script
+            async
+            src="https://kit.fontawesome.com/a00f1140b1.js"
+            crossorigin="anonymous"
+    ></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="{% static 'images/icons/favicon.svg' %}" type="image/svg+xml">
-    <meta name="title" content="Epróba">
-    <meta name="description"
-          content="Epróba – kompleksowy system zarządzania próbami na stopnie w drużynie harcerskiej. Umożliwia tworzenie, edytowanie i zatwierdzanie prób, śledzenie postępów harcerzy oraz wygodne zarządzanie stopniami. Dzięki dostępności online i w aplikacji mobilnej, harcerze zawsze mają swoje próby pod ręką, a kadra może na bieżąco monitorować ich postępy. System eliminuje problem zgubionych kart prób i usprawnia pracę w drużynie. Zarejestruj swoją drużynę już dziś!">
-    <meta name="keywords"
-          content="harcerstwo, próby na stopnie, epróba, stopnie harcerskie, zarządzanie próbami, ZHR, system harcerski, aplikacja harcerska, drużyna harcerska, postępy harcerzy, szablony prób, harcerze, harcerska aplikacja, grywalizacja harcerska, harcerskie rankingi, e-proba, harcerskie stopnie, epróba ZHR, cyfrowe próby harcerskie, organizacja w drużynie, scouting, scouting app">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
-    <meta name="author" content="Antoni Czaplicki">
-
-
-    <meta property="og:title" content="Epróba">
-    <meta property="og:description"
-          content="Zarządzanie próbami na stopnie w harcerstwie jeszcze nigdy nie było tak proste! Twórz, edytuj i śledź postępy w jednym miejscu. Przekonaj się sam!">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://eproba.zhr.pl/">
-    <meta property="og:image" content="https://eproba.zhr.pl/api/static/images/logo-background-200x200.png">
-    <meta property="og:locale" content="pl_PL">
-
-    <!-- Google Tag Manager -->
-    {% if not request.GET.embed %}
-        <script>(function (w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start':
-                    new Date().getTime(), event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-NN3D54WV');</script>
-    {% endif %}
-    <!-- End Google Tag Manager -->
-
-    {% block extrahead %}
-    {% endblock %}
     <script>
         const csrfToken = "{{ csrf_token }}";
     </script>
-    {% if request.user.is_authenticated and not request.GET.embed %}
-        <script async type="module" src="{% static 'js/core/firebase.js' %}"></script>
-    {% endif %}
+    {% block extrahead %} {% endblock %}
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NN3D54WV"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
-<!-- End Google Tag Manager (noscript) -->
-{% if dev_mode %}
-    <div style="
-        position: fixed;
-        top: 32px;
-        right: 0;
-        background: red;
-        color: white;
-        padding: 4px 50px;
-        font-weight: bold;
-        font-size: 16px;
-        transform: rotate(45deg) translate(43px, -10px);
-        transform-origin: top right;
-        z-index: 9999;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-    ">
-        DEV
-    </div>
+{% if not request.user.is_authenticated and google_auth_enabled %}
+    <div
+            id="g_id_onload"
+            data-client_id="897419344971-f2uj5udmpk698ur529di5ens7ufogclg.apps.googleusercontent.com"
+            data-context="use"
+            data-ux_mode="redirect"
+            data-login_uri="{% if request.is_secure %}https://{{ request.get_host }}{% endif %}{% url 'google_auth_receiver' %}"
+            data-state="{{ request.get_full_path }}"
+            data-itp_support="true"
+    ></div>
 {% endif %}
-{% if not request.user.is_authenticated and google_auth_enabled and not request.GET.embed %}
-    <div id="g_id_onload"
-         data-client_id="897419344971-f2uj5udmpk698ur529di5ens7ufogclg.apps.googleusercontent.com"
-         data-context="use"
-         data-ux_mode="redirect"
-         data-login_uri="{% if request.is_secure %}https://{{ request.get_host }}{% endif %}{% url 'google_auth_receiver' %}"
-         data-state="{{ request.get_full_path }}"
-         data-itp_support="true">
-    </div>
-{% endif %}
-<div {% if not request.GET.embed %} class="container" id="container" {% endif %}
-                                    style="display: flex; flex-direction: column;">
-    {% if not request.GET.embed and not request.path|slice:5 == '/api/' %}
-        {% include "core/navbar.html" %}
-    {% endif %}
-    <br>
-    {% block subnavbarcontent %}
-    {% endblock %}
-    <div {% if not request.GET.embed %} class="container px-3" {% else %} class="px-4" {% endif %}
-                                        style="position: relative; {% if not request.GET.embed and not request.path|slice:5 == '/api/' %} margin-bottom: 10vh {% endif %};display: flex; flex-direction: column;width: 100%;">
-        {% block content %}
-        {% endblock %}
-    </div>
+<div
+        class="container"
+        style="min-height: 100vh; display: flex; flex-direction: column"
+>
+    {% block content %} {% endblock %}
 </div>
-<div id="notifications" style="z-index: 50; position: fixed; bottom: 10px; right: 10px"></div>
-{% if not request.GET.embed %}
-    {% block footer %}
-        <div class="footer" style="background-color:transparent; padding: 1rem 5rem 1rem">
-            <div style="border-top: 1px solid #a1a1a180; padding-bottom: 0.5rem"></div>
-            <p class="has-text-centered">
-                <strong>Epróba</strong> by <a href="https://github.com/Antoni-Czaplicki">Antoni Czaplicki</a>. Source
-                code
-                is available on <a href="https://github.com/eproba">Github</a>.
-            </p>
-        </div>
-    {% endblock %}
-{% endif %}
 </body>
 </html>

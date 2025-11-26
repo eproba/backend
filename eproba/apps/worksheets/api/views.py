@@ -8,20 +8,22 @@ from apps.users.utils import send_notification
 from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
 from apps.worksheets.tasks import remove_expired_deleted_worksheets
 from django.db.models import Q
-from django.http import QueryDict
-from django.urls import reverse
+from django.http import HttpResponse, QueryDict
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
-from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, ParseError, PermissionDenied
-from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from unidecode import unidecode
 
-from ..views import print_worksheet, print_worksheet_template
+try:
+    from weasyprint import HTML
+except (OSError, ImportError):
+    HTML = None
 from .permissions import (
     IsAllowedToAccessTaskNotes,
     IsAllowedToAccessWorksheetNotes,
@@ -35,6 +37,101 @@ from .serializers import (
     TemplateWorksheetSerializer,
     WorksheetSerializer,
 )
+
+
+# Helper functions for PDF generation
+def print_worksheet(request, id):
+    """Generate PDF for a worksheet."""
+    worksheet = get_object_or_404(Worksheet, id=id)
+    # Prepare task lists ordered by 'order'
+    tasks_qs = worksheet.tasks.all().order_by("order")
+    general_tasks = list(tasks_qs.filter(category="general"))
+    individual_tasks = list(tasks_qs.filter(category="individual"))
+    has_both = bool(general_tasks) and bool(individual_tasks)
+
+    if HTML is None:
+        return HttpResponse(
+            "Weasyprint is not installed, PDF generation is not possible.\nContact the administrator for help.",
+            content_type="text/plain",
+            status=500,
+        )
+
+    try:
+        response = HttpResponse(
+            HTML(
+                string=render_to_string(
+                    "worksheets/worksheet_pdf.html",
+                    {
+                        "worksheet": worksheet,
+                        "all_tasks": list(tasks_qs),
+                        "general_tasks": general_tasks,
+                        "individual_tasks": individual_tasks,
+                        "has_both_categories": has_both,
+                    },
+                ),
+                base_url=request.build_absolute_uri(),
+            ).write_pdf(),
+            content_type="application/pdf",
+        )
+    except Exception as e:
+        return HttpResponse(
+            f"Error generating PDF: {str(e)}",
+            content_type="text/plain",
+            status=500,
+        )
+
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(worksheet))} - Epróba.pdf"'
+    )
+    return response
+
+
+def print_worksheet_template(request, id):
+    """Generate PDF for a worksheet template."""
+    worksheet_template = get_object_or_404(TemplateWorksheet, id=id)
+
+    # Template tasks ordered by 'order'
+    tasks_qs = worksheet_template.tasks.all().order_by("order")
+    general_tasks = list(tasks_qs.filter(category="general"))
+    individual_tasks = list(tasks_qs.filter(category="individual"))
+    has_both = bool(general_tasks) and bool(individual_tasks)
+
+    if HTML is None:
+        return HttpResponse(
+            "Weasyprint is not installed, PDF generation is not possible.\nContact the administrator for help.",
+            content_type="text/plain",
+            status=500,
+        )
+
+    try:
+        response = HttpResponse(
+            HTML(
+                string=render_to_string(
+                    "worksheets/worksheet_pdf.html",
+                    {
+                        "worksheet": worksheet_template,
+                        "is_template": True,
+                        "all_tasks": list(tasks_qs),
+                        "general_tasks": general_tasks,
+                        "individual_tasks": individual_tasks,
+                        "has_both_categories": has_both,
+                    },
+                ),
+                base_url=request.build_absolute_uri(),
+            ).write_pdf(),
+            content_type="application/pdf",
+        )
+    except Exception as e:
+        return HttpResponse(
+            f"Error generating PDF: {str(e)}",
+            content_type="text/plain",
+            status=500,
+        )
+
+    response["Content-Disposition"] = (
+        f'inline; filename="{unidecode(str(worksheet_template))} - Epróba.pdf"'
+    )
+    return response
 
 
 class MultipartNestedSupportMixin:
@@ -286,59 +383,6 @@ class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
         )
 
 
-@extend_schema(deprecated=True)
-class TasksToBeChecked(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = WorksheetSerializer
-
-    def get_queryset(self):
-        return Worksheet.objects.filter(
-            tasks__approver=self.request.user, tasks__status=1
-        ).distinct()
-
-
-@extend_schema(deprecated=True)
-class SubmitTask(APIView):
-    permission_classes = [IsAuthenticated, IsTaskOwner]
-
-    def post(self, request, *args, **kwargs):
-        if request.data.get("approver") is None:
-            return Response({"approver": "This field is required."}, status=422)
-        task = get_object_or_404(
-            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
-        )
-        if task.status == 2:
-            return Response({"message": "Task already approved"})
-        task.status = 1
-        task.approver = User.objects.get(id=request.data["approver"])
-        task.approval_date = timezone.now()
-        task.save()
-        send_notification(
-            targets=task.approver,
-            title="Nowe zadanie do sprawdzenia",
-            body=f"Pojawił się nowy punkt do sprawdzenia dla {task.worksheet.user}",
-            link=reverse("worksheets:check_tasks"),
-        )
-        return Response({"message": "Task submitted"})
-
-
-@extend_schema(deprecated=True)
-class UnsubmitTask(APIView):
-    permission_classes = [IsAuthenticated, IsTaskOwner]
-
-    def post(self, request, *args, **kwargs):
-        task = get_object_or_404(
-            Task, id=kwargs["id"], worksheet__id=kwargs["worksheet_id"]
-        )
-        if task.status != 1:
-            return Response({"message": "Task is not submitted"})
-        task.status = 0
-        task.approver = None
-        task.approval_date = None
-        task.save()
-        return Response({"message": "Task unsubmitted"})
-
-
 class TaskViewSet(viewsets.ModelViewSet):
     """
     ViewSet for task CRUD operations and actions.
@@ -530,8 +574,3 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         available_approvers = list(set(available_approvers))
         return Response(PublicUserSerializer(available_approvers, many=True).data)
-
-
-@extend_schema(deprecated=True)
-class LegacyTaskViewSet(TaskViewSet):
-    pass

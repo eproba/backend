@@ -143,11 +143,7 @@
                 <tr>
                     <td class="is-narrow">{{ forloop.counter }}</td>
                     <td>
-                        {% if should_replace_stars %}
-                            {{ task.task|replace_stars }}
-                        {% else %}
-                            {{ task.task }}
-                        {% endif %}
+                        {{ task.task }}
                         {% if task.description %}
                             <br>
                             <p style="font-size: small; color: dimgrey; white-space: pre-wrap;">{{ task.description }}</p>
@@ -182,11 +178,7 @@
                 <tr>
                     <td class="is-narrow">{{ forloop.counter }}</td>
                     <td>
-                        {% if should_replace_stars %}
-                            {{ task.task|replace_stars }}
-                        {% else %}
-                            {{ task.task }}
-                        {% endif %}
+                        {{ task.task }}
                         {% if task.description %}
                             <br>
                             <p style="font-size: small; color: dimgrey; white-space: pre-wrap;">{{ task.description }}</p>
@@ -219,11 +211,7 @@
             <tr>
                 <td class="is-narrow">{{ forloop.counter }}</td>
                 <td>
-                    {% if should_replace_stars %}
-                        {{ task.task|replace_stars }}
-                    {% else %}
-                        {{ task.task }}
-                    {% endif %}
+                    {{ task.task }}
                     {% if task.description %}
                         <br>
                         <p style="font-size: small; color: dimgrey; white-space: pre-wrap;">{{ task.description }}</p>

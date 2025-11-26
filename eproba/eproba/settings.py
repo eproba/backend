@@ -24,7 +24,7 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 DEV = os.environ.get("DEV", "") == "true"
 
 # API version
-API_VERSION = "0.11.1"  # Current API version of the app
+API_VERSION = "0.12.0"  # Current API version of the app
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
@@ -79,10 +79,8 @@ INSTALLED_APPS = [
     "fcm_django",
     "oauth2_provider",
     "constance",
-    "maintenance_mode",
     "drf_spectacular",
     "dbbackup",
-    "tinymce",
     "treebeard",
     "corsheaders",
     "django_cleanup.apps.CleanupConfig",
@@ -100,8 +98,6 @@ MIDDLEWARE = [
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "maintenance_mode.middleware.MaintenanceModeMiddleware",
-    "apps.core.middleware.APIMaintenanceMiddleware",
 ]
 
 # API
@@ -120,8 +116,8 @@ REST_FRAMEWORK = {
 
 # Accounts and authentication
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "worksheets:worksheets"
-LOGOUT_REDIRECT_URL = "frontpage"
+LOGIN_REDIRECT_URL = "root"
+LOGOUT_REDIRECT_URL = "root"
 AUTH_USER_MODEL = "users.User"
 
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
@@ -146,7 +142,7 @@ OAUTH2_PROVIDER = {
     },
     "OIDC_ENABLED": True,
     "OAUTH2_VALIDATOR_CLASS": "apps.users.oauth_validators.CustomOAuth2Validator",
-    "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "http", "com.czaplicki.eproba"],
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["https", "http"],
     "REFRESH_TOKEN_GRACE_PERIOD_SECONDS": 120,
 }
 
@@ -154,34 +150,9 @@ OAUTH2_PROVIDER = {
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
-    "ADS_WEB": (False, "Ads (web)"),
-    "ADS_MOBILE": (False, "Ads (mobile)"),
-    "WEB_MAINTENANCE_MODE": (False, "Web app maintenance [deprecated]"),
-    "API_MAINTENANCE_MODE": (False, "API maintenance [deprecated]"),
     "MAINTENANCE_MODE": (False, "Maintenance mode"),
-    "MINIMUM_APP_VERSION": (20240900, "Minimum app version"),
-    "REQUIRE_EMAIL_VERIFICATION": (True, "Require email verification"),
-    "EOL_SCREEN_ENABLED": (False, "Enable EOL screen for an old android app"),
 }
 
-# Maintenance mode
-MAINTENANCE_MODE_TEMPLATE = "errors/503.html"
-MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
-# MAINTENANCE_MODE_IGNORE_SUPERUSER = True
-MAINTENANCE_MODE_IGNORE_URLS = (
-    r"^/api/",
-    r"^/robots.txt",
-    r"^/app-ads.txt",
-    r"^/ads.txt",
-    r"^/sitemap.xml",
-    r"^/contact",
-    r"^/privacy-policy",
-    r"^/gdpr",
-    r"^/terms-of-service",
-    r"^/site-management",
-    r"^/login",
-    r"^/api/static/images/icons/favicon.svg",
-)
 
 # Templates
 TEMPLATES = [
@@ -296,28 +267,6 @@ DBBACKUP_STORAGE_OPTIONS = {
 }
 DBBACKUP_CLEANUP_KEEP = 30  # Keep the last 30 backups
 
-# TinyMCE
-TINYMCE_DEFAULT_CONFIG = {
-    "promotion": False,
-    "menubar": "file edit view insert format tools table help",
-    "plugins": (
-        "advlist autolink lists link image charmap preview anchor searchreplace emoticons "
-        "visualblocks code fullscreen insertdatetime media table code help wordcount"
-    ),
-    "toolbar": (
-        "undo redo | "
-        "bold italic underline strikethrough | "
-        "blocks fontfamily fontsize | "
-        "alignleft aligncenter alignright alignjustify | "
-        "forecolor backcolor removeformat | "
-        "numlist bullist checklist | "
-        "outdent indent hr | "
-        "charmap emoticons | "
-        "fullscreen preview save | "
-        "insertfile image media pageembed template link anchor codesample | "
-        "code"
-    ),
-}
 
 # Logging configuration
 # Custom logging to ensure console output works regardless of DEBUG setting

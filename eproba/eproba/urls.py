@@ -17,7 +17,7 @@ Including another URLconf
 from apps.blog.api.views import PostViewSet
 from apps.blog.sitemaps import PostSitemap
 from apps.core.api.views import ApiConfigView, ContactAPIView
-from apps.core.views import FrontPageView, contactView, fcm_sw, site_management
+from apps.core.views import RootView
 from apps.teams.api.views import (
     DistrictViewSet,
     PatrolViewSet,
@@ -34,32 +34,19 @@ from apps.users.api.views import (
 )
 from apps.users.oauth_views import AuthorizationView as CustomAuthorizationView
 from apps.users.views import (
-    change_password,
-    delete_account,
-    edit_profile,
     finish_signup,
     google_auth_receiver,
     password_reset_complete,
     password_reset_done,
-    send_verification_email,
-    set_password,
     signup,
-    verify_email,
-    view_profile,
 )
 from apps.worksheets.api.views import (
-    LegacyTaskViewSet,
-    SubmitTask,
-    TasksToBeChecked,
     TaskViewSet,
     TemplateWorksheetViewSet,
-    UnsubmitTask,
     WorksheetViewSet,
 )
 from django.conf import settings
 from django.conf.urls.static import static
-
-# from apps.users.views.login_hub import login_from_hub, login_hub
 from django.contrib import admin
 from django.contrib.auth.views import (
     LoginView,
@@ -68,9 +55,7 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.contrib.sitemaps.views import sitemap
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import include, path
-from django.views.generic import RedirectView, TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
@@ -78,7 +63,6 @@ from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from oauth2_provider.urls import oidc_urlpatterns
 from rest_framework import routers
 
-from .sitemaps import Sitemap
 from .utils import (
     LegacyApiConfigView,
 )
@@ -100,46 +84,11 @@ api.register("news", PostViewSet, basename="news")
 
 sitemaps = {
     "posts": PostSitemap,
-    "static": Sitemap,
 }
 admin.site.site_title = "EPRÓBA"
 admin.site.site_header = "Panel administratora" + " - DEV" if settings.DEV else ""
 urlpatterns = [
-    path("", FrontPageView.as_view(), name="frontpage"),
-    path("firebase-messaging-sw.js", fcm_sw, name="fcm_sw"),
-    path(
-        "about/", TemplateView.as_view(template_name="sites/about.html"), name="about"
-    ),
-    path(
-        "gdpr/",
-        TemplateView.as_view(template_name="sites/gdpr.html"),
-        name="gdpr",
-    ),
-    path(
-        "privacy-policy/",
-        TemplateView.as_view(template_name="sites/privacy_policy.html"),
-        name="privacy-policy",
-    ),
-    path(
-        "terms-of-service/",
-        TemplateView.as_view(template_name="sites/terms_of_service.html"),
-        name="terms",
-    ),
-    path(
-        "terms/gdpr/",
-        TemplateView.as_view(template_name="sites/gdpr.html"),
-        name="gdpr",
-    ),
-    path(
-        "terms/privacy-policy/",
-        TemplateView.as_view(template_name="sites/privacy_policy.html"),
-        name="privacy-policy",
-    ),
-    path(
-        "terms/terms-of-service/",
-        TemplateView.as_view(template_name="sites/terms_of_service.html"),
-        name="terms",
-    ),
+    path("", RootView.as_view(), name="root"),
     path("admin/", admin.site.urls, name="admin"),
     path("api/", include(api.urls)),
     path("api/api-config/", LegacyApiConfigView.as_view()),
@@ -158,21 +107,8 @@ urlpatterns = [
         name="api_resend_verification_email",
     ),
     path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/",  # Outdated URL
-        LegacyTaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
-    ),
-    path(
         "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/",
         TaskViewSet.as_view({"get": "retrieve", "patch": "partial_update"}),
-    ),
-    path("api/worksheets/tasks/tbc/", TasksToBeChecked.as_view()),
-    path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/submit",
-        SubmitTask.as_view(),  # Legacy separate view
-    ),
-    path(
-        "api/worksheets/<uuid:worksheet_id>/task/<uuid:id>/unsubmit",  # Outdated URL
-        UnsubmitTask.as_view(),  # Legacy separate view
     ),
     path(
         "api/worksheets/<uuid:worksheet_id>/tasks/<uuid:id>/submit/",
@@ -210,8 +146,6 @@ urlpatterns = [
         TeamStatisticsAPIView.as_view(),
         name="team_statistics_api",
     ),
-    path("contact/", contactView, name="contact"),
-    path("worksheets/", include("apps.worksheets.urls")),
     path(
         "api/login/",
         LoginView.as_view(
@@ -220,9 +154,6 @@ urlpatterns = [
         name="login",
     ),
     path("api/logout/", LogoutView.as_view(), name="logout"),
-    # path("lh/", login_hub),
-    # path("_login/<uuid:user_id>/", login_from_hub),
-    path("news/", include("apps.blog.urls")),
     path(
         "api/password-reset/",
         PasswordResetView.as_view(template_name="users/password_reset.html"),
@@ -241,16 +172,6 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     path("api/password-reset-done/", password_reset_done, name="password_reset_done"),
-    path("profile/edit/", edit_profile, name="edit_profile"),
-    path("profile/change-password/", change_password, name="change_password"),
-    path("profile/set-password/", set_password, name="set_password"),
-    path("profile/view/", view_profile, name="view_profile", kwargs={"user_id": None}),
-    path("profile/view/<uuid:user_id>/", view_profile, name="view_profile"),
-    path("profile/delete/", delete_account, name="delete_account"),
-    path(
-        "robots.txt",
-        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
-    ),
     path(
         "sitemap.xml",
         sitemap,
@@ -259,7 +180,6 @@ urlpatterns = [
     ),
     path("api/signup/", signup, name="signup"),
     path("api/signup/finalize/", finish_signup, name="finish_signup"),
-    path("team/", include("apps.teams.urls")),
     path(
         "oauth2/authorize/", CustomAuthorizationView.as_view(), name="oauth2_authorize"
     ),
@@ -270,27 +190,10 @@ urlpatterns = [
             namespace="oauth2_provider",
         ),
     ),
-    path("site-management/", site_management, name="site_management"),
-    path(
-        "app-ads.txt",
-        RedirectView.as_view(url=staticfiles_storage.url("app-ads.txt")),
-    ),
-    path(
-        "ads.txt",
-        RedirectView.as_view(url=staticfiles_storage.url("ads.txt")),
-    ),
     path(
         "api/google-auth-receiver/",
         google_auth_receiver,
         name="google_auth_receiver",
-    ),
-    path(
-        "send-verification-email/",
-        send_verification_email,
-        name="send_verification_email",
-    ),
-    path(
-        "verify-email/<uuid:user_id>/<uuid:token>/", verify_email, name="verify_email"
     ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -298,5 +201,4 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
-    path("tinymce/", include("tinymce.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

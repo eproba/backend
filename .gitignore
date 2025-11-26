@@ -371,6 +371,5 @@ cython_debug/
 #.idea/
 
 
-eproba/eproba/maintenance_mode_state.txt
 /eproba/media/
 /eproba/secrets/

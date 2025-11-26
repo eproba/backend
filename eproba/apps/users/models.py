@@ -209,7 +209,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{rank}{scout_rank if self.scout_rank >= 1 else ''}"
 
     def full_rank(self):
-
         _gender = (
             self.patrol.team.organization if self.patrol is not None else self.gender
         )

@@ -1,17 +1,17 @@
 import threading
-import uuid
 from urllib.parse import urlencode
 
 from apps.teams.models import Patrol
-from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm
+from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm, UserChangeForm
 from apps.users.models import User
 from apps.users.utils import send_verification_email_to_user
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -25,13 +25,13 @@ def signup(request):
             query_params.pop("patrol", None)
             request.user.save()
         if request.GET.get("finish_signup") == "true":
-            next_url = query_params.get("next", reverse("worksheets:worksheets"))
+            next_url = query_params.get("next", reverse("root"))
             query_params["next"] = next_url
             query_params.pop("finish_signup", None)
             return redirect(
                 f"{reverse('finish_signup')}?{urlencode(query_params, doseq=True)}"
             )
-        return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
+        return redirect(request.GET.get("next", reverse("root")))
     if request.method == "POST":
         user_form = SiteUserCreationForm(request.POST)
         terms_of_service_form = TermsOfServiceForm(request.POST)
@@ -49,7 +49,7 @@ def signup(request):
             )
             send_email_thread.start()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return redirect(request.GET.get("next", reverse("worksheets:worksheets")))
+            return redirect(request.GET.get("next", reverse("root")))
     else:
         user_form = SiteUserCreationForm()
         terms_of_service_form = TermsOfServiceForm()
@@ -99,7 +99,7 @@ def google_auth_receiver(request):
         messages.add_message(
             request, messages.ERROR, "Konto jest usunięte, nie możesz się zalogować."
         )
-        return redirect(reverse("frontpage"))
+        return redirect(reverse("root"))
 
     if not user.email_verified:
         if user_data["email_verified"]:
@@ -127,7 +127,7 @@ def google_auth_receiver(request):
         return redirect(
             f"{reverse('signup')}?{urlencode({'next': state, 'finish_signup': 'true'})}"
         )
-    return redirect(state or reverse("frontpage"))
+    return redirect(state or reverse("root"))
 
 
 def password_reset_done(request):
@@ -148,45 +148,36 @@ def password_reset_complete(request):
     return redirect(reverse("login"))
 
 
-def verify_email(request, user_id, token):
-    user = get_object_or_404(User, id=user_id)
-    if user.email_verification_token != token:
-        messages.add_message(
-            request, messages.ERROR, "Nieprawidłowy token weryfikacyjny."
-        )
-        return redirect(reverse("frontpage"))
-
-    user.email_verified = True
-    user.email_verification_token = (
-        uuid.uuid4()
-    )  # Invalidate the token and generate a new one for later use
-    user.save()
-    messages.add_message(request, messages.SUCCESS, "Adres email został zweryfikowany.")
-    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    return redirect(reverse("frontpage"))
-
-
 @login_required
-def send_verification_email(request):
-    if request.user.email_verified:
-        messages.add_message(
-            request, messages.INFO, "Twój adres email jest już zweryfikowany."
-        )
-        return redirect(reverse("frontpage"))
-    try:
-        send_verification_email_to_user(request.user)
-    except Exception as e:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Wystąpił błąd podczas wysyłania maila weryfikacyjnego.",
-        )
-        print(e)
-        return redirect(reverse("frontpage"))
+@transaction.atomic
+def finish_signup(request):
+    if request.method == "POST":
+        user_form = UserChangeForm(request.POST, instance=request.user)
+        terms_of_service_form = TermsOfServiceForm(request.POST)
 
-    messages.add_message(
+        if user_form.is_valid() and terms_of_service_form.is_valid():
+            user = user_form.save()
+            user.save()
+            query_params = request.GET.dict()
+            patrol_id = query_params.pop("patrol", None)
+            if patrol_id:
+                patrol = Patrol.objects.get(id=patrol_id)
+                if patrol:
+                    user.patrol = patrol
+                    user.save()
+            return redirect(request.GET.get("next", reverse("root")))
+        else:
+            messages.add_message(request, messages.ERROR, "Wystąpił błąd.")
+
+    user_form = UserChangeForm(instance=request.user)
+    terms_of_service_form = TermsOfServiceForm()
+
+    return render(
         request,
-        messages.SUCCESS,
-        "Wysłaliśmy do ciebie maila z linkiem weryfikacyjnym.",
+        "users/common.html",
+        {
+            "forms": [user_form, terms_of_service_form],
+            "info": "Dokończ konfigurowanie profilu",
+            "button_text": "Dalej",
+        },
     )
-    return redirect(request.GET.get("next", reverse("frontpage")))
