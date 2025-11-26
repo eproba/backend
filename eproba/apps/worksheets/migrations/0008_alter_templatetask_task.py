@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("worksheets", "0007_alter_templateworksheet_image"),
     ]

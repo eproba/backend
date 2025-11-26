@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("worksheets", "0004_remove_worksheet_is_template_and_more"),
     ]

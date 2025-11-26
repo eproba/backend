@@ -45,7 +45,6 @@ def migrate_templates(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("worksheets", "0002_worksheet_created_at_worksheet_description_and_more"),
     ]

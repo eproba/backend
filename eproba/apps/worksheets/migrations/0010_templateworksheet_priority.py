@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("worksheets", "0009_worksheet_final_challenge_and_more"),
     ]

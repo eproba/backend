@@ -1,6 +1,3 @@
-import datetime
-
-from constance import config
 from constance.signals import config_updated
 from django.dispatch import receiver
 from drf_spectacular.utils import extend_schema
@@ -19,11 +16,11 @@ class LegacyApiConfigView(APIView):
     def get(self, request):
         return Response(
             {
-                "ads": config.ADS_MOBILE,
-                "api_maintenance": config.API_MAINTENANCE_MODE,
-                "min_version": config.MINIMUM_APP_VERSION,
-                "eol_date": datetime.date(2025, 9, 30).isoformat(),
-                "eol_screen_enabled": config.EOL_SCREEN_ENABLED,
+                "ads": False,
+                "api_maintenance": True,
+                "min_version": "20250500",
+                "eol_date": "2025-09-30",
+                "eol_screen_enabled": True,
                 "eol_screen_title": "Nowa wersja Epróby jest już dostępna!",
                 "eol_screen_description": "Ta wersja aplikacji zostaje wycofana. Aby korzystać z najnowszych funkcji i poprawek, pobierz nową wersję aplikacji.",
                 "eol_screen_button_text": "Pobierz teraz",

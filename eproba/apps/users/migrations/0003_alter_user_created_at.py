@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0002_rename_date_joined_user_created_at_user_deleted_at_and_more"),
     ]

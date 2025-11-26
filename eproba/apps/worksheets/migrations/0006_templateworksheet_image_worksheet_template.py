@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("worksheets", "0005_task_category_task_notes_task_order_and_more"),
     ]

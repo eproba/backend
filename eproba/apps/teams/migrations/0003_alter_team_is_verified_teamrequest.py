@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("teams", "0002_team_is_verified"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

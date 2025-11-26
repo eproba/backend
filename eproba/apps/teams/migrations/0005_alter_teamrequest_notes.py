@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("teams", "0004_alter_patrol_team_alter_team_district_and_more"),
     ]
