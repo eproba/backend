@@ -14,7 +14,7 @@ google-api-python-client==2.187.0
 python-dotenv==1.2.1
 psycopg[binary]==3.2.13
 drf-spectacular==0.29.0
-django-dbbackup==5.0.0
+django-dbbackup==5.0.1
 django-treebeard==4.7.1
 django-cors-headers==4.9.0
 django-cleanup==9.0.0
