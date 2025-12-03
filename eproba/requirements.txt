@@ -12,7 +12,7 @@ pre-commit==4.5.0
 django-constance==4.3.4
 google-api-python-client==2.187.0
 python-dotenv==1.2.1
-psycopg[binary]==3.2.13
+psycopg[binary]==3.3.1
 drf-spectacular==0.29.0
 django-dbbackup==5.0.0
 django-treebeard==4.7.1
