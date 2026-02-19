@@ -81,7 +81,6 @@ INSTALLED_APPS = [
     "constance",
     "drf_spectacular",
     "dbbackup",
-    "treebeard",
     "corsheaders",
     "django_cleanup.apps.CleanupConfig",
 ]
