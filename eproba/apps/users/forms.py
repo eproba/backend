@@ -10,7 +10,9 @@ class SiteUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["password1"].help_text = (
+        self.fields[
+            "password1"
+        ].help_text = (
             "Hasło musi mieć co najmniej 8 znaków i być chociaż w miarę silne."
         )
 
@@ -40,7 +42,7 @@ class SiteUserCreationForm(UserCreationForm):
 class TermsOfServiceForm(forms.Form):
     terms_of_service = forms.BooleanField(
         label=mark_safe(
-            'Potwierdzam że zapoznałem się z <a href="/terms-of-service/" target="_blank">regulaminem</a> oraz <a href="/privacy-policy/" target="_blank">polityką prywatności</a> i akceptuję je.'
+            'Potwierdzam że zapoznałem się z <a href="/terms/terms-of-service/" target="_blank">regulaminem</a> oraz <a href="/terms/privacy-policy/" target="_blank">polityką prywatności</a> i akceptuję je.'
         ),
         required=True,
     )

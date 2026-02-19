@@ -26,6 +26,7 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ("email", "nickname", "first_name", "last_name")
     ordering = ("email",)
+    autocomplete_fields = ("patrol",)
 
     base_fieldsets = (
         (

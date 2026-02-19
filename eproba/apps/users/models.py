@@ -161,7 +161,9 @@ class User(AbstractBaseUser, PermissionsMixin):
                     else (
                         self.last_name
                         if self.last_name
-                        else self.nickname if self.nickname else None
+                        else self.nickname
+                        if self.nickname
+                        else None
                     )
                 )
             )

@@ -67,7 +67,9 @@ def send_verification_email_to_user(user):
     name = (
         user.first_name
         if user.first_name
-        else user.nickname if user.nickname else user.email
+        else user.nickname
+        if user.nickname
+        else user.email
     )
 
     user.email_verification_token = uuid.uuid4()
@@ -98,7 +100,9 @@ def send_created_account_email(user, password):
     name = (
         user.first_name
         if user.first_name
-        else user.nickname if user.nickname else user.email
+        else user.nickname
+        if user.nickname
+        else user.email
     )
 
     subject = "Twoje konto w Epróbie"
