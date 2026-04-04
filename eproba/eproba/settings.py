@@ -24,7 +24,7 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 DEV = os.environ.get("DEV", "") == "true"
 
 # API version
-API_VERSION = "0.12.0"  # Current API version of the app
+API_VERSION = "0.13.0"  # Current API version of the app
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 ROOT_URLCONF = "eproba.urls"
@@ -83,7 +83,14 @@ INSTALLED_APPS = [
     "dbbackup",
     "corsheaders",
     "django_cleanup.apps.CleanupConfig",
+    "apps.webhooks.apps.WebhooksConfig",
 ]
+
+TASKS = {
+    "default": {
+        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+    }
+}
 
 # Middleware
 MIDDLEWARE = [
@@ -136,6 +143,7 @@ OAUTH2_PROVIDER = {
         "email": "Adres email",
         "teams": "Drużyny i zastępy",
         "worksheets": "Próby harcerskie",
+        "webhooks": "Zarządzanie webhookami",
         "read": "Odczytywanie całej zawartości i danych na twoim koncie [wycofane]",
         "write": "Modyfikacja całej zawartoci i danych na twoim koncie [wycofane]",
     },
@@ -259,11 +267,23 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-# Database backup
-DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
-DBBACKUP_STORAGE_OPTIONS = {
-    "location": os.environ.get("DBBACKUP_STORAGE_LOCATION", BASE_DIR / "backups"),
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "dbbackup": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": os.environ.get(
+                "DBBACKUP_STORAGE_LOCATION", BASE_DIR / "backups"
+            ),
+        },
+    },
 }
+
 DBBACKUP_CLEANUP_KEEP = 30  # Keep the last 30 backups
 
 

@@ -1,5 +1,6 @@
 import uuid
 
+from apps.core.api.permissions import TokenHasRequiredScope
 from apps.users.models import User
 from apps.users.utils import (
     send_created_account_email,
@@ -48,7 +49,12 @@ class UserViewSet(
     API view for managing users.
     """
 
-    permission_classes = [IsAuthenticated, IsAllowedToManageUserOrReadOnly]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToManageUserOrReadOnly,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["profile"]
     lookup_field = "id"
 
     def get_serializer_class(self):
@@ -183,7 +189,7 @@ class UserViewSet(
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[IsAllowedToManageUserOrReadOnly],
+        permission_classes=[IsAllowedToManageUserOrReadOnly, TokenHasRequiredScope],
         url_path="reset-password",
     )
     def reset_password(self, request, id=None):
@@ -206,7 +212,7 @@ class UserViewSet(
     @action(
         detail=False,
         methods=["get"],
-        permission_classes=[IsAuthenticated],
+        permission_classes=[IsAuthenticated, TokenHasRequiredScope],
         url_path="email-available",
     )
     def check_email_available(self, request):
@@ -236,7 +242,8 @@ class CurrentUserViewSet(
     """
 
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, TokenHasRequiredScope]
+    required_scopes = ["profile"]
 
     ALLOWED_UPDATE_FIELDS = [
         "nickname",
@@ -306,7 +313,8 @@ class ChangePasswordView(GenericAPIView):
     """
 
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, TokenHasRequiredScope]
+    required_scopes = ["profile"]
 
     def post(self, request):
         user = request.user
@@ -336,7 +344,8 @@ class ResendVerificationEmailView(GenericAPIView):
     """
 
     serializer_class = ResendEmailVerificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, TokenHasRequiredScope]
+    required_scopes = ["profile"]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)

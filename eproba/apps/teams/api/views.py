@@ -1,6 +1,7 @@
 import threading
 from datetime import timedelta
 
+from apps.core.api.permissions import TokenHasRequiredScope
 from apps.teams.api.permissions import (
     IsAllowedToAccessTeamRequest,
     IsAllowedToAccessTeamStats,
@@ -51,7 +52,8 @@ def send_team_request_email(team_request_obj):
 
 
 class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, TokenHasRequiredScope]
+    required_scopes = ["teams"]
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
 
@@ -62,7 +64,12 @@ class TeamViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
-    permission_classes = [IsAuthenticated, IsAllowedToManageTeamOrReadOnly]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToManageTeamOrReadOnly,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["teams"]
 
     def get_queryset(self):
         district = self.request.GET.get("district")
@@ -88,7 +95,12 @@ class TeamViewSet(
 class PatrolViewSet(viewsets.ModelViewSet):
     queryset = Patrol.objects.all()
     serializer_class = PatrolSerializer
-    permission_classes = [IsAuthenticated, IsAllowedToManagePatrolOrReadOnly]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToManagePatrolOrReadOnly,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["teams"]
 
     def perform_destroy(self, instance):
         # Prevent deletion if patrol has active users
@@ -117,7 +129,9 @@ class TeamRequestViewSet(
     permission_classes = [
         IsAuthenticated,
         IsAllowedToAccessTeamRequest,
+        TokenHasRequiredScope,
     ]
+    required_scopes = ["teams"]
 
     def perform_create(self, serializer):
         """
@@ -245,7 +259,12 @@ class TeamStatisticsAPIView(APIView):
     - Patrol comparisons
     """
 
-    permission_classes = [IsAuthenticated, IsAllowedToAccessTeamStats]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToAccessTeamStats,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["teams"]
 
     def get(self, request):
         user = request.user

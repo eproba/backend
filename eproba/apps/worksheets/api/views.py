@@ -24,6 +24,8 @@ try:
     from weasyprint import HTML
 except (OSError, ImportError):
     HTML = None
+from apps.core.api.permissions import TokenHasRequiredScope
+
 from .permissions import (
     IsAllowedToAccessTaskNotes,
     IsAllowedToAccessWorksheetNotes,
@@ -196,7 +198,12 @@ class MultipartNestedSupportMixin:
 
 
 class WorksheetViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAllowedToManageWorksheetOrReadOnly]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToManageWorksheetOrReadOnly,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["worksheets"]
     serializer_class = WorksheetSerializer
     lookup_field = "id"
 
@@ -284,7 +291,11 @@ class WorksheetViewSet(viewsets.ModelViewSet):
         methods=["post", "put", "delete"],
         url_name="note",
         url_path="note",
-        permission_classes=[IsAuthenticated, IsAllowedToAccessWorksheetNotes],
+        permission_classes=[
+            IsAuthenticated,
+            IsAllowedToAccessWorksheetNotes,
+            TokenHasRequiredScope,
+        ],
     )
     def manage_note(self, request, id=None):
         """Manage notes on worksheet"""
@@ -331,7 +342,12 @@ class WorksheetViewSet(viewsets.ModelViewSet):
 
 
 class TemplateWorksheetViewSet(MultipartNestedSupportMixin, ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAllowedToReadOrManageTemplateWorksheet]
+    permission_classes = [
+        IsAuthenticated,
+        IsAllowedToReadOrManageTemplateWorksheet,
+        TokenHasRequiredScope,
+    ]
+    required_scopes = ["worksheets"]
     serializer_class = TemplateWorksheetSerializer
     lookup_field = "id"
 
@@ -390,6 +406,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     serializer_class = TaskSerializer
     lookup_field = "id"
+    required_scopes = ["worksheets"]
 
     def get_queryset(self):
         return Task.objects.filter(worksheet__id=self.kwargs.get("worksheet_id"))
@@ -397,13 +414,25 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """Set permissions based on action"""
         if self.action in ["submit", "unsubmit", "get_approvers"]:
-            return [IsAuthenticated(), IsTaskOwner()]
+            return [IsAuthenticated(), IsTaskOwner(), TokenHasRequiredScope()]
         elif self.action in ["accept", "reject", "clear_status"]:
-            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnly()]
+            return [
+                IsAuthenticated(),
+                IsAllowedToManageTaskOrReadOnly(),
+                TokenHasRequiredScope(),
+            ]
         elif self.action == "manage_note":
-            return [IsAuthenticated(), IsAllowedToAccessTaskNotes()]
+            return [
+                IsAuthenticated(),
+                IsAllowedToAccessTaskNotes(),
+                TokenHasRequiredScope(),
+            ]
         elif self.action in ["retrieve", "partial_update", "update"]:
-            return [IsAuthenticated(), IsAllowedToManageTaskOrReadOnly()]
+            return [
+                IsAuthenticated(),
+                IsAllowedToManageTaskOrReadOnly(),
+                TokenHasRequiredScope(),
+            ]
         return super().get_permissions()
 
     def perform_update(self, serializer):

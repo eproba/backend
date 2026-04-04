@@ -40,6 +40,7 @@ from apps.users.views import (
     password_reset_done,
     signup,
 )
+from apps.webhooks.api.views import WebhookViewSet
 from apps.worksheets.api.views import (
     TaskViewSet,
     TemplateWorksheetViewSet,
@@ -81,6 +82,7 @@ api.register(r"teams", TeamViewSet, "api-teams")
 api.register(r"patrols", PatrolViewSet, "api-patrols")
 api.register(r"team-requests", TeamRequestViewSet, basename="team-requests")
 api.register("news", PostViewSet, basename="news")
+api.register("webhooks", WebhookViewSet, basename="api-webhooks")
 
 sitemaps = {
     "posts": PostSitemap,
