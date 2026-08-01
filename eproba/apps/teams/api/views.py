@@ -6,8 +6,17 @@ from apps.teams.api.permissions import (
     IsAllowedToAccessTeamRequest,
     IsAllowedToAccessTeamStats,
 )
-from apps.teams.api.serializers import TeamRequestSerializer
+from apps.teams.api.serializers import (
+    TeamRequestActionSerializer,
+    TeamRequestSerializer,
+)
 from apps.teams.models import District, Patrol, Team, TeamRequest
+from apps.teams.services import (
+    TEAM_REQUEST_ADMIN_EMAIL,
+    can_auto_approve_team_request,
+    is_zhr_email,
+    set_team_request_status,
+)
 from apps.users.models import (
     User,
     instructor_rank_female,
@@ -20,7 +29,8 @@ from django.core.mail import EmailMessage, send_mail
 from django.db.models import Count, Max, OuterRef, Q, Subquery
 from django.utils import timezone
 from rest_framework import mixins, status, viewsets
-from rest_framework.exceptions import APIException
+from rest_framework.decorators import action
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,7 +55,7 @@ def send_team_request_email(team_request_obj):
         subject=f"Zgłoszenie o dodanie drużyny: {team_request_obj.team.name}",
         body="Pojawiło się nowe zgłoszenie o dodanie drużyny. https://eproba.zhr.pl/team/requests/",
         from_email=None,
-        to=["eproba@zhr.pl"],
+        to=[TEAM_REQUEST_ADMIN_EMAIL],
         headers={"Reply-To": team_request_obj.created_by.email},
     )
     email.send()
@@ -118,7 +128,6 @@ class TeamRequestViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -139,7 +148,15 @@ class TeamRequestViewSet(
         """
         team_request = serializer.save()
 
-        # Send email notification in background
+        if can_auto_approve_team_request(team_request.created_by):
+            team_request = set_team_request_status(team_request, "approved")
+            serializer.instance = team_request
+            return
+
+        # A ZHR request waits for address verification and needs no admin action yet.
+        if is_zhr_email(team_request.created_by.email):
+            return
+
         send_email_thread = threading.Thread(
             target=send_team_request_email, args=(team_request,), daemon=True
         )
@@ -162,38 +179,47 @@ class TeamRequestViewSet(
 
         return queryset
 
-    def update(self, request, *args, **kwargs):
-        """
-        Handle updating the status of a team request.
-        Allows changing the status, adding a note, and sending an email notification.
-        """
-        team_request = self.get_object()
-
-        note = request.data.get("note", "").strip()
-        send_email = request.data.get("send_email", True)
-        send_note = request.data.get("send_note", False)
-        new_status = request.data.get("status")
-
-        if new_status not in dict(TeamRequest.STATUS_CHOICES):
+    @action(detail=False, methods=["get"], url_path="mine/latest")
+    def latest_for_current_user(self, request):
+        team_request = (
+            TeamRequest.objects.select_related(
+                "team", "team__district", "created_by", "accepted_by"
+            )
+            .prefetch_related("team__patrols")
+            .filter(created_by=request.user)
+            .order_by("-created_at")
+            .first()
+        )
+        if team_request is None:
             return Response(
-                {"error": "Niepoprawny status."}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Nie znaleziono zgłoszenia drużyny."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(self.get_serializer(team_request).data)
+
+    def _perform_status_action(self, request, new_status, *, require_email=False):
+        payload = TeamRequestActionSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        data = payload.validated_data
+
+        if require_email and not data["send_email"]:
+            raise ValidationError(
+                {
+                    "send_email": "Prośba o weryfikację wymaga wysłania powiadomienia e-mail."
+                }
             )
 
-        team_request.status = new_status
-        team_request.note = note
-        team_request.save()
+        team_request = set_team_request_status(
+            self.get_object(),
+            new_status,
+            accepted_by=None if new_status == "submitted" else request.user,
+            notes=data.get("note", ""),
+        )
 
-        team_request.team.is_verified = new_status == "approved"
-        team_request.team.save()
-
-        team_request.created_by.function = team_request.function_level
-        team_request.created_by.save()
-
-        team_request.accepted_by = request.user
-        team_request.save()
-
-        if send_email:
-            subject, message = self.get_email_content(team_request, send_note)
+        if data["send_email"]:
+            subject, message = self.get_email_content(
+                team_request, data["send_note"]
+            )
             send_mail(
                 subject,
                 message,
@@ -202,9 +228,25 @@ class TeamRequestViewSet(
                 fail_silently=True,
             )
 
-        return Response(
-            {"message": "Status zgłoszenia zaktualizowany."}, status=status.HTTP_200_OK
+        return Response(self.get_serializer(team_request).data)
+
+    @action(detail=True, methods=["post"])
+    def approve(self, request, *args, **kwargs):
+        return self._perform_status_action(request, "approved")
+
+    @action(detail=True, methods=["post"])
+    def reject(self, request, *args, **kwargs):
+        return self._perform_status_action(request, "rejected")
+
+    @action(detail=True, methods=["post"], url_path="request-verification")
+    def request_verification(self, request, *args, **kwargs):
+        return self._perform_status_action(
+            request, "pending_verification", require_email=True
         )
+
+    @action(detail=True, methods=["post"])
+    def reopen(self, request, *args, **kwargs):
+        return self._perform_status_action(request, "submitted")
 
     def get_email_content(self, team_request, send_note):
         """
@@ -212,8 +254,8 @@ class TeamRequestViewSet(
         """
         team_name = team_request.team.name if team_request.team else "Twoja drużyna"
         note_text = (
-            f"\n\nNotatka: {team_request.note}"
-            if send_note and team_request.note
+            f"\n\nNotatka: {team_request.notes}"
+            if send_note and team_request.notes
             else ""
         )
 

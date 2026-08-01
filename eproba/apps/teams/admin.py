@@ -2,6 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 
 from .models import District, Patrol, Team, TeamRequest
+from .services import set_team_request_status
 
 
 @admin.register(District)
@@ -53,13 +54,19 @@ class TeamRequestAdmin(ModelAdmin):
     actions = ["approve_requests", "reject_requests"]
 
     def approve_requests(self, request, queryset):
-        queryset.update(status="approved")
+        for team_request in queryset:
+            set_team_request_status(
+                team_request, "approved", accepted_by=request.user
+            )
         self.message_user(request, "Zgłoszenia zostały zaakceptowane.")
 
     approve_requests.short_description = "Zaakceptuj wybrane zgłoszenia"
 
     def reject_requests(self, request, queryset):
-        queryset.update(status="rejected")
+        for team_request in queryset:
+            set_team_request_status(
+                team_request, "rejected", accepted_by=request.user
+            )
         self.message_user(request, "Zgłoszenia zostały odrzucone.")
 
     reject_requests.short_description = "Odrzuć wybrane zgłoszenia"

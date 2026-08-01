@@ -1,6 +1,7 @@
 import uuid
 
 from apps.core.api.permissions import TokenHasRequiredScope
+from apps.teams.services import auto_approve_team_request_after_email_verification
 from apps.users.models import User
 from apps.users.utils import (
     send_created_account_email,
@@ -390,5 +391,7 @@ class VerifyEmailView(GenericAPIView):
             uuid.uuid4()
         )  # Generate new token to invalidate old one
         user.save()
+
+        auto_approve_team_request_after_email_verification(user)
 
         return Response({"detail": "Email verified successfully"}, status=HTTP_200_OK)

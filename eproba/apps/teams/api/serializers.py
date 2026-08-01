@@ -1,4 +1,5 @@
 from apps.teams.models import District, Patrol, Team, TeamRequest
+from apps.teams.services import get_team_request_outcome, is_zhr_email
 from apps.users.api.serializers import UserSerializer
 from rest_framework import serializers
 
@@ -42,6 +43,8 @@ class TeamRequestSerializer(serializers.ModelSerializer):
     # Read-only fields for existing requests
     team = TeamSerializer(read_only=True)
     created_by = UserSerializer(read_only=True)
+    accepted_by_id = serializers.UUIDField(read_only=True)
+    approval_outcome = serializers.SerializerMethodField()
 
     # Write-only fields for creation
     team_name = serializers.CharField(
@@ -79,9 +82,11 @@ class TeamRequestSerializer(serializers.ModelSerializer):
             "team",
             "created_by",
             "accepted_by",
+            "accepted_by_id",
             "status",
             "created_at",
             "notes",
+            "approval_outcome",
             # Read-write field
             "function_level",
             # Write-only fields for creation
@@ -97,10 +102,15 @@ class TeamRequestSerializer(serializers.ModelSerializer):
             "team",
             "created_by",
             "accepted_by",
+            "accepted_by_id",
             "status",
             "created_at",
             "notes",
+            "approval_outcome",
         ]
+
+    def get_approval_outcome(self, obj):
+        return get_team_request_outcome(obj)
 
     def validate_district(self, value):
         if value is None:
@@ -176,8 +186,31 @@ class TeamRequestSerializer(serializers.ModelSerializer):
         user.save()
 
         # Create team request
+        initial_status = (
+            "pending_verification"
+            if is_zhr_email(user.email) and not user.email_verified
+            else "submitted"
+        )
         team_request = TeamRequest.objects.create(
-            created_by=user, team=team, function_level=validated_data["function_level"]
+            created_by=user,
+            team=team,
+            function_level=validated_data["function_level"],
+            status=initial_status,
         )
 
         return team_request
+
+
+class TeamRequestActionSerializer(serializers.Serializer):
+    note = serializers.CharField(
+        required=False, allow_blank=True, trim_whitespace=True, max_length=5000
+    )
+    send_email = serializers.BooleanField(required=False, default=True)
+    send_note = serializers.BooleanField(required=False, default=False)
+
+    def validate(self, attrs):
+        if attrs["send_note"] and not attrs["send_email"]:
+            raise serializers.ValidationError(
+                {"send_note": "Notatkę można wysłać tylko razem z powiadomieniem."}
+            )
+        return attrs

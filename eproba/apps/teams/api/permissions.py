@@ -36,7 +36,7 @@ class IsAllowedToManagePatrolOrReadOnly(permissions.BasePermission):
 
 class IsAllowedToAccessTeamRequest(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method == "POST":
+        if view.action in {"create", "latest_for_current_user"}:
             return True
 
         return (
