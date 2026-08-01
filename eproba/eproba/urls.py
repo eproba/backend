@@ -57,16 +57,15 @@ from django.contrib.auth.views import (
 )
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.views.generic import TemplateView
+from drf_spectacular.views import SpectacularAPIView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from oauth2_provider.urls import app_name as oauth2_app_name
 from oauth2_provider.urls import base_urlpatterns as oauth2_base_urlpatterns
 from oauth2_provider.urls import oidc_urlpatterns
 from rest_framework import routers
 
-from .utils import (
-    LegacyApiConfigView,
-)
+from .utils import LegacyApiConfigView
 
 handler404 = "apps.core.views.handler404"
 handler500 = "apps.core.views.handler500"
@@ -199,8 +198,8 @@ urlpatterns = [
     ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/schema/swagger-ui/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
+        "api/schema/scalar/",
+        TemplateView.as_view(template_name="scalar.html"),
+        name="scalar-ui",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,84 +1,376 @@
-{% extends 'core/base.html' %} {% block title %}ePróba API Backend{% endblock %}
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Epróba API{% endblock %}
+
 {% block extrahead %}
-<style>
-  body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-  }
-  .hero {
-    min-height: 100vh;
-  }
-</style>
-{% endblock %} {% block content %}
-<section class="hero is-fullheight">
-  <div class="hero-body">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-6-tablet is-5-desktop">
-          <div
-            class="box has-text-centered"
-            style="
-              border-radius: 12px;
-              box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            "
-          >
-            <h1 class="title is-1 has-text-primary" style="margin-bottom: 1rem">
-            <svg viewBox="2.344402499999999 4.60938125 157.86092312499997 35.39154375"
-                 style="width: 112px; height: 32px;">
-                <path d="M19.688 40 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 q0 -0.8203125 0.56640625 -1.38671875 t1.3672 -0.56641 l15.41 0 q0.80078125 0 1.3671875 0.56640625 t0.56641 1.3867 q0 0.80078125 -0.56640625 1.3671875 t-1.3672 0.56641 z M19.688 15.859000000000002 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 l15.41 0 q0.80078125 0 1.3671875 0.56640625 t0.56641 1.3672 t-0.56641 1.3672 t-1.3672 0.56641 z M19.688 27.93 l-15.41 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.377 t1.3672 -0.57617 l15.41 0 q0.80078125 0 1.3671875 0.576171875 t0.56641 1.377 t-0.56641 1.3672 t-1.3672 0.56641 z M28.439409375 40 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.469 0 q1.9140625 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.3515625 -1.728515625 t-1.2207 -1.6699 t-2.4512 -0.70313 l-2.2461 0 q-0.80078125 0 -1.376953125 -0.56640625 t-0.57617 -1.3672 t0.57617 -1.3672 t1.377 -0.56641 l2.2461 0 q2.59765625 0 4.35546875 1.162109375 t2.6465 2.9883 t0.88867 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.5078125 0.5859375 -1.30859375 1.171875 t-1.9434 0.97656 t-2.666 0.39063 l-8.5156 0 l0 10.137 q0 0.80078125 -0.56640625 1.3671875 t-1.3867 0.56641 z M28.439409375 15.859000000000002 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 q0.8203125 0 1.38671875 0.56640625 t0.56641 1.3672 t-0.56641 1.3672 t-1.3867 0.56641 z M53.81245625 40 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.469 0 q1.9140625 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.3515625 -1.728515625 t-1.2207 -1.6699 t-2.4512 -0.70313 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 q2.578125 0 4.3359375 1.162109375 t2.6563 2.9883 t0.89844 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.5078125 0.5859375 -1.30859375 1.162109375 t-1.9434 0.97656 t-2.666 0.40039 l-8.5156 0 l0 10.137 q0 0.80078125 -0.576171875 1.3671875 t-1.377 0.56641 z M70.21915625 40 q-1.07421875 0 -1.73828125 -1.09375 l-2.5586 -5.1758 q-0.1953125 -0.44921875 -0.1953125 -0.87890625 q0 -1.15234375 1.07421875 -1.71875 q0.4296875 -0.1953125 0.87890625 -0.1953125 q1.171875 0 1.73828125 1.09375 l2.5391 5.1758 q0.1953125 0.44921875 0.1953125 0.87890625 q0 1.15234375 -1.07421875 1.71875 q-0.4296875 0.1953125 -0.859375 0.1953125 z M89.028953125 10.625 q-0.76171875 0 -1.38671875 -0.56640625 q-0.56640625 -0.60546875 -0.56640625 -1.3671875 q0 -0.78125 0.56640625 -1.38671875 l2.1289 -2.1289 q0.60546875 -0.56640625 1.38671875 -0.56640625 q0.76171875 0 1.34765625 0.5859375 t0.58594 1.3672 q0 0.76171875 -0.5859375 1.34765625 l-2.1289 2.1289 q-0.60546875 0.5859375 -1.34765625 0.5859375 z M90.064953125 40 q3.88671875 0 7.060546875 -1.89453125 t5.0684 -5.0781 t1.8945 -7.0313 q0 -3.73046875 -1.9140625 -7.0703125 q-1.85546875 -3.14453125 -5 -5.01953125 q-0.48828125 -0.25390625 -0.9765625 -0.25390625 q-1.07421875 0 -1.66015625 0.9375 q-0.29296875 0.48828125 -0.29296875 0.99609375 q0 1.07421875 0.95703125 1.66015625 q2.36328125 1.40625 3.69140625 3.73046875 t1.3281 5.0195 q0 2.79296875 -1.3671875 5.087890625 t-3.6719 3.6621 t-5.1172 1.3672 q-2.7734375 0 -5.078125 -1.3671875 t-3.6719 -3.6621 t-1.3672 -5.0879 q0 -0.8203125 0.1171875 -1.62109375 l0.039063 -0.33203 q0 -0.625 -0.41015625 -1.19140625 q-0.546875 -0.72265625 -1.50390625 -0.72265625 q-0.6640625 0 -1.220703125 0.41015625 t-0.73242 1.2109 q-0.15625 1.11328125 -0.15625 2.24609375 q0 3.84765625 1.884765625 7.03125 t5.0684 5.0781 t7.0313 1.8945 z M121.84421875 40 l-10.742 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 l0 -12.07 q0 -0.80078125 0.56640625 -1.376953125 t1.3672 -0.57617 l10.742 0 q1.93359375 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.341796875 -1.728515625 t-1.2207 -1.6699 t-2.4609 -0.70313 l-10.742 0 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 l10.742 0 q2.59765625 0 4.35546875 1.162109375 t2.6465 2.9883 t0.88867 3.8184 q0 3.06640625 -1.97265625 5.4296875 q-0.25390625 0.29296875 -0.5859375 0.5859375 q1.26953125 1.19140625 1.9140625 2.783203125 t0.64453 3.2715 q0 3.06640625 -1.97265625 5.41015625 q-0.5078125 0.60546875 -1.30859375 1.181640625 t-1.9434 0.97656 t-2.666 0.40039 z M121.84421875 36.1133 q1.93359375 0 3.0078125 -1.2109375 q1.015625 -1.23046875 1.015625 -2.87109375 q0 -0.76171875 -0.341796875 -1.728515625 t-1.2207 -1.6699 t-2.4609 -0.70313 l-8.8086 0 l0 8.1836 l8.8086 0 z M135.966803125 40 q-0.41015625 0 -0.8203125 -0.17578125 q-1.11328125 -0.546875 -1.11328125 -1.7578125 q0 -0.41015625 0.17578125 -0.83984375 l11.152 -24.121 q0.64453125 -1.1328125 1.77734375 -1.1328125 t1.7383 1.1328 l7.9883 17.305 q0.1953125 0.41015625 0.1953125 0.8203125 q0 1.19140625 -1.1328125 1.73828125 q-0.4296875 0.1953125 -0.83984375 0.1953125 q-1.171875 0 -1.71875 -1.1328125 l-6.2305 -13.496 l-9.3945 20.352 q-0.68359375 1.11328125 -1.77734375 1.11328125 z M158.271703125 39.941406 q-0.80078125 0 -1.3671875 -0.56640625 t-0.56641 -1.3672 t0.56641 -1.3672 t1.3672 -0.56641 t1.3672 0.56641 t0.56641 1.3672 t-0.56641 1.3672 t-1.3672 0.56641 z"
-                      style="fill: var(--logo-color)"></path>
-            </svg>
-            </h1>
-            <h2 class="title is-3" style="margin-bottom: 1.5rem">
-              Backend API
-            </h2>
-            <p class="subtitle is-5 has-text-grey" style="margin-bottom: 2rem">
-              To jest backend API dla Epróby. Aplikacja frontendowa jest serwowana osobno.
-            </p>
+    <style>
+        :root {
+            --backend-canvas: #f7f7f6;
+            --backend-ink: #18181b;
+            --backend-muted: #71717a;
+            --backend-border: #e4e4e7;
+            --backend-surface: #ffffff;
+            --backend-accent: #176b5b;
+            --backend-warning: #8a5a19;
+            --backend-warning-bg: #fff8e8;
+            --backend-ease-out: cubic-bezier(.23, 1, .32, 1);
+        }
 
-            <div
-              class="buttons is-centered"
-              style="flex-direction: column; gap: 0.75rem"
-            >
-              <a
-                href="{{ api_docs_url }}"
-                class="button is-primary is-medium is-fullwidth"
-              >
-                <span class="icon">
-                  <i class="fas fa-book"></i>
-                </span>
-                <span>Zobacz dokumentację API</span>
-              </a>
-              <a
-                href="{{ api_root_url }}"
-                class="button is-link is-medium is-fullwidth"
-              >
-                <span class="icon">
-                  <i class="fas fa-link"></i>
-                </span>
-                <span>Główny endpoint API</span>
-              </a>
-            </div>
+        html,
+        body {
+            min-width: 320px;
+            min-height: 100%;
+            background: var(--backend-canvas);
+        }
 
-            {% if show_notice %}
-            <div
-              class="notification is-warning"
-              style="margin-top: 2rem; text-align: left"
-            >
-              <strong>⚠️ Uwaga - środowisko produkcyjne</strong>
-              <p>
-                Jeśli widzisz tę stronę na środowisku produkcyjnym, może to 
-                wskazywać na błędną konfigurację. Skontaktuj się z administratorem pod adresem
-                <a href="mailto:eproba@zhr.pl" class="has-text-weight-semibold"
-                  >eproba@zhr.pl</a
-                >
-              </p>
-            </div>
-            {% endif %}
-          </div>
+        body {
+            color: var(--backend-ink);
+            font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body > .container {
+            width: 100%;
+            max-width: none !important;
+            margin: 0 !important;
+        }
+
+        .backend-page {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 48px 24px;
+        }
+
+        .backend-shell {
+            width: min(100%, 680px);
+        }
+
+        .backend-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--backend-border);
+        }
+
+        .backend-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 13px;
+            color: var(--backend-ink);
+            text-decoration: none;
+        }
+
+        .backend-brand img {
+            display: block;
+            width: 112px;
+            height: auto;
+        }
+
+        .backend-brand__label,
+        .backend-version,
+        .backend-eyebrow,
+        .backend-meta dt {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .backend-brand__label {
+            padding: 4px 7px;
+            background: var(--backend-surface);
+            border: 1px solid var(--backend-border);
+            border-radius: 5px;
+        }
+
+        .backend-version {
+            color: var(--backend-muted);
+        }
+
+        .backend-content {
+            padding: 56px 0 0;
+        }
+
+        .backend-eyebrow {
+            margin: 0 0 16px;
+            color: var(--backend-accent);
+        }
+
+        .backend-title {
+            margin: 0;
+            font-size: clamp(38px, 7vw, 54px);
+            font-weight: 650;
+            letter-spacing: -.045em;
+            line-height: 1.02;
+        }
+
+        .backend-description {
+            max-width: 590px;
+            margin: 20px 0 0;
+            color: var(--backend-muted);
+            font-size: 17px;
+            line-height: 1.65;
+        }
+
+        .backend-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 32px;
+        }
+
+        .backend-action {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 10px 16px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: var(--backend-ink);
+            font-size: 14px;
+            font-weight: 650;
+            text-decoration: none;
+            transition:
+                transform 160ms var(--backend-ease-out),
+                background-color 160ms ease,
+                border-color 160ms ease;
+        }
+
+        .backend-action svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .backend-action--primary {
+            background: var(--backend-ink);
+            color: var(--backend-canvas);
+        }
+
+        .backend-action--secondary {
+            background: var(--backend-surface);
+            border-color: var(--backend-border);
+        }
+
+        .backend-action:active {
+            transform: scale(.97);
+        }
+
+        .backend-action:focus-visible,
+        .backend-brand:focus-visible,
+        .backend-notice a:focus-visible {
+            outline: 3px solid rgb(59 130 246 / 35%);
+            outline-offset: 3px;
+        }
+
+        .backend-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin: 54px 0 0;
+            padding: 22px 0 0;
+            border-top: 1px solid var(--backend-border);
+        }
+
+        .backend-meta div {
+            min-width: 0;
+        }
+
+        .backend-meta dt {
+            margin-bottom: 5px;
+            color: var(--backend-muted);
+        }
+
+        .backend-meta dd {
+            overflow: hidden;
+            margin: 0;
+            color: var(--backend-ink);
+            font-size: 13px;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .backend-notice {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 11px;
+            margin-top: 28px;
+            padding: 14px 15px;
+            background: var(--backend-warning-bg);
+            border: 1px solid color-mix(in srgb, var(--backend-warning) 22%, transparent);
+            border-radius: 8px;
+            color: var(--backend-warning);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .backend-notice svg {
+            width: 17px;
+            height: 17px;
+            margin-top: 1px;
+        }
+
+        .backend-notice strong {
+            color: inherit;
+        }
+
+        .backend-notice a {
+            color: inherit;
+            font-weight: 700;
+            text-underline-offset: 2px;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .backend-action--primary:hover {
+                background: #303035;
+            }
+
+            .backend-action--secondary:hover {
+                background: #f1f1f0;
+                border-color: #d4d4d8;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .backend-page {
+                place-items: start center;
+                padding: 28px 18px;
+            }
+
+            .backend-header {
+                padding-bottom: 22px;
+            }
+
+            .backend-version {
+                display: none;
+            }
+
+            .backend-content {
+                padding-top: 40px;
+            }
+
+            .backend-description {
+                font-size: 15px;
+            }
+
+            .backend-actions {
+                flex-direction: column;
+            }
+
+            .backend-action {
+                width: 100%;
+            }
+
+            .backend-meta {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-top: 42px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --backend-canvas: #111113;
+                --backend-ink: #f4f4f5;
+                --backend-muted: #a1a1aa;
+                --backend-border: #29292d;
+                --backend-surface: #18181b;
+                --backend-accent: #73bba7;
+                --backend-warning: #e0ad65;
+                --backend-warning-bg: #251e15;
+            }
+
+            .backend-brand img {
+                filter: invert(1);
+            }
+
+            .backend-action--primary {
+                background: #f4f4f5;
+                color: #18181b;
+            }
+
+            @media (hover: hover) and (pointer: fine) {
+                .backend-action--primary:hover {
+                    background: #dedee2;
+                }
+
+                .backend-action--secondary:hover {
+                    background: #202024;
+                    border-color: #3f3f46;
+                }
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .backend-action {
+                transition-duration: .01ms;
+            }
+
+            .backend-action:active {
+                transform: none;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <main class="backend-page">
+        <div class="backend-shell">
+            <header class="backend-header">
+                <a class="backend-brand" href="/" aria-label="Epróba API">
+                    <img src="{% static 'images/logo.png' %}" alt="Epróba">
+                </a>
+                <span class="backend-version">Backend service</span>
+            </header>
+
+            <section class="backend-content" aria-labelledby="backend-title">
+                <p class="backend-eyebrow">Dokumentacja</p>
+                <h1 class="backend-title" id="backend-title">Epróba API</h1>
+
+                <div class="backend-actions">
+                    <a class="backend-action backend-action--primary" href="{{ api_docs_url }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"></path>
+                            <path d="M4 5.5v16M8 7h8M8 11h6"></path>
+                        </svg>
+                        <span>Otwórz dokumentację</span>
+                    </a>
+                    <a class="backend-action backend-action--secondary" href="{{ api_root_url }}">
+                        <span>API Root</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h14M14 7l5 5-5 5"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <dl class="backend-meta">
+                    <a href="https://github.com/eproba/backend" target="_blank" rel="noopener noreferrer">
+                        <dt>Repozytorium</dt>
+                        <dd>github.com/eproba/backend</dd>
+                    </a>
+                </dl>
+
+                {% if show_notice %}
+                    <div class="backend-notice" role="note">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3 3.5 19h17L12 3Z"></path>
+                            <path d="M12 9v4M12 16.5h.01"></path>
+                        </svg>
+                        <div>
+                            <strong>Środowisko produkcyjne.</strong>
+                            Jeśli ta strona jest publicznie dostępna, sprawdź routing lub napisz na
+                            <a href="mailto:eproba@zhr.pl">eproba@zhr.pl</a>.
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </main>
 {% endblock %}

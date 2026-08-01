@@ -4,35 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>{% block title %}Autoryzacja OAuth - Epróba{% endblock %}</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script async src="https://kit.fontawesome.com/a00f1140b1.js" crossorigin="anonymous"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-oauth-primary: #4285f4;
-            --color-oauth-success: #34a853;
-            --color-oauth-danger: #ea4335;
-            --color-oauth-warning: #fbbc04;
-        }
-    </style>
-    <style>
-        :root {
-            --logo-color: #4285f4;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --logo-color: #e6edf3;
-            }
-        }
-    </style>
+    <meta content="noindex, nofollow" name="robots">
+    <meta content="#eef2f3" name="theme-color">
+    <title>{% block title %}Autoryzacja OAuth — Epróba{% endblock %}</title>
+    <link href="{% static 'images/icons/favicon.svg' %}" rel="icon" type="image/svg+xml">
+    <link href="{% static 'css/oauth.css' %}" rel="stylesheet">
 </head>
-<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        {% block oauth_content %}
-        {% endblock %}
+<body>
+<main class="oauth-shell">
+    <div class="oauth-layout">
+        {% block oauth_content %}{% endblock %}
     </div>
-</div>
+</main>
 </body>
 </html>

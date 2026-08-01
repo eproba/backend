@@ -1,14 +1,15 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 
 from .models import Task, TemplateTask, TemplateTaskGroup, TemplateWorksheet, Worksheet
 
 
-class TaskInline(admin.TabularInline):
+class TaskInline(TabularInline):
     model = Task
     extra = 1
 
 
-class WorksheetAdmin(admin.ModelAdmin):
+class WorksheetAdmin(ModelAdmin):
     list_filter = (
         "is_archived",
         "deleted",
@@ -27,17 +28,17 @@ class WorksheetAdmin(admin.ModelAdmin):
 admin.site.register(Worksheet, WorksheetAdmin)
 
 
-class TemplateTaskInline(admin.TabularInline):
+class TemplateTaskInline(TabularInline):
     model = TemplateTask
     extra = 1
 
 
-class TemplateGroupInline(admin.TabularInline):
+class TemplateGroupInline(TabularInline):
     model = TemplateTaskGroup
     extra = 0
 
 
-class TemplateWorksheetAdmin(admin.ModelAdmin):
+class TemplateWorksheetAdmin(ModelAdmin):
     list_display = ("name", "team", "organization")
     fields = (
         "name",

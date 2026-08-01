@@ -1,30 +1,31 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import District, Patrol, Team, TeamRequest
 
 
 @admin.register(District)
-class DistrictAdmin(admin.ModelAdmin):
+class DistrictAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 
 
 @admin.register(Team)
-class TeamAdmin(admin.ModelAdmin):
+class TeamAdmin(ModelAdmin):
     list_display = ("name", "short_name", "district", "organization", "is_verified")
     list_filter = ("district", "is_verified", "organization")
     search_fields = ("name", "short_name")
 
 
 @admin.register(Patrol)
-class PatrolAdmin(admin.ModelAdmin):
+class PatrolAdmin(ModelAdmin):
     list_display = ("name", "team")
     list_filter = ("team",)
     search_fields = ("name", "team__name")
 
 
 @admin.register(TeamRequest)
-class TeamRequestAdmin(admin.ModelAdmin):
+class TeamRequestAdmin(ModelAdmin):
     list_display = ("team", "created_by", "status", "function_level", "created_at")
     list_filter = ("status", "function_level", "created_at")
     search_fields = ("team__name", "created_by__nickname")

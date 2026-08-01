@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views import View
 
 
@@ -17,8 +18,8 @@ class RootView(View):
 
     def get(self, request):
         context = {
-            "api_docs_url": f"{request.scheme}://{request.get_host()}/api/schema/swagger-ui/",
-            "api_root_url": f"{request.scheme}://{request.get_host()}/api/",
+            "api_docs_url": reverse("scalar-ui"),
+            "api_root_url": "/api/",
             "show_notice": not settings.DEBUG,
         }
         return render(request, "core/root.html", context)

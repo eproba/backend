@@ -1,9 +1,10 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Post
 
 
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(ModelAdmin):
     list_display = ("title", "slug", "status", "created_on")
     list_filter = ("status",)
     search_fields = ["title", "content"]

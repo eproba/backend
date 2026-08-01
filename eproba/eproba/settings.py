@@ -61,6 +61,8 @@ FCM_DJANGO_SETTINGS = {
 
 # Application definition
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.constance",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -158,6 +160,32 @@ CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
     "MAINTENANCE_MODE": (False, "Maintenance mode"),
+}
+
+# Admin
+UNFOLD = {
+    "SITE_TITLE": "Epróba • Administracja",
+    "SITE_HEADER": "Epróba",
+    "SITE_SUBHEADER": "Panel administracyjny",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "shield_person",
+    "SHOW_VIEW_ON_SITE": False,
+    "BORDER_RADIUS": "8px",
+    "COLORS": {
+        "primary": {
+            "50": "oklch(97.9% .021 166.113)",
+            "100": "oklch(95% .052 163.051)",
+            "200": "oklch(90.5% .093 164.15)",
+            "300": "oklch(84.5% .143 164.978)",
+            "400": "oklch(76.5% .177 163.223)",
+            "500": "oklch(69.6% .17 162.48)",
+            "600": "oklch(59.6% .145 163.225)",
+            "700": "oklch(50.8% .118 165.612)",
+            "800": "oklch(43.2% .095 166.913)",
+            "900": "oklch(37.8% .077 168.94)",
+            "950": "oklch(26.2% .051 172.552)",
+        },
+    },
 }
 
 
