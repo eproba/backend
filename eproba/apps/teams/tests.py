@@ -1,12 +1,13 @@
 from unittest.mock import patch
 
-from apps.teams.models import District, Patrol, Team, TeamRequest
-from apps.users.models import User
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from apps.teams.models import District, Patrol, Team, TeamRequest
+from apps.users.models import User
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")

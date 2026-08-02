@@ -1,7 +1,8 @@
+from rest_framework import serializers
+
 from apps.teams.models import District, Patrol, Team, TeamRequest
 from apps.teams.services import get_team_request_outcome, is_zhr_email
 from apps.users.api.serializers import UserSerializer
-from rest_framework import serializers
 
 
 class PatrolSerializer(serializers.ModelSerializer):

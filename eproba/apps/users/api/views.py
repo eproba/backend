@@ -1,13 +1,5 @@
 import uuid
 
-from apps.core.api.permissions import TokenHasRequiredScope
-from apps.teams.services import auto_approve_team_request_after_email_verification
-from apps.users.models import User
-from apps.users.utils import (
-    send_created_account_email,
-    send_notification,
-    send_verification_email_to_user,
-)
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -25,6 +17,15 @@ from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_500_INTERNAL_SERVER_ERROR,
+)
+
+from apps.core.api.permissions import TokenHasRequiredScope
+from apps.teams.services import auto_approve_team_request_after_email_verification
+from apps.users.models import User
+from apps.users.utils import (
+    send_created_account_email,
+    send_notification,
+    send_verification_email_to_user,
 )
 
 from .permissions import IsAllowedToManageUserOrReadOnly

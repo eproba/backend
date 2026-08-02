@@ -7,7 +7,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from eproba import __version__ as eproba_version  # noqa: F401
+from eproba import __version__ as eproba_version
 
 from .serializers import ContactSerializer
 

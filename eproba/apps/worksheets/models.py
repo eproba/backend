@@ -1,12 +1,13 @@
 import os
 import uuid
 
-from apps.teams.models import OrganizationChoice, Team
-from apps.users.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UUIDField
 from django.utils import timezone
+
+from apps.teams.models import OrganizationChoice, Team
+from apps.users.models import User
 
 STATUS = (
     (0, "Do zrobienia"),
@@ -144,7 +145,7 @@ class Task(models.Model):
         verbose_name_plural = "Zadania"
 
     def save(self, *args, **kwargs):
-        super(Task, self).save()
+        super().save()
         self.worksheet.save()  # update updated_at
 
 

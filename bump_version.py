@@ -11,7 +11,7 @@ def update_version_strings(file_path, _new_version, version_regex):
         f.write(
             re.sub(
                 version_regex,
-                lambda match: "{}{}".format(match.group(1), _new_version),
+                lambda match: f"{match.group(1)}{_new_version}",
                 content,
             )
         )

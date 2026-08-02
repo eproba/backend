@@ -1,7 +1,8 @@
-from apps.webhooks.tasks import trigger_webhooks
-from apps.worksheets.models import Task
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
+from apps.webhooks.tasks import trigger_webhooks
+from apps.worksheets.models import Task
 
 
 def serialize_task(task_obj):

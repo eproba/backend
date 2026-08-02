@@ -3,7 +3,6 @@ from django.db import transaction
 
 from apps.teams.models import TeamRequest
 
-
 TEAM_REQUEST_ADMIN_EMAIL = "eproba@zhr.pl"
 
 

@@ -1,8 +1,9 @@
-from apps.users.models import User
 from django import forms
 from django.contrib import auth
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.safestring import mark_safe
+
+from apps.users.models import User
 
 
 class SiteUserCreationForm(UserCreationForm):

@@ -1,7 +1,8 @@
+from rest_framework import permissions, viewsets
+
 from apps.core.api.permissions import TokenHasRequiredScope
 from apps.webhooks.models import Webhook
 from apps.webhooks.serializers import WebhookSerializer
-from rest_framework import permissions, viewsets
 
 
 class WebhookViewSet(viewsets.ModelViewSet):

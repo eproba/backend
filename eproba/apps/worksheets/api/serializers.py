@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from apps.users.api.serializers import PublicUserSerializer
 from apps.users.models import User
 from apps.worksheets.models import (
@@ -7,7 +9,6 @@ from apps.worksheets.models import (
     TemplateWorksheet,
     Worksheet,
 )
-from rest_framework import serializers
 
 
 class ScopeField(serializers.Field):

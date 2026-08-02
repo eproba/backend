@@ -2,10 +2,11 @@ import json
 import uuid
 from datetime import datetime
 
-from apps.teams.models import Patrol
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 from django.db.models import UUIDField
+
+from apps.teams.models import Patrol
 
 
 class UUIDEncoder(json.JSONEncoder):

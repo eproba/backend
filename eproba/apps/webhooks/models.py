@@ -1,8 +1,9 @@
 import secrets
 import uuid
 
-from apps.users.models import User
 from django.db import models
+
+from apps.users.models import User
 
 
 def generate_secret():

@@ -1,5 +1,6 @@
-from apps.users.models import User
 from rest_framework import permissions
+
+from apps.users.models import User
 
 
 class IsAllowedToManageTeamOrReadOnly(permissions.BasePermission):

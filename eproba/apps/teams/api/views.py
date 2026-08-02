@@ -1,6 +1,16 @@
 import threading
 from datetime import timedelta
 
+from django.core.mail import EmailMessage, send_mail
+from django.db.models import Count, Max, OuterRef, Q, Subquery
+from django.utils import timezone
+from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from apps.core.api.permissions import TokenHasRequiredScope
 from apps.teams.api.permissions import (
     IsAllowedToAccessTeamRequest,
@@ -25,15 +35,6 @@ from apps.users.models import (
     scout_rank_male,
 )
 from apps.worksheets.models import Task, Worksheet
-from django.core.mail import EmailMessage, send_mail
-from django.db.models import Count, Max, OuterRef, Q, Subquery
-from django.utils import timezone
-from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.exceptions import APIException, ValidationError
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .permissions import (
     IsAllowedToManagePatrolOrReadOnly,

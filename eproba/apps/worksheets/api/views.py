@@ -1,12 +1,6 @@
 import json
 from datetime import datetime
 
-from apps.users.api.serializers import PublicUserSerializer
-from apps.users.models import User
-from apps.users.tasks import clear_tokens
-from apps.users.utils import send_notification
-from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
-from apps.worksheets.tasks import remove_expired_deleted_worksheets
 from django.db.models import Q
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import get_object_or_404
@@ -19,6 +13,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from unidecode import unidecode
+
+from apps.users.api.serializers import PublicUserSerializer
+from apps.users.models import User
+from apps.users.tasks import clear_tokens
+from apps.users.utils import send_notification
+from apps.worksheets.models import Task, TemplateWorksheet, Worksheet
+from apps.worksheets.tasks import remove_expired_deleted_worksheets
 
 try:
     from weasyprint import HTML
@@ -77,7 +78,7 @@ def print_worksheet(request, id):
         )
     except Exception as e:
         return HttpResponse(
-            f"Error generating PDF: {str(e)}",
+            f"Error generating PDF: {e!s}",
             content_type="text/plain",
             status=500,
         )
@@ -125,7 +126,7 @@ def print_worksheet_template(request, id):
         )
     except Exception as e:
         return HttpResponse(
-            f"Error generating PDF: {str(e)}",
+            f"Error generating PDF: {e!s}",
             content_type="text/plain",
             status=500,
         )

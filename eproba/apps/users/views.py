@@ -1,11 +1,6 @@
 import threading
 from urllib.parse import urlencode
 
-from apps.teams.models import Patrol
-from apps.teams.services import auto_approve_team_request_after_email_verification
-from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm, UserChangeForm
-from apps.users.models import User
-from apps.users.utils import send_verification_email_to_user
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
@@ -16,6 +11,12 @@ from django.shortcuts import redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
 from google.auth.transport import requests
 from google.oauth2 import id_token
+
+from apps.teams.models import Patrol
+from apps.teams.services import auto_approve_team_request_after_email_verification
+from apps.users.forms import SiteUserCreationForm, TermsOfServiceForm, UserChangeForm
+from apps.users.models import User
+from apps.users.utils import send_verification_email_to_user
 
 
 def signup(request):

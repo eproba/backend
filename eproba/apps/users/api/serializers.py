@@ -1,5 +1,6 @@
-from apps.users.models import User
 from rest_framework import serializers
+
+from apps.users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -127,7 +128,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ResendEmailVerificationSerializer(serializers.Serializer):
     """Serializer for resending email verification"""
 
-    pass  # No fields needed, we'll use the authenticated user
+    # No fields needed, we'll use the authenticated user
 
 
 class VerifyEmailSerializer(serializers.Serializer):
