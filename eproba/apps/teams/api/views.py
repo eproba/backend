@@ -217,9 +217,7 @@ class TeamRequestViewSet(
         )
 
         if data["send_email"]:
-            subject, message = self.get_email_content(
-                team_request, data["send_note"]
-            )
+            subject, message = self.get_email_content(team_request, data["send_note"])
             send_mail(
                 subject,
                 message,

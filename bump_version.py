@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from eproba.eproba import __version__ as old_version_str
+from eproba import __version__ as old_version_str
 
 
 def update_version_strings(file_path, _new_version, version_regex):
