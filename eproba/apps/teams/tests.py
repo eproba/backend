@@ -60,7 +60,14 @@ class TeamRequestApiTests(APITestCase):
         user = self.create_user("jan@zhr.pl", email_verified=True)
         self.client.force_authenticate(user)
 
-        with patch("apps.teams.api.views.threading.Thread") as thread:
+        with (
+            patch("apps.teams.api.views.threading.Thread") as thread,
+            patch.object(
+                TeamRequest.objects,
+                "select_for_update",
+                wraps=TeamRequest.objects.select_for_update,
+            ) as select_for_update,
+        ):
             response = self.client.post(
                 "/api/team-requests/", self.request_payload(), format="json"
             )
@@ -74,6 +81,7 @@ class TeamRequestApiTests(APITestCase):
         self.assertTrue(request_obj.team.is_verified)
         self.assertEqual(user.function, 4)
         thread.assert_not_called()
+        select_for_update.assert_called_once_with(of=("self",))
 
     def test_unverified_zhr_request_waits_for_email_verification(self):
         user = self.create_user("jan@zhr.pl")

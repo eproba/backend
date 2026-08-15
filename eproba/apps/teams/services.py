@@ -41,7 +41,7 @@ def set_team_request_status(
         raise ValueError("Invalid team request status")
 
     locked_request = (
-        TeamRequest.objects.select_for_update()
+        TeamRequest.objects.select_for_update(of=("self",))
         .select_related("team", "created_by")
         .get(pk=team_request.pk)
     )
